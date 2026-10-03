@@ -1,0 +1,76 @@
+import { io, Socket } from 'socket.io-client';
+
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000';
+
+let socketInstance: Socket | null = null;
+
+/**
+ * Eventos oficiales emitidos por el backend según docs/frontend-reference.md
+ */
+export const SOCKET_EVENTS = {
+  // Cocina
+  COCINA_NUEVO_PEDIDO: 'cocina:nuevo_pedido',
+  COCINA_ACTUALIZAR_TABLERO: 'cocina:actualizar_tablero',
+  
+  // Mesas
+  MESAS_ALERTA_LISTO: 'mesas:alerta_listo',
+  MESAS_CREATED: 'mesas:created',
+  MESAS_UPDATED: 'mesas:updated',
+  MESAS_DELETED: 'mesas:deleted',
+  MESAS_PAGO_COMPLETADO: 'mesas:pago_completado',
+  
+  // Caja
+  CAJA_NUEVA_CUENTA: 'caja:nueva_cuenta',
+  CAJA_SOLICITUD_PAGO: 'caja:solicitud_pago',
+  CAJA_PAGO_CONFIRMADO: 'caja:pago_confirmado',
+  
+  // Evento dinámico por pedido
+  pedidoPagoRecibido: (pedidoId: string) => `pedido:pago_recibido:${pedidoId}` as const,
+  
+  // Inventario
+  INVENTARIO_ACTUALIZADO: 'inventario:actualizado',
+} as const;
+
+/**
+ * Inicializa la conexión con Socket.IO utilizando auth: { token }
+ * estrictamente compatible con navegadores sin depender de extraHeaders.
+ */
+export function initSocket(token: string): Socket {
+  if (socketInstance && socketInstance.connected) {
+    return socketInstance;
+  }
+
+  if (socketInstance) {
+    socketInstance.disconnect();
+  }
+
+  socketInstance = io(SOCKET_URL, {
+    auth: {
+      token,
+    },
+    transports: ['websocket', 'polling'],
+    autoConnect: true,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  });
+
+  return socketInstance;
+}
+
+/**
+ * Retorna la instancia activa del socket o null si no se ha conectado.
+ */
+export function getSocket(): Socket | null {
+  return socketInstance;
+}
+
+/**
+ * Cierra la conexión de Socket.IO limpiamente al cerrar sesión.
+ */
+export function disconnectSocket(): void {
+  if (socketInstance) {
+    socketInstance.disconnect();
+    socketInstance = null;
+  }
+}
