@@ -60,7 +60,6 @@ export const NAVIGATION_ROUTES: RouteNavItem[] = [
   { label: 'Categorías', href: '/categorias', allowedRoles: ['Administrador', 'Mesero'] },
   { label: 'Ubicaciones', href: '/ubicaciones', allowedRoles: ['Administrador', 'Mesero'] },
   { label: 'Ingredientes', href: '/ingredientes', allowedRoles: ['Administrador', 'Cocinero'] },
-  { label: 'Recetas', href: '/recetas', allowedRoles: ['Administrador', 'Cocinero'] },
   { label: 'Usuarios', href: '/usuarios', allowedRoles: ['Administrador'] },
 ];
 
@@ -68,3 +67,5 @@ export const STORAGE_KEYS = {
   TOKEN: 'sabor_token',
   USER: 'sabor_user',
 } as const;
+
+export const AUTH_UNAUTHORIZED_EVENT = 'auth:unauthorized';

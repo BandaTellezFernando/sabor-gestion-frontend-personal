@@ -19,7 +19,6 @@ import {
   Layers,
   Apple,
   MapPin,
-  BookOpen,
   Users,
   ChevronLeft,
   ChevronRight,
@@ -37,7 +36,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   '/categorias': Layers,
   '/ubicaciones': MapPin,
   '/ingredientes': Apple,
-  '/recetas': BookOpen,
   '/usuarios': Users,
 };
 
@@ -61,7 +59,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     ['/mesas', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)
   );
   const catalogRoutes = allowedRoutes.filter((r) =>
-    ['/platos', '/categorias', '/ubicaciones', '/ingredientes', '/recetas'].includes(r.href)
+    ['/platos', '/categorias', '/ubicaciones', '/ingredientes'].includes(r.href)
   );
   const adminRoutes = allowedRoutes.filter((r) => r.href === '/usuarios');
 

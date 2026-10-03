@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
@@ -19,7 +19,6 @@ import {
   Layers,
   Apple,
   MapPin,
-  BookOpen,
   Users,
   X,
   LucideIcon,
@@ -36,7 +35,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   '/categorias': Layers,
   '/ubicaciones': MapPin,
   '/ingredientes': Apple,
-  '/recetas': BookOpen,
   '/usuarios': Users,
 };
 
@@ -48,14 +46,75 @@ export interface MobileSidebarProps {
 export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const { user } = useAuth();
   const pathname = usePathname();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
-  // Cerrar al presionar la tecla Escape
+  // Guardar elemento que activó el drawer al abrir y restaurar foco al cerrar
   useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+
+      const focusTimer = setTimeout(() => {
+        if (drawerRef.current) {
+          const focusableSelector =
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+          const focusable = drawerRef.current.querySelectorAll<HTMLElement>(focusableSelector);
+          if (focusable.length > 0) {
+            focusable[0].focus();
+          }
+        }
+      }, 50);
+
+      return () => {
+        clearTimeout(focusTimer);
+        if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+          triggerRef.current.focus();
+        }
+      };
+    }
+  }, [isOpen]);
+
+  // Cerrar al presionar la tecla Escape y atrapar foco con Tab / Shift+Tab (Focus Trap)
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && drawerRef.current) {
+        const focusableSelector =
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusableElements = drawerRef.current.querySelectorAll<HTMLElement>(focusableSelector);
+        const focusable = Array.from(focusableElements).filter(
+          (el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true'
+        );
+
+        if (focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = focusable[0];
+        const lastElement = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || !drawerRef.current.contains(document.activeElement)) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement || !drawerRef.current.contains(document.activeElement)) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
@@ -85,7 +144,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     {
       title: 'Menú y Cocina',
       routes: allowedRoutes.filter((r) =>
-        ['/platos', '/categorias', '/ubicaciones', '/ingredientes', '/recetas'].includes(r.href)
+        ['/platos', '/categorias', '/ubicaciones', '/ingredientes'].includes(r.href)
       ),
     },
     { title: 'Administración', routes: allowedRoutes.filter((r) => r.href === '/usuarios') },
@@ -105,7 +164,10 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
       />
 
       {/* Contenedor del Drawer */}
-      <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-zinc-900 shadow-2xl flex flex-col z-10 transition-transform duration-200 ease-out">
+      <div
+        ref={drawerRef}
+        className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-zinc-900 shadow-2xl flex flex-col z-10 transition-transform duration-200 ease-out"
+      >
         {/* Cabecera Móvil */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-100 dark:border-zinc-800">
           <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2">

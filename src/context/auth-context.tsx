@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Usuario, RolUsuario, LoginRequest, LoginResponse, UsuarioTokenPayload } from '@/types';
-import { STORAGE_KEYS } from '@/lib/constants';
+import { STORAGE_KEYS, AUTH_UNAUTHORIZED_EVENT } from '@/lib/constants';
 import { authService } from '@/services/auth.service';
 import { initSocket, disconnectSocket } from '@/lib/socket';
 
@@ -36,6 +37,7 @@ function parseJwt(token: string): UsuarioTokenPayload | null {
 }
 
 export function AuthContextProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<Usuario | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -78,7 +80,20 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     });
   }, [logout]);
 
-  const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
+  // Sincronización desacoplada con 401 Unauthorized emitido por ApiClient
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+      router.replace('/login');
+    };
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => {
+      window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    };
+  }, [logout, router]);
+
+  const login = useCallback(async (credentials: LoginRequest): Promise<LoginResponse> => {
     setIsLoading(true);
     try {
       const response = await authService.login(credentials);
@@ -96,23 +111,26 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const role = user?.rol || null;
   const isAuthenticated = !!token && !!user;
 
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      token,
+      role,
+      isAuthenticated,
+      isLoading,
+      login,
+      logout,
+    }),
+    [user, token, role, isAuthenticated, isLoading, login, logout]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        role,
-        isAuthenticated,
-        isLoading,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

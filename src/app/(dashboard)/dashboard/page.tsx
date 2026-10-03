@@ -92,8 +92,8 @@ export default function DashboardPage() {
   const [pagosCaja, setPagosCaja] = useState<PagoConfirmado[]>([]);
   const [comandasCocina, setComandasCocina] = useState<ComandaNueva[]>([]);
 
-  // Escucha de eventos en tiempo real según rol
-  useSocketEvent<SocketAlertaCocinaPayload>(SOCKET_EVENTS.MESAS_ALERTA_LISTO, (data) => {
+  // Escucha de eventos en tiempo real según rol con callbacks estables
+  const handleAlertaCocina = useCallback((data: SocketAlertaCocinaPayload) => {
     const nuevaAlerta: AlertaCocina = {
       id: String(Date.now()),
       pedidoId: data?.pedidoId || data?.id,
@@ -102,9 +102,9 @@ export default function DashboardPage() {
       hora: new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }),
     };
     setAlertasCocina((prev) => [nuevaAlerta, ...prev].slice(0, 5));
-  });
+  }, []);
 
-  useSocketEvent<SocketPagoConfirmadoPayload>(SOCKET_EVENTS.CAJA_PAGO_CONFIRMADO, (data) => {
+  const handlePagoConfirmado = useCallback((data: SocketPagoConfirmadoPayload) => {
     const nuevoPago: PagoConfirmado = {
       id: String(Date.now()),
       pagoId: data?.pagoId || data?.id,
@@ -113,9 +113,9 @@ export default function DashboardPage() {
       hora: new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }),
     };
     setPagosCaja((prev) => [nuevoPago, ...prev].slice(0, 5));
-  });
+  }, []);
 
-  useSocketEvent<SocketNuevoPedidoPayload>(SOCKET_EVENTS.COCINA_NUEVO_PEDIDO, (data) => {
+  const handleNuevoPedido = useCallback((data: SocketNuevoPedidoPayload) => {
     const nuevaComanda: ComandaNueva = {
       id: String(Date.now()),
       pedidoId: data?.pedidoId || data?.id,
@@ -123,7 +123,11 @@ export default function DashboardPage() {
       hora: new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }),
     };
     setComandasCocina((prev) => [nuevaComanda, ...prev].slice(0, 5));
-  });
+  }, []);
+
+  useSocketEvent<SocketAlertaCocinaPayload>(SOCKET_EVENTS.MESAS_ALERTA_LISTO, handleAlertaCocina);
+  useSocketEvent<SocketPagoConfirmadoPayload>(SOCKET_EVENTS.CAJA_PAGO_CONFIRMADO, handlePagoConfirmado);
+  useSocketEvent<SocketNuevoPedidoPayload>(SOCKET_EVENTS.COCINA_NUEVO_PEDIDO, handleNuevoPedido);
 
   const fetchAdminDashboard = useCallback(async () => {
     if (user?.rol !== 'Administrador') return;

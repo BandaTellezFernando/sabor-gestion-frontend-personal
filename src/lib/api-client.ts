@@ -1,5 +1,5 @@
 import { ApiError } from './api-error';
-import { STORAGE_KEYS } from './constants';
+import { STORAGE_KEYS, AUTH_UNAUTHORIZED_EVENT } from './constants';
 
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
   token?: string;
@@ -100,6 +100,7 @@ class ApiClient {
         } catch {
           // Noop
         }
+        window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
       }
 
       throw new ApiError(response.status, errorData);
