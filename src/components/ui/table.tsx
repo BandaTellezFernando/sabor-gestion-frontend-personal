@@ -2,7 +2,7 @@ import React, { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAtt
 
 export function Table({ className = '', ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-x-auto">
       <table className={`w-full text-sm text-left border-collapse ${className}`} {...props} />
     </div>
   );
@@ -11,7 +11,7 @@ export function Table({ className = '', ...props }: TableHTMLAttributes<HTMLTabl
 export function TableHeader({ className = '', ...props }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={`text-xs uppercase bg-zinc-50 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 ${className}`}
+      className={`text-xs uppercase bg-zinc-50/80 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 ${className}`}
       {...props}
     />
   );
@@ -20,7 +20,7 @@ export function TableHeader({ className = '', ...props }: HTMLAttributes<HTMLTab
 export function TableBody({ className = '', ...props }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <tbody
-      className={`divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-800 dark:text-zinc-200 ${className}`}
+      className={`divide-y divide-zinc-200/80 dark:divide-zinc-800/80 text-zinc-800 dark:text-zinc-200 ${className}`}
       {...props}
     />
   );
@@ -29,16 +29,16 @@ export function TableBody({ className = '', ...props }: HTMLAttributes<HTMLTable
 export function TableRow({ className = '', ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
-      className={`hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors ${className}`}
+      className={`hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors ${className}`}
       {...props}
     />
   );
 }
 
 export function TableHead({ className = '', ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={`px-4 py-3 font-semibold ${className}`} {...props} />;
+  return <th className={`px-4 py-3 font-semibold tracking-wider ${className}`} {...props} />;
 }
 
 export function TableCell({ className = '', ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={`px-4 py-3 ${className}`} {...props} />;
+  return <td className={`px-4 py-3 align-middle ${className}`} {...props} />;
 }

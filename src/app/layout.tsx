@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 import { AuthProvider } from "@/components/providers/auth-provider";
 
 export const metadata: Metadata = {
-  title: "Sabor & Gestión | Sistema Gastronómico",
-  description: "Plataforma integral de gestión operativa y administrativa para restaurantes",
+  title: "Mishi-Food | Sistema de Gestión Gastronómica",
+  description: "Plataforma integral de gestión operativa y culinaria para restaurantes",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

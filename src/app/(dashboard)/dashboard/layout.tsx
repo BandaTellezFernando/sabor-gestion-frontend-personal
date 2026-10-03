@@ -1,23 +1,16 @@
 import React from 'react';
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Navbar } from '@/components/layout/navbar';
-import { RoleNav } from '@/components/layout/role-nav';
+import { AppShell } from '@/components/layout/app-shell';
 
 export const metadata = {
-  title: 'Dashboard | Sabor & Gestión',
-  description: 'Panel operativo y de control para el personal gastronómico',
+  title: 'Dashboard | Mishi-Food',
+  description: 'Panel de control operativo y gerencial para el personal gastronómico de Mishi-Food',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-zinc-950">
-        <Navbar />
-        <RoleNav />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {children}
-        </main>
-      </div>
+      <AppShell>{children}</AppShell>
     </AuthGuard>
   );
 }
