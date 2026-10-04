@@ -6,9 +6,17 @@ import {
   ActualizarEstadoPedidoDTO,
   PedidosQueryParams,
   RespuestaRecogerPedido,
+  PayloadCajaDTO,
 } from '@/types';
 
 export const pedidoService = {
+  /**
+   * Obtiene un pedido específico por su ID (Administrador, Mesero, Cocinero, Cajero).
+   */
+  async getPedidoById(id: string): Promise<Pedido> {
+    return apiClient.get<Pedido>(`/pedidos/${id}`);
+  },
+
   /**
    * Obtiene la lista de pedidos según los parámetros de filtrado documentados.
    * Por defecto, puede consultarse con `hoy: true` para la vista operativa del día.
@@ -33,10 +41,11 @@ export const pedidoService = {
 
   /**
    * Obtiene pedidos de mesas con cuenta solicitada pendientes de cobro en Caja.
+   * Retorna array estructurado de PayloadCajaDTO según el backend y OpenAPI.
    */
-  async getPedidosPendientesCobro(cajero?: string): Promise<Pedido[]> {
+  async getPedidosPendientesCobro(cajero?: string): Promise<PayloadCajaDTO[]> {
     const params = cajero ? { cajero } : undefined;
-    const list = await apiClient.get<Pedido[]>('/pedidos/pendientes-cobro', { params });
+    const list = await apiClient.get<PayloadCajaDTO[]>('/pedidos/pendientes-cobro', { params });
     return Array.isArray(list) ? list : [];
   },
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Pedido, EstadoPedido, RolUsuario, Usuario, Mesa } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
   XCircle,
   Eye,
   Pencil,
+  Check,
 } from 'lucide-react';
 
 export interface PedidoCardProps {
@@ -41,10 +42,19 @@ export function PedidoCard({
   onRecogerPedido,
 }: PedidoCardProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [cuentaYaSolicitada, setCuentaYaSolicitada] = useState(false);
+  const solicitarCuentaLockRef = useRef(false);
 
   const canManage = userRole === 'Administrador';
   const isMesero = userRole === 'Mesero';
   const isCocinero = userRole === 'Cocinero';
+
+  const mesaId =
+    typeof pedido.mesa === 'object' && pedido.mesa !== null
+      ? pedido.mesa._id
+      : pedido.mesa;
+  const mesaObj = mesas?.find((m) => m._id === mesaId);
+  const yaSolicitada = cuentaYaSolicitada || mesaObj?.estado === 'Cuenta Solicitada';
 
   const canEdit = (canManage || isMesero) &&
     (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION' || pedido.estado === 'ENTREGADO');
@@ -71,11 +81,14 @@ export function PedidoCard({
 
   const handleSolicitarCuenta = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!onSolicitarCuenta || isActionLoading) return;
+    if (!onSolicitarCuenta || solicitarCuentaLockRef.current || isActionLoading || yaSolicitada) return;
+    solicitarCuentaLockRef.current = true;
     setIsActionLoading(true);
     try {
       await onSolicitarCuenta(pedido);
+      setCuentaYaSolicitada(true);
     } finally {
+      solicitarCuentaLockRef.current = false;
       setIsActionLoading(false);
     }
   };
@@ -338,17 +351,31 @@ export function PedidoCard({
 
           {/* Pedir Cuenta (Mesero / Admin) */}
           {canPedirCuenta && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSolicitarCuenta}
-              disabled={isActionLoading}
-              className="min-h-[38px] px-3 text-xs font-semibold rounded-xl border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-              title="Solicitar cuenta y notificar a Caja"
-            >
-              <Receipt className="w-3.5 h-3.5 mr-1" />
-              Cuenta
-            </Button>
+            yaSolicitada ? (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                className="min-h-[38px] px-3 text-xs font-semibold rounded-xl border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed bg-stone-50 dark:bg-stone-900"
+                title="La cuenta ya ha sido solicitada para esta mesa"
+              >
+                <Check className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
+                Cuenta Solicitada
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSolicitarCuenta}
+                disabled={isActionLoading}
+                isLoading={isActionLoading}
+                className="min-h-[38px] px-3 text-xs font-semibold rounded-xl border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                title="Solicitar cuenta y notificar a Caja"
+              >
+                <Receipt className="w-3.5 h-3.5 mr-1" />
+                {isActionLoading ? 'Pidiendo...' : 'Cuenta'}
+              </Button>
+            )
           )}
 
           {/* Editar comanda (Mesero / Admin) */}

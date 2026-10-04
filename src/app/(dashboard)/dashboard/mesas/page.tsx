@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { mesaService, normalizeMesa, MesaBackendRaw } from '@/services/mesa.service';
 import { ubicacionService } from '@/services/ubicacion.service';
@@ -74,6 +74,7 @@ function MesasPageContent() {
   const [pedidoToCancel, setPedidoToCancel] = useState<Pedido | null>(null);
   const [isCancelOpen, setIsCancelOpen] = useState<boolean>(false);
   const [platos, setPlatos] = useState<Plato[]>([]);
+  const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});
 
   const canManage = user?.rol === 'Administrador';
   const isMesero = user?.rol === 'Mesero';
@@ -775,19 +776,31 @@ function MesasPageContent() {
           setIsCancelOpen(true);
         }}
         onSolicitarCuenta={async (p) => {
-          await pedidoService.solicitarCuenta(p._id);
-          setIsDetailOpen(false);
-          setMesas((prev) =>
-            prev.map((m) =>
-              m._id === (typeof p.mesa === 'object' && p.mesa ? p.mesa._id : p.mesa)
-                ? { ...m, estado: 'Cuenta Solicitada' }
-                : m
-            )
-          );
-          setNotification({
-            type: 'success',
-            message: `Cuenta solicitada para la comanda ${p.codigo}.`,
-          });
+          if (!p._id || solicitarCuentaLockRef.current[p._id]) return;
+          solicitarCuentaLockRef.current[p._id] = true;
+          try {
+            await pedidoService.solicitarCuenta(p._id);
+            setIsDetailOpen(false);
+            setMesas((prev) =>
+              prev.map((m) =>
+                m._id === (typeof p.mesa === 'object' && p.mesa ? p.mesa._id : p.mesa)
+                  ? { ...m, estado: 'Cuenta Solicitada' }
+                  : m
+              )
+            );
+            setNotification({
+              type: 'success',
+              message: `Cuenta solicitada para la comanda ${p.codigo}.`,
+            });
+          } catch (err: unknown) {
+            setNotification({
+              type: 'info',
+              message: `Error al pedir cuenta: ${err instanceof Error ? err.message : 'Error del servidor'}`,
+            });
+            throw err;
+          } finally {
+            solicitarCuentaLockRef.current[p._id] = false;
+          }
         }}
         onCambiarEstadoCocina={async (p, nuevoEstado) => {
           const res = await pedidoService.actualizarEstado(p._id, nuevoEstado);

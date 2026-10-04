@@ -447,8 +447,13 @@ function PedidosPageContent() {
     }
   };
 
+  // Bloqueo inmediato para evitar múltiples solicitudes simultáneas de cuenta
+  const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});
+
   // Solicitar cuenta (Mesero / Admin)
   const handleSolicitarCuenta = async (pedido: Pedido) => {
+    if (!pedido._id || solicitarCuentaLockRef.current[pedido._id]) return;
+    solicitarCuentaLockRef.current[pedido._id] = true;
     try {
       await pedidoService.solicitarCuenta(pedido._id);
       // Actualizar mesa asociada localmente
@@ -468,6 +473,8 @@ function PedidosPageContent() {
         message: `Error al pedir cuenta: ${err instanceof Error ? err.message : 'Error del servidor'}`,
       });
       throw err;
+    } finally {
+      solicitarCuentaLockRef.current[pedido._id] = false;
     }
   };
 

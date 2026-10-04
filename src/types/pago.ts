@@ -26,6 +26,72 @@ export interface Pago {
   observaciones?: string;
 }
 
+export interface ItemPayloadCaja {
+  platoId: string;
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+  observacion?: string;
+}
+
+export interface PayloadCajaDTO {
+  pedidoId: string;
+  codigo: string;
+  mesaId?: string;
+  mesaNombre?: string;
+  mesa?: string;
+  meseroNombre?: string;
+  mesero?: string;
+  estado?: string;
+  subtotal: number;
+  itemsSubtotal?: number;
+  subtotalCierre?: number;
+  descuento?: number;
+  montoDescuento?: number;
+  propina?: number;
+  montoPropina?: number;
+  total: number;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
+  tiempoEsperaMinutos?: number;
+  items: ItemPayloadCaja[];
+  fechaHoraBolivia?: string;
+}
+
+export interface ProcesarPagoRequestDTO {
+  metodoPago: MetodoPago;
+  porcentajeDescuento?: number;
+  porcentajePropina?: number;
+  montoDescuento?: number;
+  montoPropina?: number;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
+}
+
+export interface GenerarPagoQRResponse {
+  qrUrl: string;
+  total: number;
+}
+
+export interface ProcesarPagoResponse {
+  mensaje: string;
+  comprobante: ComprobantePago;
+}
+
+export interface SimularPagoQRResponse {
+  exito: boolean;
+  mensaje: string;
+}
+
+export interface EnviarReciboCorreoRequest {
+  email: string;
+  clienteNombre?: string;
+  clienteCI?: string;
+}
+
 export interface ComprobantePago {
   pedidoId: string;
   meseroNombre: string;
@@ -36,8 +102,11 @@ export interface ComprobantePago {
   propinaAplicada: number;
   total: number;
   totalPagado: number;
-  metodoPago: MetodoPago;
+  metodoPago: MetodoPago | string;
   cajeroAsignado?: string | null;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
   fechaBolivia: string;
   fecha: string | Date;
 }
