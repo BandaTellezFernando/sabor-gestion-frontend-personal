@@ -14,6 +14,10 @@ import {
   Receipt,
   ChefHat,
   CreditCard,
+  Layers,
+  Utensils,
+  Apple,
+  ScrollText,
   ChevronLeft,
   ChevronRight,
   LucideIcon,
@@ -27,6 +31,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard/pedidos': Receipt,
   '/dashboard/cocina': ChefHat,
   '/dashboard/caja': CreditCard,
+  '/dashboard/categorias': Layers,
+  '/dashboard/platos': Utensils,
+  '/dashboard/ingredientes': Apple,
+  '/dashboard/recetas': ScrollText,
 };
 
 export interface SidebarProps {
@@ -48,10 +56,14 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
   const operacionesRoutes = allowedRoutes.filter((r) =>
     ['/dashboard/mesas', '/dashboard/pedidos', '/dashboard/cocina', '/dashboard/caja'].includes(r.href)
   );
+  const catalogoRoutes = allowedRoutes.filter((r) =>
+    ['/dashboard/categorias', '/dashboard/platos', '/dashboard/ingredientes', '/dashboard/recetas'].includes(r.href)
+  );
 
   const groups = [
     { title: 'General', routes: generalRoutes },
     { title: 'Operaciones', routes: operacionesRoutes },
+    { title: 'Catálogo y Recetas', routes: catalogoRoutes },
   ].filter((g) => g.routes.length > 0);
 
   const getInitials = (name: string, lastName: string) => {
@@ -60,16 +72,16 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 
   return (
     <aside
-      className={`hidden lg:flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-200 ease-in-out shrink-0 select-none ${
+      className={`hidden lg:flex flex-col border-r border-stone-200/90 dark:border-stone-800 bg-white dark:bg-[#201E1B] transition-all duration-200 ease-in-out shrink-0 select-none ${
         isCollapsed ? 'w-[72px]' : 'w-64'
       }`}
       aria-label="Navegación principal"
     >
       {/* Cabecera de Marca */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-100 dark:border-zinc-800">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-stone-100 dark:border-stone-800">
         <Link
           href={getDefaultRouteForRole(user.rol)}
-          className="flex items-center gap-2 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg"
+          className="flex items-center gap-2 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36] rounded-xl"
           title="Mishi-Food - Inicio"
         >
           <BrandLogo size={isCollapsed ? 'sm' : 'md'} showText={!isCollapsed} subtitle="Gestión Gastronómica" />
@@ -80,6 +92,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
           onClick={onToggleCollapse}
           aria-label={isCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
           title={isCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
+          className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </IconButton>
@@ -90,7 +103,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
         {groups.map((group, groupIdx) => (
           <div key={groupIdx} className="space-y-1">
             {!isCollapsed && (
-              <h3 className="px-2.5 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+              <h3 className="px-2.5 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
                 {group.title}
               </h3>
             )}
@@ -110,19 +123,19 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                         }
                       }}
                       title={isCollapsed ? route.label : (!isImplemented ? `Módulo ${route.label} (Próximamente)` : undefined)}
-                      className={`flex items-center gap-3 px-2.5 py-2 text-xs font-medium rounded-lg transition-all duration-150 group relative ${
+                      className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-150 group relative ${
                         isActive
-                          ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-semibold shadow-xs'
+                          ? 'bg-[#C84B26]/10 dark:bg-[#C84B26]/20 text-[#C84B26] dark:text-[#E05A36] shadow-xs'
                           : isImplemented
-                          ? 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                          : 'text-zinc-400 dark:text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 opacity-75 cursor-not-allowed'
+                          ? 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                          : 'text-stone-400 dark:text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-800/40 opacity-75 cursor-not-allowed'
                       } ${isCollapsed ? 'justify-center' : ''}`}
                     >
                       <Icon
                         className={`w-4 h-4 shrink-0 transition-colors ${
                           isActive
-                            ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
+                            ? 'text-[#C84B26] dark:text-[#E05A36]'
+                            : 'text-stone-500 group-hover:text-stone-700 dark:group-hover:text-stone-300'
                         }`}
                         aria-hidden="true"
                       />
@@ -130,7 +143,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
                         <div className="flex-1 flex items-center justify-between truncate">
                           <span className="truncate">{route.label}</span>
                           {!isImplemented && (
-                            <span className="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] font-normal text-stone-400 dark:text-stone-500 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">
                               Próx.
                             </span>
                           )}
@@ -146,17 +159,17 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
       </div>
 
       {/* Pie del Menú con Mini-Perfil */}
-      <div className="p-3 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+      <div className="p-3 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-[#1A1816]/50">
         <div className={`flex items-center gap-2.5 ${isCollapsed ? 'justify-center' : ''}`}>
           <div
-            className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 font-semibold text-xs flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800"
+            className="w-8 h-8 rounded-full bg-[#C84B26]/10 dark:bg-[#C84B26]/20 text-[#C84B26] dark:text-[#E05A36] font-bold text-xs flex items-center justify-center shrink-0 border border-[#C84B26]/20"
             title={`${user.nombre} ${user.apellido}`}
           >
             {getInitials(user.nombre, user.apellido)}
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+              <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate">
                 {user.nombre} {user.apellido}
               </span>
               <div className="mt-0.5">

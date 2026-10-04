@@ -131,7 +131,18 @@ function MesasPageContent() {
     if (!data || typeof data !== 'object') return;
     const actualizada = normalizeMesa(data as MesaBackendRaw);
     setMesas((prev) =>
-      prev.map((m) => (m._id === actualizada._id ? actualizada : m))
+      prev.map((m) => {
+        if (m._id === actualizada._id) {
+          return {
+            ...m,
+            ...actualizada,
+            capacidad: actualizada.capacidad || m.capacidad,
+            ubicacion: actualizada.ubicacion || m.ubicacion,
+            ubicacionId: actualizada.ubicacionId || m.ubicacionId,
+          };
+        }
+        return m;
+      })
     );
   }, []);
 
@@ -480,25 +491,25 @@ function MesasPageContent() {
   return (
     <div className="space-y-6">
       {/* Encabezado Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               Gestión de Mesas y Salón
             </h1>
             <div
               className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                 isConnected
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300'
-                  : 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 dark:bg-stone-800'
               }`}
               title={isConnected ? 'Conexión WebSockets activa' : 'Sin conexión en tiempo real'}
             >
-              <Radio className={`w-3 h-3 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-zinc-400'}`} />
+              <Radio className={`w-3 h-3 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-stone-400'}`} />
               <span className="hidden sm:inline">{isConnected ? 'En Vivo' : 'Desconectado'}</span>
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
             Supervisión operativa en tiempo real del estado de atención y capacidad física del salón.
           </p>
         </div>
@@ -594,7 +605,7 @@ function MesasPageContent() {
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Búsqueda por número */}
         <div className="w-full md:w-72">
           <Input
@@ -610,14 +621,14 @@ function MesasPageContent() {
         {/* Filtros por ubicación y estado */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Selector de Ubicación */}
-          <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500">
             <Filter className="w-3.5 h-3.5" aria-hidden="true" />
             <label htmlFor="filtro-ubicacion" className="sr-only">Filtrar por ubicación</label>
             <select
               id="filtro-ubicacion"
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="py-1.5 px-2.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="py-1.5 px-2.5 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
               <option value="Todas">Todas las Zonas</option>
               {locationOptions.map((loc) => (
@@ -629,14 +640,14 @@ function MesasPageContent() {
           </div>
 
           {/* Selector de Estado */}
-          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800/80 p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setSelectedEstado('Todos')}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 selectedEstado === 'Todos'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               Todos ({mesas.length})
@@ -644,10 +655,10 @@ function MesasPageContent() {
             <button
               type="button"
               onClick={() => setSelectedEstado('Libre')}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 selectedEstado === 'Libre'
-                  ? 'bg-emerald-600 text-white shadow-xs font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-emerald-700 dark:hover:text-emerald-400'
               }`}
             >
               Libres ({stats.libres})
@@ -655,10 +666,10 @@ function MesasPageContent() {
             <button
               type="button"
               onClick={() => setSelectedEstado('Ocupada')}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 selectedEstado === 'Ocupada'
-                  ? 'bg-amber-600 text-white shadow-xs font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-amber-700 dark:hover:text-amber-400'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-primary dark:hover:text-primary-light'
               }`}
             >
               Ocupadas ({stats.ocupadas})
@@ -666,10 +677,10 @@ function MesasPageContent() {
             <button
               type="button"
               onClick={() => setSelectedEstado('Cuenta Solicitada')}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 selectedEstado === 'Cuenta Solicitada'
-                  ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-sky-700 dark:hover:text-sky-400'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-amber-700 dark:hover:text-amber-400'
               }`}
             >
               Cuenta ({stats.cuenta})

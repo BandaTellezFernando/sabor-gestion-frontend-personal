@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #fbf9f5;
+  --foreground: #1c1917;
   --surface: #ffffff;
-  --surface-muted: #f4f4f5;
-  --border: #e4e4e7;
-  --border-subtle: #f4f4f5;
-  --primary: #c2410c;
-  --primary-hover: #9a3412;
-  --primary-subtle: #fff7ed;
-  --primary-ring: #ea580c;
+  --surface-muted: #f7f4ee;
+  --border: #e7e2d8;
+  --border-subtle: #f0ece3;
+  --primary: #c84b26;
+  --primary-hover: #b23d1b;
+  --primary-subtle: #fff4ed;
+  --primary-ring: #e05a36;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b;
-    --foreground: #f4f4f5;
-    --surface: #121215;
-    --surface-muted: #18181b;
-    --border: #27272a;
-    --border-subtle: #1f1f23;
-    --primary: #ea580c;
-    --primary-hover: #c2410c;
-    --primary-subtle: #431407;
+    --background: #171614;
+    --foreground: #f5f2eb;
+    --surface: #201e1b;
+    --surface-muted: #282522;
+    --border: #36322d;
+    --border-subtle: #2d2925;
+    --primary: #e05a36;
+    --primary-hover: #c84b26;
+    --primary-subtle: #3a1a10;
     --primary-ring: #f97316;
   }
 }

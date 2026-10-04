@@ -186,17 +186,17 @@ function CocinaPageContent() {
   return (
     <div className="space-y-4 sm:space-y-6 flex flex-col h-full">
       {/* Encabezado Principal de Cocina */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200 dark:border-stone-800 shrink-0">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <div className="p-2.5 rounded-2xl bg-primary/10 text-primary border border-primary/20">
               <ChefHat className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
+              <h1 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight">
                 Estación de Cocina (KDS)
               </h1>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Tablero táctil de producción culinaria en tiempo real
               </p>
             </div>
@@ -209,11 +209,11 @@ function CocinaPageContent() {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
               isConnected
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                : 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+                : 'bg-stone-100 text-stone-600 border-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-700'
             }`}
             title={isConnected ? 'Conectado a Socket.IO' : 'Sin conexión a Socket.IO'}
           >
-            <Radio className={`w-3.5 h-3.5 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-zinc-400'}`} />
+            <Radio className={`w-3.5 h-3.5 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-stone-400'}`} />
             <span>{isConnected ? 'Sincronizado' : 'Sin conexión'}</span>
           </div>
 
@@ -222,7 +222,7 @@ function CocinaPageContent() {
             size="sm"
             onClick={fetchPedidosCocina}
             isLoading={isLoading}
-            className="min-h-[38px] text-xs font-semibold"
+            className="min-h-[38px] text-xs font-semibold rounded-xl"
             leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
             title="Refrescar comandas activas"
           >

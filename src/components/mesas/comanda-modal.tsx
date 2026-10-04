@@ -475,23 +475,23 @@ export function ComandaModal({
       <div
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl w-full max-w-5xl h-[92vh] max-h-[850px] flex flex-col overflow-hidden relative"
+        className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl w-full max-w-5xl h-[92vh] max-h-[850px] flex flex-col overflow-hidden relative"
       >
         {/* Cabecera del Modal */}
-        <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3 shrink-0 bg-zinc-50/70 dark:bg-zinc-900/70">
+        <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3 shrink-0 bg-stone-50/80 dark:bg-stone-900/80">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <h2
                 id="comanda-modal-title"
-                className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-50 truncate"
+                className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate"
               >
                 Nueva comanda · {mesa.numero}
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                Capacidad {mesa.capacidad} personas · {mesa.ubicacion || 'Salón Principal'}
+              <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                Capacidad: {mesa.capacidad} comensales{mesa.ubicacion ? ` · ${mesa.ubicacion}` : ''}
               </p>
             </div>
           </div>
@@ -499,7 +499,7 @@ export function ComandaModal({
           {/* Contador de Tiempo Restante (10 minutos) */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs sm:text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold transition-colors ${
                 isExpired
                   ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-300'
                   : secondsLeft < 120
@@ -516,7 +516,7 @@ export function ComandaModal({
             <button
               type="button"
               onClick={handleMinimize}
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="Minimizar comanda"
               title="Minimizar (conserva la mesa ocupada y el borrador guardado)"
             >
@@ -527,7 +527,7 @@ export function ComandaModal({
             <button
               type="button"
               onClick={handleRequestClose}
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="Cerrar y cancelar comanda"
               title="Cancelar comanda y liberar mesa"
             >
@@ -567,17 +567,17 @@ export function ComandaModal({
         {/* Cuerpo Principal Dividido (Catálogo Izquierda, Resumen Derecha) */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
           {/* Columna Izquierda: Catálogo de Platos (7 cols en desktop) */}
-          <div className="lg:col-span-7 flex flex-col border-b lg:border-b-0 lg:border-r border-zinc-200 dark:border-zinc-800 h-full overflow-hidden bg-white dark:bg-zinc-900">
+          <div className="lg:col-span-7 flex flex-col border-b lg:border-b-0 lg:border-r border-stone-200 dark:border-stone-800 h-full overflow-hidden bg-white dark:bg-stone-900">
             {/* Buscador y Categorías */}
-            <div className="p-3.5 border-b border-zinc-100 dark:border-zinc-800 space-y-2.5 shrink-0">
+            <div className="p-3.5 border-b border-stone-100 dark:border-stone-800 space-y-2.5 shrink-0 bg-stone-50/50 dark:bg-stone-900/50">
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
+                <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
                 <input
                   type="text"
                   placeholder="Buscar platos o bebidas por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[38px]"
+                  className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[38px]"
                 />
               </div>
 
@@ -589,10 +589,10 @@ export function ComandaModal({
                       key={cat}
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-all ${
                         selectedCategory === cat
-                          ? 'bg-amber-600 text-white shadow-xs font-semibold'
-                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                          ? 'bg-primary text-white shadow-xs'
+                          : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
                       }`}
                     >
                       {cat}
@@ -606,8 +606,8 @@ export function ComandaModal({
             <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
               {isLoadingPlatos ? (
                 <div className="py-16 text-center">
-                  <Spinner size="md" className="text-amber-600 mx-auto" />
-                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <Spinner size="md" className="text-primary mx-auto" />
+                  <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
                     Cargando platos disponibles...
                   </p>
                 </div>
@@ -616,7 +616,7 @@ export function ComandaModal({
                   {platosError}
                 </Alert>
               ) : filteredPlatos.length === 0 ? (
-                <div className="py-12 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="py-12 text-center text-xs text-stone-500 dark:text-stone-400">
                   No se encontraron platos que coincidan con la búsqueda.
                 </div>
               ) : (
@@ -628,10 +628,10 @@ export function ComandaModal({
                     return (
                       <div
                         key={plato._id}
-                        className={`p-3 rounded-xl border transition-all flex flex-col justify-between ${
+                        className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between shadow-2xs ${
                           qty > 0
-                            ? 'border-amber-300 dark:border-amber-800/80 bg-amber-50/20 dark:bg-amber-950/20'
-                            : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700'
+                            ? 'border-amber-400/80 dark:border-amber-600/80 bg-amber-50/30 dark:bg-amber-950/20'
+                            : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 dark:hover:border-stone-700'
                         }`}
                       >
                         <div className="flex gap-2.5">
@@ -640,40 +640,40 @@ export function ComandaModal({
                             <img
                               src={plato.imagenUrl}
                               alt={plato.nombre}
-                              className="w-14 h-14 rounded-lg object-cover bg-zinc-100 shrink-0 border border-zinc-200/60 dark:border-zinc-800"
+                              className="w-14 h-14 rounded-xl object-cover bg-stone-100 shrink-0 border border-stone-200/60 dark:border-stone-800"
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).style.display = 'none';
                               }}
                             />
                           ) : (
-                            <div className="w-14 h-14 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0">
+                            <div className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-400 flex items-center justify-center shrink-0">
                               <UtensilsCrossed className="w-6 h-6 opacity-60" />
                             </div>
                           )}
 
                           <div className="min-w-0 flex-1">
-                            <h4 className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                            <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
                               {plato.nombre}
                             </h4>
                             {plato.descripcion && (
-                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug">
+                              <p className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-2 mt-0.5 leading-snug">
                                 {plato.descripcion}
                               </p>
                             )}
-                            <div className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 mt-1">
+                            <div className="text-xs sm:text-sm font-extrabold text-primary dark:text-primary-light mt-1">
                               Bs. {plato.precio.toFixed(2)}
                             </div>
                           </div>
                         </div>
 
                         {/* Controles de Agregar / Stepper */}
-                        <div className="mt-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-end">
+                        <div className="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-end">
                           {qty === 0 ? (
                             <button
                               type="button"
                               onClick={() => handleAddItem(plato)}
                               disabled={isExpired}
-                              className="py-1.5 px-3 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors flex items-center gap-1 min-h-[36px] active:scale-95 disabled:opacity-50"
+                              className="py-1.5 px-3 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 min-h-[36px] active:scale-95 disabled:opacity-50"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Agregar</span>
@@ -684,13 +684,13 @@ export function ComandaModal({
                                 type="button"
                                 onClick={() => handleDecreaseItem(plato._id)}
                                 disabled={isExpired}
-                                className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                                className="w-8 h-8 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                                 aria-label={`Disminuir ${plato.nombre}`}
                               >
                                 <Minus className="w-3.5 h-3.5" />
                               </button>
 
-                              <span className="text-xs sm:text-sm font-bold w-6 text-center text-zinc-900 dark:text-zinc-100">
+                              <span className="text-xs sm:text-sm font-bold w-6 text-center text-stone-900 dark:text-stone-100">
                                 {qty}
                               </span>
 
@@ -698,7 +698,7 @@ export function ComandaModal({
                                 type="button"
                                 onClick={() => handleAddItem(plato)}
                                 disabled={isExpired}
-                                className="w-8 h-8 rounded-lg bg-amber-600 text-white hover:bg-amber-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                                className="w-8 h-8 rounded-xl bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50 shadow-xs"
                                 aria-label={`Aumentar ${plato.nombre}`}
                               >
                                 <Plus className="w-3.5 h-3.5" />
@@ -715,12 +715,12 @@ export function ComandaModal({
           </div>
 
           {/* Columna Derecha: Resumen de la Comanda (5 cols en desktop) */}
-          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-stone-50/60 dark:bg-stone-900/60">
             {/* Cabecera del Resumen */}
-            <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between shrink-0 bg-white dark:bg-zinc-900">
+            <div className="p-3.5 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0 bg-white dark:bg-stone-900">
               <div className="flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-zinc-500" />
-                <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                <Receipt className="w-4 h-4 text-stone-500" />
+                <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
                   Resumen de Comanda ({totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'})
                 </h3>
               </div>
@@ -738,12 +738,12 @@ export function ComandaModal({
             {/* Listado Editable de Items Seleccionados */}
             <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
               {items.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-400 dark:text-zinc-500">
-                  <UtensilsCrossed className="w-10 h-10 stroke-[1.5] mb-2 opacity-50" />
-                  <p className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-400 dark:text-stone-500">
+                  <UtensilsCrossed className="w-10 h-10 stroke-[1.5] mb-2 opacity-50 text-stone-300 dark:text-stone-600" />
+                  <p className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400">
                     Aún no has agregado platos a esta comanda.
                   </p>
-                  <p className="text-[11px] mt-1 text-zinc-400">
+                  <p className="text-[11px] mt-1 text-stone-400">
                     Selecciona platos del menú izquierdo para comenzar a armar el pedido.
                   </p>
                 </div>
@@ -751,14 +751,14 @@ export function ComandaModal({
                 items.map((item) => (
                   <div
                     key={item.platoId}
-                    className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs space-y-2"
+                    className="p-3.5 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-2.5"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                        <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
                           {item.nombre}
                         </div>
-                        <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                        <div className="text-xs text-stone-500 dark:text-stone-400">
                           Bs. {item.precio.toFixed(2)} c/u
                         </div>
                       </div>
@@ -769,12 +769,12 @@ export function ComandaModal({
                           type="button"
                           onClick={() => handleDecreaseItem(item.platoId)}
                           disabled={isExpired}
-                          className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                          className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Disminuir cantidad"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="text-xs font-bold w-5 text-center text-zinc-900 dark:text-zinc-100">
+                        <span className="text-xs font-bold w-5 text-center text-stone-900 dark:text-stone-100">
                           {item.cantidad}
                         </span>
                         <button
@@ -784,7 +784,7 @@ export function ComandaModal({
                             if (platoObj) handleAddItem(platoObj);
                           }}
                           disabled={isExpired}
-                          className="w-7 h-7 rounded-lg bg-amber-600 text-white hover:bg-amber-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                          className="w-7 h-7 rounded-lg bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Aumentar cantidad"
                         >
                           <Plus className="w-3 h-3" />
@@ -795,7 +795,7 @@ export function ComandaModal({
                           type="button"
                           onClick={() => handleRemoveItem(item.platoId)}
                           disabled={isExpired}
-                          className="w-7 h-7 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors ml-1"
+                          className="w-7 h-7 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors ml-1"
                           title="Quitar plato de la comanda"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -804,9 +804,9 @@ export function ComandaModal({
                     </div>
 
                     {/* Subtotal del item */}
-                    <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-100 dark:border-zinc-800/60">
-                      <span className="text-zinc-400">Subtotal plato:</span>
-                      <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                    <div className="flex items-center justify-between text-xs pt-1.5 border-t border-stone-100 dark:border-stone-800/60">
+                      <span className="text-stone-400">Subtotal plato:</span>
+                      <span className="font-bold text-stone-900 dark:text-stone-100">
                         Bs. {(item.cantidad * item.precio).toFixed(2)}
                       </span>
                     </div>
@@ -815,12 +815,12 @@ export function ComandaModal({
                     <div>
                       <input
                         type="text"
-                        placeholder="Observación (ej. Sin cebolla, término medio)..."
+                        placeholder="Observación de cocina (ej. Sin cebolla, término medio)..."
                         value={item.observacion}
                         onChange={(e) => handleObservationChange(item.platoId, e.target.value)}
                         disabled={isExpired}
                         maxLength={120}
-                        className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        className="w-full text-xs px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-primary/40"
                       />
                     </div>
                   </div>
@@ -829,15 +829,15 @@ export function ComandaModal({
             </div>
 
             {/* Pie del Resumen: Subtotal Visual e Informativo */}
-            <div className="p-3.5 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0 space-y-2">
-              <div className="flex items-baseline justify-between text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-50">
+            <div className="p-4 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shrink-0 space-y-2">
+              <div className="flex items-baseline justify-between text-sm sm:text-base font-bold text-stone-900 dark:text-stone-50">
                 <span>Subtotal estimado:</span>
-                <span className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl">
+                <span className="text-primary dark:text-primary-light text-lg sm:text-xl font-extrabold">
                   Bs. {visualSubtotal.toFixed(2)}
                 </span>
               </div>
-              <div className="flex items-start gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-                <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-zinc-400" />
+              <div className="flex items-start gap-1.5 text-[11px] text-stone-400 dark:text-stone-500">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-stone-400" />
                 <span>
                   Cálculo visual estimado. El backend calcula los importes oficiales y valida disponibilidad al confirmar.
                 </span>
@@ -847,25 +847,25 @@ export function ComandaModal({
         </div>
 
         {/* Barra de Acciones / Pie General */}
-        <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex items-center justify-between gap-3 shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={handleRequestClose}
             disabled={isSubmitting}
-            className="min-h-[40px] px-3.5 text-xs sm:text-sm font-medium text-zinc-600 hover:text-rose-600"
+            className="min-h-[42px] px-4 text-xs sm:text-sm font-medium text-stone-600 hover:text-rose-600 rounded-xl"
           >
             Cancelar
           </Button>
 
           <div className="flex items-center gap-2">
             <Button
-              variant="primary"
+              variant="success"
               size="sm"
               onClick={handleConfirmOrder}
               disabled={items.length === 0 || isSubmitting || isExpired}
               isLoading={isSubmitting}
-              className="min-h-[40px] px-5 text-xs sm:text-sm font-semibold shadow-xs"
+              className="min-h-[42px] px-6 text-xs sm:text-sm font-bold rounded-xl shadow-xs"
               title={
                 items.length === 0
                   ? 'Agrega al menos un plato a la comanda'
@@ -887,16 +887,16 @@ export function ComandaModal({
             role="alertdialog"
             aria-labelledby="cancel-dialog-title"
           >
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 max-w-md w-full shadow-xl space-y-4">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 id="cancel-dialog-title" className="text-base font-bold text-zinc-900 dark:text-zinc-50">
+                  <h4 id="cancel-dialog-title" className="text-base font-bold text-stone-900 dark:text-stone-100">
                     ¿Cancelar la creación de la comanda?
                   </h4>
-                  <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                  <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
                     La mesa volverá a estar disponible para otro mesero y se descartará el borrador actual.
                   </p>
                 </div>

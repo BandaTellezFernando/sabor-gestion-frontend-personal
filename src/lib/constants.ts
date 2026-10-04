@@ -57,6 +57,10 @@ export const NAVIGATION_ROUTES: RouteNavItem[] = [
   { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
   { label: 'Cocina', href: '/dashboard/cocina', allowedRoles: ['Administrador', 'Cocinero'], isImplemented: true },
   { label: 'Caja', href: '/dashboard/caja', allowedRoles: ['Cajero', 'Administrador'], isImplemented: true },
+  { label: 'Categorías', href: '/dashboard/categorias', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Platos', href: '/dashboard/platos', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Ingredientes', href: '/dashboard/ingredientes', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Recetas', href: '/dashboard/recetas', allowedRoles: ['Administrador'], isImplemented: true },
 ];
 
 /**
@@ -68,10 +72,19 @@ export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
   '/dashboard/pedidos': ['Administrador', 'Mesero'],
   '/dashboard/cocina': ['Administrador', 'Cocinero'],
   '/dashboard/caja': ['Cajero', 'Administrador'],
+  '/dashboard/categorias': ['Administrador'],
+  '/dashboard/platos': ['Administrador'],
+  '/dashboard/menu': ['Administrador'],
+  '/dashboard/ingredientes': ['Administrador'],
+  '/dashboard/recetas': ['Administrador'],
   '/mesas': ['Administrador', 'Mesero'],
   '/pedidos': ['Administrador', 'Mesero'],
   '/cocina': ['Administrador', 'Cocinero'],
   '/caja': ['Cajero', 'Administrador'],
+  '/platos': ['Administrador'],
+  '/categorias': ['Administrador'],
+  '/ingredientes': ['Administrador'],
+  '/recetas': ['Administrador'],
 };
 
 /**

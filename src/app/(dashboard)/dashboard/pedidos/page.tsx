@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } fr
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useSocketStatus, useSocketEvent } from '@/hooks/use-socket';
+import { SOCKET_EVENTS } from '@/lib/socket';
 import { pedidoService } from '@/services/pedido.service';
 import { mesaService } from '@/services/mesa.service';
 import { platoService } from '@/services/plato.service';
@@ -388,11 +389,11 @@ function PedidosPageContent() {
     );
   }, []);
 
-  useSocketEvent('cocina:nuevo_pedido', handleNuevoPedidoSocket);
-  useSocketEvent('cocina:actualizar_tablero', handleActualizarTableroSocket);
-  useSocketEvent('mesas:updated', handleMesaUpdatedSocket);
-  useSocketEvent('mesas:alerta_listo', handleAlertaListoSocket);
-  useSocketEvent('cocina:pedido_recogido', handlePedidoRecogidoSocket);
+  useSocketEvent(SOCKET_EVENTS.COCINA_NUEVO_PEDIDO, handleNuevoPedidoSocket);
+  useSocketEvent(SOCKET_EVENTS.COCINA_ACTUALIZAR_TABLERO, handleActualizarTableroSocket);
+  useSocketEvent(SOCKET_EVENTS.MESAS_UPDATED, handleMesaUpdatedSocket);
+  useSocketEvent(SOCKET_EVENTS.MESAS_ALERTA_LISTO, handleAlertaListoSocket);
+  useSocketEvent(SOCKET_EVENTS.COCINA_PEDIDO_RECOGIDO, handlePedidoRecogidoSocket);
 
   // ─── Acciones Operativas ─────────────────────────────────────────────
 
@@ -565,27 +566,27 @@ function PedidosPageContent() {
   return (
     <div className="space-y-6">
       {/* Encabezado Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               Gestión de Pedidos y Comandas
             </h1>
             <div
               className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                 isConnected
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300'
-                  : 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 dark:bg-stone-800'
               }`}
               title={isConnected ? 'Conexión WebSockets activa' : 'Sin conexión en tiempo real'}
             >
               <Radio
-                className={`w-3 h-3 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-zinc-400'}`}
+                className={`w-3 h-3 ${isConnected ? 'text-emerald-500 animate-pulse' : 'text-stone-400'}`}
               />
               <span className="hidden sm:inline">{isConnected ? 'En Vivo' : 'Desconectado'}</span>
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
             Supervisión y control en tiempo real de las órdenes de servicio en salón y cocina.
           </p>
         </div>
@@ -597,7 +598,7 @@ function PedidosPageContent() {
             size="sm"
             onClick={fetchData}
             disabled={isLoading}
-            className="min-h-[38px] px-3 text-xs sm:text-sm font-medium"
+            className="min-h-[38px] px-3 text-xs sm:text-sm font-semibold rounded-xl"
             title="Refrescar listado de comandas"
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -672,29 +673,29 @@ function PedidosPageContent() {
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs space-y-3">
+      <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-xs space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Búsqueda por texto */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-3.5 text-zinc-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-stone-400" />
             <input
               type="text"
               placeholder="Buscar por código PED-XXXX, mesa o cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-xs sm:text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all min-h-[40px]"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all min-h-[40px]"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Filtro por Estado */}
-            <div className="flex items-center gap-1.5 min-w-[160px]">
-              <Filter className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-1.5 min-w-[170px]">
+              <Filter className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               <select
                 id="filtro-estado"
                 value={selectedEstado}
                 onChange={(e) => setSelectedEstado(e.target.value)}
-                className="w-full py-2 px-3 text-xs sm:text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[40px]"
+                className="w-full py-2 px-3 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[40px]"
               >
                 <option value="Todos">Todos los Estados</option>
                 <option value="LISTO_PARA_RECOGER">Listo para Recoger</option>
@@ -711,7 +712,7 @@ function PedidosPageContent() {
               variant={soloHoy ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setSoloHoy((prev) => !prev)}
-              className="min-h-[40px] px-3.5 text-xs font-semibold"
+              className="min-h-[40px] px-3.5 text-xs font-semibold rounded-xl"
               title="Filtrar pedidos de la jornada actual"
             >
               {soloHoy ? 'Jornada de Hoy' : 'Histórico Completo'}
@@ -727,7 +728,7 @@ function PedidosPageContent() {
                   setSelectedEstado('Todos');
                   setSoloHoy(true);
                 }}
-                className="min-h-[40px] px-3 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="min-h-[40px] px-3 text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 rounded-xl"
               >
                 Limpiar
               </Button>

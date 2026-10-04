@@ -1,6 +1,7 @@
 export * from './api';
 export * from './usuario';
 export * from './auth';
+export * from './categoria';
 export * from './plato';
 export * from './mesa';
 export * from './pedido';

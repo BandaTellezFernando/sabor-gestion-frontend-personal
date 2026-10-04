@@ -189,15 +189,15 @@ export function NotificacionesMesero() {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
           role="menu"
           aria-orientation="vertical"
         >
           {/* Cabecera del Popover */}
-          <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/70 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-stone-100 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/80 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ChefHat className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
                 Pedidos Listos para Recoger
               </h3>
             </div>
@@ -209,14 +209,14 @@ export function NotificacionesMesero() {
           </div>
 
           {/* Lista de Pedidos */}
-          <div className="max-h-[360px] overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800 p-1">
+          <div className="max-h-[360px] overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800 p-1">
             {pedidosListos.length === 0 ? (
               <div className="py-8 px-4 text-center">
-                <CheckCircle2 className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                <CheckCircle2 className="w-8 h-8 text-stone-300 dark:text-stone-600 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-stone-700 dark:text-stone-300">
                   Todo al día
                 </p>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">
                   No tienes pedidos pendientes de recoger en este momento.
                 </p>
               </div>
@@ -231,25 +231,25 @@ export function NotificacionesMesero() {
                     key={pedido._id}
                     type="button"
                     onClick={() => handleSelectPedido(pedido._id)}
-                    className="w-full text-left p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors flex items-start justify-between gap-3 group focus:outline-hidden focus-visible:bg-zinc-100 dark:focus-visible:bg-zinc-800"
+                    className="w-full text-left p-3 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors flex items-start justify-between gap-3 group focus:outline-hidden focus-visible:bg-stone-100 dark:focus-visible:bg-stone-800"
                     role="menuitem"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                        <span className="font-mono text-xs font-bold text-stone-900 dark:text-stone-100">
                           {pedido.codigo}
                         </span>
-                        <span className="text-zinc-300 dark:text-zinc-600">·</span>
-                        <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                        <span className="text-stone-300 dark:text-stone-600">·</span>
+                        <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
                           {getMesaNombre(pedido.mesa)}
                         </span>
                       </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate leading-relaxed">
+                      <p className="text-xs text-stone-500 dark:text-stone-400 truncate leading-relaxed">
                         {resumenPlatos || 'Sin platos registrados'}
                       </p>
                     </div>
 
-                    <div className="shrink-0 flex items-center text-zinc-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors pt-1">
+                    <div className="shrink-0 flex items-center text-stone-400 group-hover:text-primary dark:group-hover:text-primary-light transition-colors pt-1">
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </button>
@@ -259,14 +259,14 @@ export function NotificacionesMesero() {
           </div>
 
           {/* Pie del Popover */}
-          <div className="p-2.5 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="p-2.5 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50">
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
                 router.push('/dashboard/pedidos');
               }}
-              className="w-full py-1.5 px-3 rounded-lg text-xs font-medium text-center text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="w-full py-1.5 px-3 rounded-xl text-xs font-semibold text-center text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-50 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             >
               Ir a la bandeja de Pedidos
             </button>

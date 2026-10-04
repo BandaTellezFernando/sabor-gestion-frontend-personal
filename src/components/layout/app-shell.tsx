@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { NAVIGATION_ROUTES } from '@/lib/constants';
 import { Sidebar } from './sidebar';
 import { MobileSidebar } from './mobile-sidebar';
 import { Header } from './header';
@@ -12,8 +14,15 @@ export interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
+
+  // Calcular rutas autorizadas para el usuario activo
+  const allowedRoutes = user
+    ? NAVIGATION_ROUTES.filter((r) => r.allowedRoles.includes(user.rol))
+    : [];
+  const showSidebar = allowedRoutes.length >= 3;
 
   // Cargar preferencia de colapso desde localStorage al montar
   useEffect(() => {
@@ -43,16 +52,22 @@ export function AppShell({ children }: AppShellProps) {
   };
 
   return (
-    <div className="min-h-screen flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-      {/* Sidebar Desktop */}
-      <Sidebar isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />
-
-      {/* Drawer Móvil */}
-      <MobileSidebar isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
+    <div className="min-h-screen flex bg-[#FBF9F5] dark:bg-[#171614] text-stone-900 dark:text-stone-100">
+      {/* Sidebar Desktop y Drawer Móvil solo si tiene 3 o más módulos */}
+      {showSidebar && (
+        <>
+          <Sidebar isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />
+          <MobileSidebar isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
+        </>
+      )}
 
       {/* Área Principal */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header onOpenMobileMenu={() => setIsMobileOpen(true)} />
+        <Header
+          onOpenMobileMenu={() => setIsMobileOpen(true)}
+          showSidebar={showSidebar}
+          allowedRoutes={allowedRoutes}
+        />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {children}
         </main>

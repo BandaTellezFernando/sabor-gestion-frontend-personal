@@ -193,21 +193,21 @@ export function PedidoDetailModal({
     >
       <div className="space-y-5">
         {/* Cabecera y Resumen Operativo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 text-xs">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-zinc-500">Estado:</span>
+              <span className="text-stone-500">Estado:</span>
               {formatEstadoBadge(pedido.estado)}
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="font-medium text-zinc-800 dark:text-zinc-200">
+              <MapPin className="w-3.5 h-3.5 text-stone-400" />
+              <span className="font-bold text-stone-800 dark:text-stone-200">
                 {getMesaNombre(pedido.mesa)}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <User className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-zinc-600 dark:text-zinc-300">
+              <User className="w-3.5 h-3.5 text-stone-400" />
+              <span className="text-stone-600 dark:text-stone-300">
                 Atendido por: {getUsuarioNombre(pedido.usuario)}
               </span>
             </div>
@@ -215,8 +215,8 @@ export function PedidoDetailModal({
 
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-zinc-600 dark:text-zinc-300">
+              <Clock className="w-3.5 h-3.5 text-stone-400" />
+              <span className="text-stone-600 dark:text-stone-300">
                 Hora:{' '}
                 {pedido.fechaHoraBolivia ||
                   (pedido.fechaHora
@@ -227,8 +227,8 @@ export function PedidoDetailModal({
 
             {pedido.clienteNombre && (
               <div className="flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5 text-zinc-400" />
-                <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
+                <FileText className="w-3.5 h-3.5 text-stone-400" />
+                <span className="text-stone-700 dark:text-stone-300 font-medium truncate">
                   Cliente: {pedido.clienteNombre}
                   {pedido.clienteNIT ? ` (NIT: ${pedido.clienteNIT})` : pedido.clienteCI ? ` (CI: ${pedido.clienteCI})` : ''}
                 </span>
@@ -255,29 +255,29 @@ export function PedidoDetailModal({
 
         {/* Tabla de Platos e Items */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
             Platos y Bebidas
           </h4>
 
-          <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+          <div className="border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden">
             <table className="w-full text-xs text-left">
-              <thead className="bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 border-b border-zinc-200 dark:border-zinc-800">
+              <thead className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-b border-stone-200 dark:border-stone-800">
                 <tr>
-                  <th className="py-2 px-3 font-semibold">Plato / Descripción</th>
-                  <th className="py-2 px-3 font-semibold text-center w-16">Cant.</th>
-                  <th className="py-2 px-3 font-semibold text-right w-24">Precio Unit.</th>
-                  <th className="py-2 px-3 font-semibold text-right w-24">Subtotal</th>
+                  <th className="py-2.5 px-3.5 font-semibold">Plato / Descripción</th>
+                  <th className="py-2.5 px-3.5 font-semibold text-center w-16">Cant.</th>
+                  <th className="py-2.5 px-3.5 font-semibold text-right w-24">Precio Unit.</th>
+                  <th className="py-2.5 px-3.5 font-semibold text-right w-24">Subtotal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800 bg-white dark:bg-stone-900">
                 {(pedido.detalles || []).map((d, index) => {
                   const nombrePlato =
                     d.nombrePlato ||
                     (typeof d.plato === 'object' && d.plato ? d.plato.nombre : 'Plato');
                   return (
-                    <tr key={index} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40">
-                      <td className="py-2.5 px-3">
-                        <div className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    <tr key={index} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/40">
+                      <td className="py-2.5 px-3.5">
+                        <div className="font-bold text-stone-900 dark:text-stone-100">
                           {nombrePlato}
                         </div>
                         {d.observacion && (
@@ -286,13 +286,13 @@ export function PedidoDetailModal({
                           </div>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-zinc-800 dark:text-zinc-200">
+                      <td className="py-2.5 px-3.5 text-center font-extrabold text-stone-800 dark:text-stone-200">
                         {d.cantidad}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-zinc-600 dark:text-zinc-400 font-mono">
+                      <td className="py-2.5 px-3.5 text-right text-stone-600 dark:text-stone-400 font-mono">
                         Bs. {Number(d.precioUnitario || 0).toFixed(2)}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
+                      <td className="py-2.5 px-3.5 text-right font-bold text-stone-900 dark:text-stone-100 font-mono">
                         Bs. {Number(d.subtotal || (d.precioUnitario * d.cantidad) || 0).toFixed(2)}
                       </td>
                     </tr>
@@ -304,8 +304,8 @@ export function PedidoDetailModal({
         </div>
 
         {/* Desglose Financiero */}
-        <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-1.5 text-xs">
-          <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+        <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 space-y-1.5 text-xs">
+          <div className="flex justify-between text-stone-600 dark:text-stone-400">
             <span>Subtotal de Comanda:</span>
             <span className="font-mono">Bs. {subtotalCalculado.toFixed(2)}</span>
           </div>
@@ -318,15 +318,15 @@ export function PedidoDetailModal({
           )}
 
           {Number(pedido.montoPropina || 0) > 0 && (
-            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+            <div className="flex justify-between text-stone-600 dark:text-stone-400">
               <span>Propina / Servicio:</span>
               <span className="font-mono">+ Bs. {Number(pedido.montoPropina).toFixed(2)}</span>
             </div>
           )}
 
-          <div className="flex justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800 font-bold text-sm text-zinc-900 dark:text-zinc-100">
+          <div className="flex justify-between pt-2 border-t border-stone-200 dark:border-stone-800 font-bold text-sm text-stone-900 dark:text-stone-100">
             <span>Importe Total:</span>
-            <span className="font-mono text-base text-zinc-950 dark:text-zinc-50">
+            <span className="font-mono text-base text-primary dark:text-primary-light font-extrabold">
               Bs. {Number(pedido.total || 0).toFixed(2)}
             </span>
           </div>

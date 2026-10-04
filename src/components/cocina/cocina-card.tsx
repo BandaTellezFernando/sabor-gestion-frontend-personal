@@ -59,13 +59,13 @@ export function CocinaCard({
 
   const getContainerStyles = () => {
     if (isAbierto) {
-      return 'border-sky-300 dark:border-sky-800 bg-white dark:bg-zinc-900 hover:border-sky-500 dark:hover:border-sky-400 hover:shadow-md active:scale-[0.99] cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500';
+      return 'border-sky-300 dark:border-sky-800 bg-white dark:bg-stone-900 hover:border-sky-500 dark:hover:border-sky-400 hover:shadow-md active:scale-[0.99] cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500';
     }
     if (isEnPreparacion) {
-      return 'border-amber-300 dark:border-amber-800 bg-gradient-to-b from-amber-50/30 to-white dark:from-amber-950/20 dark:to-zinc-900 hover:border-amber-500 dark:hover:border-amber-400 hover:shadow-md active:scale-[0.99] cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500';
+      return 'border-amber-300 dark:border-amber-800 bg-gradient-to-b from-amber-50/30 to-white dark:from-amber-950/20 dark:to-stone-900 hover:border-amber-500 dark:hover:border-amber-400 hover:shadow-md active:scale-[0.99] cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500';
     }
     // LISTO (inerte)
-    return 'border-emerald-300 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/30 to-white dark:from-emerald-950/20 dark:to-zinc-900 cursor-default';
+    return 'border-emerald-300 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/30 to-white dark:from-emerald-950/20 dark:to-stone-900 cursor-default';
   };
 
   return (
@@ -82,19 +82,19 @@ export function CocinaCard({
           : `Comanda ${pedido.codigo} para ${getMesaLabel(pedido.mesa)}. Listo para recoger.`
       }
       aria-disabled={isLoading || disabled}
-      className={`relative rounded-2xl border-2 p-4 sm:p-5 transition-all duration-150 flex flex-col justify-between select-none shadow-xs outline-hidden ${getContainerStyles()}`}
+      className={`relative rounded-3xl border-2 p-4 sm:p-5 transition-all duration-150 flex flex-col justify-between select-none shadow-xs outline-hidden ${getContainerStyles()}`}
     >
       {/* Contenido Principal */}
       <div className="space-y-3.5">
         {/* Encabezado: Código y Mesa */}
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
+        <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100 dark:border-stone-800/80">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
+            <span className="font-mono text-lg sm:text-xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight">
               {pedido.codigo}
             </span>
           </div>
 
-          <div className="px-3 py-1 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs sm:text-sm font-bold shadow-xs">
+          <div className="px-3 py-1 rounded-xl bg-stone-900 text-stone-50 dark:bg-stone-100 dark:text-stone-900 text-xs sm:text-sm font-bold shadow-xs">
             {getMesaLabel(pedido.mesa)}
           </div>
         </div>
@@ -104,21 +104,21 @@ export function CocinaCard({
           {(pedido.detalles || []).map((detalle, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-3 p-2 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/60"
+              className="flex items-start gap-3 p-2.5 rounded-2xl bg-stone-50/80 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800/60"
             >
               {/* Badge de Cantidad destacada */}
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 font-black text-base flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary border border-primary/30 font-black text-base flex items-center justify-center shrink-0">
                 {detalle.cantidad}
               </div>
 
               {/* Nombre y Observaciones Culinarias */}
               <div className="min-w-0 flex-1 pt-0.5">
-                <p className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 leading-snug">
+                <p className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-snug">
                   {getPlatoNombre(detalle)}
                 </p>
 
                 {detalle.observacion && detalle.observacion.trim() !== '' && (
-                  <div className="mt-1 flex items-start gap-1.5 p-1.5 rounded-lg bg-amber-100/70 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs font-semibold">
+                  <div className="mt-1 flex items-start gap-1.5 p-1.5 rounded-xl bg-amber-100/70 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs font-semibold">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
                     <span>{detalle.observacion.trim()}</span>
                   </div>
@@ -130,7 +130,7 @@ export function CocinaCard({
       </div>
 
       {/* Indicador de Acción o Estado al Pie */}
-      <div className="pt-4 mt-3 border-t border-zinc-100 dark:border-zinc-800/80">
+      <div className="pt-4 mt-3 border-t border-stone-100 dark:border-stone-800/80">
         {isAbierto && (
           <div className="flex items-center justify-between text-sky-700 dark:text-sky-300 text-xs font-bold">
             <span className="flex items-center gap-1.5">
