@@ -27,7 +27,9 @@ import {
 
 const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
+  '/dashboard/mesas': Grid,
   '/mesas': Grid,
+  '/dashboard/pedidos': Receipt,
   '/pedidos': Receipt,
   '/cocina': ChefHat,
   '/caja': CreditCard,
@@ -56,7 +58,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
   // Grupos semánticos
   const generalRoutes = allowedRoutes.filter((r) => r.href === '/dashboard');
   const salonRoutes = allowedRoutes.filter((r) =>
-    ['/mesas', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)
+    ['/dashboard/mesas', '/mesas', '/dashboard/pedidos', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)
   );
   const catalogRoutes = allowedRoutes.filter((r) =>
     ['/platos', '/categorias', '/ubicaciones', '/ingredientes'].includes(r.href)
@@ -114,7 +116,12 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
               {group.routes.map((route) => {
                 const Icon = ICON_MAP[route.href] || LayoutDashboard;
                 const isActive = pathname === route.href;
-                const isImplemented = route.href === '/dashboard';
+                const isImplemented =
+                  route.href === '/dashboard' ||
+                  route.href === '/dashboard/mesas' ||
+                  route.href === '/mesas' ||
+                  route.href === '/dashboard/pedidos' ||
+                  route.href === '/pedidos';
 
                 return (
                   <li key={route.href}>

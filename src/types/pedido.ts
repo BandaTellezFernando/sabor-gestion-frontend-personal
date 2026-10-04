@@ -37,3 +37,42 @@ export interface Pedido {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface DetallePedidoItemDTO {
+  plato: string;
+  cantidad: number;
+  observacion?: string;
+}
+
+export interface CrearPedidoDTO {
+  mesa: string;
+  detalles: DetallePedidoItemDTO[];
+  montoDescuento?: number;
+  montoPropina?: number;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
+}
+
+export interface ActualizarPedidoDTO {
+  detalles?: DetallePedidoItemDTO[];
+  montoDescuento?: number;
+  montoPropina?: number;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
+}
+
+export interface ActualizarEstadoPedidoDTO {
+  estado: 'EN_PREPARACION' | 'ENTREGADO';
+}
+
+export interface PedidosQueryParams {
+  hoy?: boolean | string;
+  fecha?: string;
+  mesa?: string;
+  activo?: boolean | string;
+  cajero?: string;
+  mesero?: string;
+  reportesCierre?: boolean | string;
+}

@@ -480,7 +480,7 @@ export default function DashboardPage() {
                 </p>
               </CardContent>
               <div className="p-4 pt-0">
-                <Link href="/mesas" className="w-full">
+                <Link href="/dashboard/mesas" className="w-full">
                   <Button variant="outline" size="sm" className="w-full justify-between" rightIcon={<ArrowRight className="w-4 h-4" />}>
                     Ir a Mesas
                   </Button>
@@ -505,7 +505,7 @@ export default function DashboardPage() {
                 <p>• Envío instantáneo a tablero de cocina.</p>
               </CardContent>
               <div className="p-4 pt-0">
-                <Link href="/pedidos" className="w-full">
+                <Link href="/dashboard/pedidos" className="w-full">
                   <Button variant="outline" size="sm" className="w-full justify-between" rightIcon={<ArrowRight className="w-4 h-4" />}>
                     Gestionar Pedidos
                   </Button>

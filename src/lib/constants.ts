@@ -51,8 +51,8 @@ export interface RouteNavItem {
  */
 export const NAVIGATION_ROUTES: RouteNavItem[] = [
   { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
-  { label: 'Mesas', href: '/mesas', allowedRoles: ['Administrador', 'Mesero', 'Cajero'] },
-  { label: 'Pedidos', href: '/pedidos', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
+  { label: 'Mesas', href: '/dashboard/mesas', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
+  { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
   { label: 'Cocina', href: '/cocina', allowedRoles: ['Administrador', 'Cocinero'] },
   { label: 'Caja', href: '/caja', allowedRoles: ['Administrador', 'Cajero'] },
   { label: 'Pagos', href: '/pagos', allowedRoles: ['Administrador', 'Cajero'] },

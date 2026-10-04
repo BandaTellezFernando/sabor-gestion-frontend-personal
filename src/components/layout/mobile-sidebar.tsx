@@ -26,7 +26,9 @@ import {
 
 const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
+  '/dashboard/mesas': Grid,
   '/mesas': Grid,
+  '/dashboard/pedidos': Receipt,
   '/pedidos': Receipt,
   '/cocina': ChefHat,
   '/caja': CreditCard,
@@ -139,7 +141,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     { title: 'General', routes: allowedRoutes.filter((r) => r.href === '/dashboard') },
     {
       title: 'Atención y Salón',
-      routes: allowedRoutes.filter((r) => ['/mesas', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)),
+      routes: allowedRoutes.filter((r) => ['/dashboard/mesas', '/mesas', '/dashboard/pedidos', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)),
     },
     {
       title: 'Menú y Cocina',
@@ -195,7 +197,12 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 {group.routes.map((route) => {
                   const Icon = ICON_MAP[route.href] || LayoutDashboard;
                   const isActive = pathname === route.href;
-                  const isImplemented = route.href === '/dashboard';
+                  const isImplemented =
+                    route.href === '/dashboard' ||
+                    route.href === '/dashboard/mesas' ||
+                    route.href === '/mesas' ||
+                    route.href === '/dashboard/pedidos' ||
+                    route.href === '/pedidos';
 
                   return (
                     <li key={route.href}>
