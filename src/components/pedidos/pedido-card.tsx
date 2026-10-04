@@ -19,23 +19,27 @@ import {
 export interface PedidoCardProps {
   pedido: Pedido;
   userRole: RolUsuario;
+  currentUserId?: string;
   mesas?: Mesa[];
   onViewDetail: (pedido: Pedido) => void;
   onEdit?: (pedido: Pedido) => void;
   onCancel?: (pedido: Pedido) => void;
   onSolicitarCuenta?: (pedido: Pedido) => Promise<void>;
   onCambiarEstadoCocina?: (pedido: Pedido, nuevoEstado: 'EN_PREPARACION' | 'ENTREGADO') => Promise<void>;
+  onRecogerPedido?: (pedido: Pedido) => Promise<void>;
 }
 
 export function PedidoCard({
   pedido,
   userRole,
+  currentUserId,
   mesas,
   onViewDetail,
   onEdit,
   onCancel,
   onSolicitarCuenta,
   onCambiarEstadoCocina,
+  onRecogerPedido,
 }: PedidoCardProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -55,6 +59,16 @@ export function PedidoCard({
 
   const canCocineroAdvance = (canManage || isCocinero) &&
     (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
+
+  const meseroId =
+    typeof pedido.usuario === 'object' && pedido.usuario !== null
+      ? String(pedido.usuario._id || pedido.usuario.id || '')
+      : String(pedido.usuario || '');
+  const isResponsable = currentUserId ? meseroId === currentUserId : true;
+  const canRecoger =
+    (canManage || (isMesero && isResponsable)) &&
+    pedido.estado === 'ENTREGADO' &&
+    !pedido.recogido;
 
   const handleSolicitarCuenta = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -78,6 +92,17 @@ export function PedidoCard({
     }
   };
 
+  const handleRecogerPedido = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onRecogerPedido || isActionLoading) return;
+    setIsActionLoading(true);
+    try {
+      await onRecogerPedido(pedido);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const formatEstadoBadge = (estado: EstadoPedido) => {
     switch (estado) {
       case 'ABIERTO':
@@ -93,6 +118,13 @@ export function PedidoCard({
           </Badge>
         );
       case 'ENTREGADO':
+        if (!pedido.recogido) {
+          return (
+            <Badge variant="pedido-en-preparacion" dot className="font-bold text-xs px-2.5 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-800 animate-pulse">
+              Listo para Recoger
+            </Badge>
+          );
+        }
         return (
           <Badge variant="pedido-entregado" dot className="font-semibold text-xs px-2.5 py-0.5">
             Entregado
@@ -148,6 +180,9 @@ export function PedidoCard({
       case 'EN_PREPARACION':
         return 'border-amber-200 dark:border-amber-900/60 bg-gradient-to-br from-amber-50/20 to-white dark:from-amber-950/10 dark:to-zinc-900';
       case 'ENTREGADO':
+        if (!pedido.recogido) {
+          return 'border-amber-300 dark:border-amber-700/80 bg-gradient-to-br from-amber-50/40 via-amber-50/20 to-white dark:from-amber-950/20 dark:to-zinc-900 shadow-xs ring-1 ring-amber-300/50 dark:ring-amber-700/30';
+        }
         return 'border-emerald-200 dark:border-emerald-900/60 bg-gradient-to-br from-emerald-50/20 to-white dark:from-emerald-950/10 dark:to-zinc-900';
       case 'CANCELADO':
         return 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 opacity-75';
@@ -270,6 +305,21 @@ export function PedidoCard({
             >
               <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
               Entregar
+            </Button>
+          )}
+
+          {/* Recoger Pedido (Mesero responsable o Administrador) */}
+          {canRecoger && onRecogerPedido && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleRecogerPedido}
+              disabled={isActionLoading}
+              className="min-h-[38px] px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-sm"
+              title="Confirmar recogida del pedido de cocina"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+              Recoger
             </Button>
           )}
 

@@ -43,25 +43,54 @@ export interface RouteNavItem {
   label: string;
   href: string;
   allowedRoles: RolUsuario[];
+  isImplemented?: boolean;
   description?: string;
 }
 
 /**
- * Estructura de navegación para futuros módulos según RBAC oficial.
+ * Estructura de navegación oficial de Mishi-Food según RBAC estricto.
+ * Fuente única de verdad para sidebar, mobile-sidebar y control de acceso.
  */
 export const NAVIGATION_ROUTES: RouteNavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
-  { label: 'Mesas', href: '/dashboard/mesas', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
-  { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] },
-  { label: 'Cocina', href: '/cocina', allowedRoles: ['Administrador', 'Cocinero'] },
-  { label: 'Caja', href: '/caja', allowedRoles: ['Administrador', 'Cajero'] },
-  { label: 'Pagos', href: '/pagos', allowedRoles: ['Administrador', 'Cajero'] },
-  { label: 'Platos', href: '/platos', allowedRoles: ['Administrador', 'Mesero'] },
-  { label: 'Categorías', href: '/categorias', allowedRoles: ['Administrador', 'Mesero'] },
-  { label: 'Ubicaciones', href: '/ubicaciones', allowedRoles: ['Administrador', 'Mesero'] },
-  { label: 'Ingredientes', href: '/ingredientes', allowedRoles: ['Administrador', 'Cocinero'] },
-  { label: 'Usuarios', href: '/usuarios', allowedRoles: ['Administrador'] },
+  { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Mesas', href: '/dashboard/mesas', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
+  { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
+  { label: 'Cocina', href: '/dashboard/cocina', allowedRoles: ['Administrador', 'Cocinero'], isImplemented: true },
+  { label: 'Caja', href: '/dashboard/caja', allowedRoles: ['Cajero', 'Administrador'], isImplemented: true },
 ];
+
+/**
+ * Matriz estricta de permisos por ruta.
+ */
+export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
+  '/dashboard': ['Administrador'],
+  '/dashboard/mesas': ['Administrador', 'Mesero'],
+  '/dashboard/pedidos': ['Administrador', 'Mesero'],
+  '/dashboard/cocina': ['Administrador', 'Cocinero'],
+  '/dashboard/caja': ['Cajero', 'Administrador'],
+  '/mesas': ['Administrador', 'Mesero'],
+  '/pedidos': ['Administrador', 'Mesero'],
+  '/cocina': ['Administrador', 'Cocinero'],
+  '/caja': ['Cajero', 'Administrador'],
+};
+
+/**
+ * Determina la ruta de aterrizaje por defecto autorizada para cada rol del sistema.
+ */
+export function getDefaultRouteForRole(role?: RolUsuario | null): string {
+  switch (role) {
+    case 'Administrador':
+      return '/dashboard';
+    case 'Mesero':
+      return '/dashboard/mesas';
+    case 'Cocinero':
+      return '/dashboard/cocina';
+    case 'Cajero':
+      return '/dashboard/caja';
+    default:
+      return '/login';
+  }
+}
 
 export const STORAGE_KEYS = {
   TOKEN: 'sabor_token',

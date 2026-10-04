@@ -10,10 +10,11 @@ import { Alert } from '@/components/ui/alert';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { IconButton } from '@/components/ui/icon-button';
 import { ApiError } from '@/lib/api-error';
+import { getDefaultRouteForRole } from '@/lib/constants';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { login, user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -22,12 +23,12 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Redirigir al dashboard si ya tiene sesión activa
+  // Redirigir a la ruta por defecto según rol si ya tiene sesión activa
   useEffect(() => {
-    if (!isAuthLoading && isAuthenticated) {
-      router.replace('/dashboard');
+    if (!isAuthLoading && isAuthenticated && user) {
+      router.replace(getDefaultRouteForRole(user.rol));
     }
-  }, [isAuthenticated, isAuthLoading, router]);
+  }, [isAuthenticated, isAuthLoading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,11 +41,11 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({
+      const res = await login({
         email: email.trim(),
         password,
       });
-      router.replace('/dashboard');
+      router.replace(getDefaultRouteForRole(res.usuario.rol));
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMessage(err.getUserMessage());

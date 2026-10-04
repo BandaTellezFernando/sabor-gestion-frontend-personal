@@ -14,31 +14,19 @@ import {
   Receipt,
   ChefHat,
   CreditCard,
-  DollarSign,
-  Utensils,
-  Layers,
-  Apple,
-  MapPin,
-  Users,
   ChevronLeft,
   ChevronRight,
   LucideIcon,
 } from 'lucide-react';
 
+import { getDefaultRouteForRole } from '@/lib/constants';
+
 const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
   '/dashboard/mesas': Grid,
-  '/mesas': Grid,
   '/dashboard/pedidos': Receipt,
-  '/pedidos': Receipt,
-  '/cocina': ChefHat,
-  '/caja': CreditCard,
-  '/pagos': DollarSign,
-  '/platos': Utensils,
-  '/categorias': Layers,
-  '/ubicaciones': MapPin,
-  '/ingredientes': Apple,
-  '/usuarios': Users,
+  '/dashboard/cocina': ChefHat,
+  '/dashboard/caja': CreditCard,
 };
 
 export interface SidebarProps {
@@ -52,24 +40,18 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 
   if (!user) return null;
 
-  // Filtrar rutas según rol
+  // Filtrar rutas autorizadas según rol
   const allowedRoutes = NAVIGATION_ROUTES.filter((r) => r.allowedRoles.includes(user.rol));
 
-  // Grupos semánticos
+  // Grupos semánticos oficiales
   const generalRoutes = allowedRoutes.filter((r) => r.href === '/dashboard');
-  const salonRoutes = allowedRoutes.filter((r) =>
-    ['/dashboard/mesas', '/mesas', '/dashboard/pedidos', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)
+  const operacionesRoutes = allowedRoutes.filter((r) =>
+    ['/dashboard/mesas', '/dashboard/pedidos', '/dashboard/cocina', '/dashboard/caja'].includes(r.href)
   );
-  const catalogRoutes = allowedRoutes.filter((r) =>
-    ['/platos', '/categorias', '/ubicaciones', '/ingredientes'].includes(r.href)
-  );
-  const adminRoutes = allowedRoutes.filter((r) => r.href === '/usuarios');
 
   const groups = [
     { title: 'General', routes: generalRoutes },
-    { title: 'Atención y Salón', routes: salonRoutes },
-    { title: 'Menú y Cocina', routes: catalogRoutes },
-    { title: 'Administración', routes: adminRoutes },
+    { title: 'Operaciones', routes: operacionesRoutes },
   ].filter((g) => g.routes.length > 0);
 
   const getInitials = (name: string, lastName: string) => {
@@ -86,7 +68,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
       {/* Cabecera de Marca */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-100 dark:border-zinc-800">
         <Link
-          href="/dashboard"
+          href={getDefaultRouteForRole(user.rol)}
           className="flex items-center gap-2 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg"
           title="Mishi-Food - Inicio"
         >
@@ -116,12 +98,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
               {group.routes.map((route) => {
                 const Icon = ICON_MAP[route.href] || LayoutDashboard;
                 const isActive = pathname === route.href;
-                const isImplemented =
-                  route.href === '/dashboard' ||
-                  route.href === '/dashboard/mesas' ||
-                  route.href === '/mesas' ||
-                  route.href === '/dashboard/pedidos' ||
-                  route.href === '/pedidos';
+                const isImplemented = route.isImplemented !== false;
 
                 return (
                   <li key={route.href}>

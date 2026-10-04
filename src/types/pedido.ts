@@ -34,6 +34,10 @@ export interface Pedido {
   clienteCI?: string;
   clienteNIT?: string;
   cajeroAsignado?: string | Usuario;
+  recogido?: boolean;
+  recogidoPor?: string | Usuario;
+  fechaRecogida?: string | Date;
+  fechaRecogidaBolivia?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -75,4 +79,31 @@ export interface PedidosQueryParams {
   cajero?: string;
   mesero?: string;
   reportesCierre?: boolean | string;
+  recogido?: boolean | string;
+  incluirRecogidos?: boolean | string;
+}
+
+export interface RespuestaRecogerPedido {
+  mensaje: string;
+  recogido: boolean;
+  recogidoPor: string;
+  fechaRecogida: string | Date;
+  fechaRecogidaBolivia?: string;
+  pedido: Pedido;
+}
+
+export interface CocinaPedidoRecogidoPayload {
+  pedidoId: string;
+  codigo?: string;
+  mesaId?: string;
+  mesaNombre?: string;
+  recogido: boolean;
+  recogidoPor?: string;
+  fechaRecogida?: string | Date;
+}
+
+export interface MesasAlertaListoPayload {
+  pedidoId: string;
+  mesaId?: string;
+  mesaNombre?: string;
 }

@@ -7,6 +7,7 @@ import { useSocketStatus } from '@/hooks/use-socket';
 import { ROL_LABELS, NAVIGATION_ROUTES } from '@/lib/constants';
 import { IconButton } from '@/components/ui/icon-button';
 import { Badge } from '@/components/ui/badge';
+import { NotificacionesMesero } from './notificaciones-mesero';
 import { Menu, Radio, LogOut } from 'lucide-react';
 
 export interface HeaderProps {
@@ -81,6 +82,9 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
             {isConnected ? 'En vivo' : 'Desconectado'}
           </span>
         </div>
+
+        {/* Campanita de Notificaciones de Pedidos Listos (Solo Mesero y Administrador) */}
+        {(user.rol === 'Mesero' || user.rol === 'Administrador') && <NotificacionesMesero />}
 
         {/* Separador vertical */}
         <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block" />

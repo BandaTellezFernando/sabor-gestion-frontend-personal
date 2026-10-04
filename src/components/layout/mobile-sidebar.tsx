@@ -14,30 +14,18 @@ import {
   Receipt,
   ChefHat,
   CreditCard,
-  DollarSign,
-  Utensils,
-  Layers,
-  Apple,
-  MapPin,
-  Users,
   X,
   LucideIcon,
 } from 'lucide-react';
 
+import { getDefaultRouteForRole } from '@/lib/constants';
+
 const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
   '/dashboard/mesas': Grid,
-  '/mesas': Grid,
   '/dashboard/pedidos': Receipt,
-  '/pedidos': Receipt,
-  '/cocina': ChefHat,
-  '/caja': CreditCard,
-  '/pagos': DollarSign,
-  '/platos': Utensils,
-  '/categorias': Layers,
-  '/ubicaciones': MapPin,
-  '/ingredientes': Apple,
-  '/usuarios': Users,
+  '/dashboard/cocina': ChefHat,
+  '/dashboard/caja': CreditCard,
 };
 
 export interface MobileSidebarProps {
@@ -140,16 +128,11 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const groups = [
     { title: 'General', routes: allowedRoutes.filter((r) => r.href === '/dashboard') },
     {
-      title: 'Atención y Salón',
-      routes: allowedRoutes.filter((r) => ['/dashboard/mesas', '/mesas', '/dashboard/pedidos', '/pedidos', '/cocina', '/caja', '/pagos'].includes(r.href)),
-    },
-    {
-      title: 'Menú y Cocina',
+      title: 'Operaciones',
       routes: allowedRoutes.filter((r) =>
-        ['/platos', '/categorias', '/ubicaciones', '/ingredientes'].includes(r.href)
+        ['/dashboard/mesas', '/dashboard/pedidos', '/dashboard/cocina', '/dashboard/caja'].includes(r.href)
       ),
     },
-    { title: 'Administración', routes: allowedRoutes.filter((r) => r.href === '/usuarios') },
   ].filter((g) => g.routes.length > 0);
 
   const getInitials = (name: string, lastName: string) => {
@@ -172,7 +155,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
       >
         {/* Cabecera Móvil */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-100 dark:border-zinc-800">
-          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2">
+          <Link href={getDefaultRouteForRole(user.rol)} onClick={onClose} className="flex items-center gap-2">
             <BrandLogo size="sm" showText={true} subtitle="Gestión Gastronómica" />
           </Link>
           <IconButton
@@ -197,12 +180,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 {group.routes.map((route) => {
                   const Icon = ICON_MAP[route.href] || LayoutDashboard;
                   const isActive = pathname === route.href;
-                  const isImplemented =
-                    route.href === '/dashboard' ||
-                    route.href === '/dashboard/mesas' ||
-                    route.href === '/mesas' ||
-                    route.href === '/dashboard/pedidos' ||
-                    route.href === '/pedidos';
+                  const isImplemented = route.isImplemented !== false;
 
                   return (
                     <li key={route.href}>

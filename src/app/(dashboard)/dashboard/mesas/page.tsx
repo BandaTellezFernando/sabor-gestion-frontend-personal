@@ -35,8 +35,9 @@ import {
   Clock,
   Radio,
 } from 'lucide-react';
+import { RoleGuard } from '@/components/auth/role-guard';
 
-export default function MesasPage() {
+function MesasPageContent() {
   const { user } = useAuth();
   const { isConnected } = useSocketStatus();
 
@@ -831,5 +832,13 @@ export default function MesasPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function MesasPage() {
+  return (
+    <RoleGuard allowedRoles={['Administrador', 'Mesero']}>
+      <MesasPageContent />
+    </RoleGuard>
   );
 }

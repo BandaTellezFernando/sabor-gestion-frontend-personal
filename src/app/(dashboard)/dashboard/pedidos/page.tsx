@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useSocketStatus, useSocketEvent } from '@/hooks/use-socket';
 import { pedidoService } from '@/services/pedido.service';
@@ -21,6 +22,7 @@ import { PedidoCard } from '@/components/pedidos/pedido-card';
 import { PedidoFormModal } from '@/components/pedidos/pedido-form-modal';
 import { PedidoDetailModal } from '@/components/pedidos/pedido-detail-modal';
 import { PedidoCancelModal } from '@/components/pedidos/pedido-cancel-modal';
+import { RoleGuard } from '@/components/auth/role-guard';
 import {
   Receipt,
   Radio,
@@ -201,9 +203,12 @@ function dedupeAndNormalizeList(list: Pedido[], mesasList: Mesa[] = []): Pedido[
   return result;
 }
 
-export default function PedidosPage() {
+function PedidosPageContent() {
   const { user } = useAuth();
   const { isConnected } = useSocketStatus();
+  const searchParams = useSearchParams();
+  const focusId = searchParams.get('focus');
+  const focusHandledRef = useRef<string | null>(null);
 
   // Estados de datos
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -277,6 +282,38 @@ export default function PedidosPage() {
     return () => clearTimeout(timer);
   }, [notification]);
 
+  // Soporte de query param ?focus=<pedidoId> para abrir automáticamente el modal de detalle
+  useEffect(() => {
+    if (!focusId || focusHandledRef.current === focusId) return;
+
+    const encontrado = pedidos.find(
+      (p) => p._id === focusId || p.codigo === focusId
+    );
+
+    if (encontrado) {
+      queueMicrotask(() => {
+        setSelectedDetailPedido(encontrado);
+        setIsDetailOpen(true);
+        focusHandledRef.current = focusId;
+      });
+    } else if (!isLoading) {
+      pedidoService
+        .getPedidos({ hoy: false })
+        .then((list: Pedido[]) => {
+          const p = list.find((item) => item._id === focusId || item.codigo === focusId);
+          if (p) {
+            setPedidos((prev) => upsertPedido(prev, p, mesas));
+            setSelectedDetailPedido(p);
+            setIsDetailOpen(true);
+            focusHandledRef.current = focusId;
+          }
+        })
+        .catch(() => {
+          // Ignorar si no se pudo sincronizar
+        });
+    }
+  }, [focusId, pedidos, isLoading, mesas]);
+
   // ─── Socket.IO: Integración en Tiempo Real ───────────────────────────
 
   // Evento A: cocina:nuevo_pedido (llega comanda nueva o reabierta)
@@ -337,10 +374,25 @@ export default function PedidosPage() {
     });
   }, []);
 
+  // Evento E: cocina:pedido_recogido (comanda fue recogida físicamente de cocina)
+  const handlePedidoRecogidoSocket = useCallback((data: unknown) => {
+    if (!data || typeof data !== 'object') return;
+    const info = data as { pedidoId?: string };
+    const pId = info.pedidoId;
+    if (!pId) return;
+    setPedidos((prev) =>
+      prev.map((p) => (p._id === pId ? { ...p, recogido: true } : p))
+    );
+    setSelectedDetailPedido((prev) =>
+      prev && prev._id === pId ? { ...prev, recogido: true } : prev
+    );
+  }, []);
+
   useSocketEvent('cocina:nuevo_pedido', handleNuevoPedidoSocket);
   useSocketEvent('cocina:actualizar_tablero', handleActualizarTableroSocket);
   useSocketEvent('mesas:updated', handleMesaUpdatedSocket);
   useSocketEvent('mesas:alerta_listo', handleAlertaListoSocket);
+  useSocketEvent('cocina:pedido_recogido', handlePedidoRecogidoSocket);
 
   // ─── Acciones Operativas ─────────────────────────────────────────────
 
@@ -442,6 +494,38 @@ export default function PedidosPage() {
     }
   };
 
+  // Recoger comanda físicamente de cocina (Mesero responsable o Administrador)
+  const handleRecogerPedido = async (pedido: Pedido) => {
+    try {
+      const res = await pedidoService.marcarRecogido(pedido._id);
+      const recogidoObj: Pedido = res.pedido || {
+        ...pedido,
+        recogido: true,
+        fechaRecogida: new Date().toISOString(),
+      };
+      setPedidos((prev) => upsertPedido(prev, recogidoObj, mesas));
+      setSelectedDetailPedido((prev) =>
+        prev && prev._id === pedido._id ? { ...prev, ...recogidoObj } : prev
+      );
+      setNotification({
+        type: 'success',
+        message: `Comanda ${pedido.codigo} marcada como recogida de cocina.`,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al recoger el pedido';
+      setNotification({
+        type: 'info',
+        message:
+          msg.includes('403') || msg.toLowerCase().includes('responsable')
+            ? 'Solo el mesero responsable o Administrador puede recoger este pedido.'
+            : msg.includes('409') || msg.toLowerCase().includes('ya')
+            ? 'El pedido ya fue marcado como recogido anteriormente.'
+            : `No se pudo registrar la recogida: ${msg}`,
+      });
+      throw err;
+    }
+  };
+
   // Métricas consolidadas (KPIs)
   const stats = useMemo(() => {
     const total = pedidos.length;
@@ -466,7 +550,11 @@ export default function PedidosPage() {
         (p.clienteNombre || '').toLowerCase().includes(searchLower);
 
       const matchEstado =
-        selectedEstado === 'Todos' || p.estado === selectedEstado;
+        selectedEstado === 'Todos'
+          ? true
+          : selectedEstado === 'LISTO_PARA_RECOGER'
+          ? p.estado === 'ENTREGADO' && !p.recogido
+          : p.estado === selectedEstado;
 
       return matchSearch && matchEstado;
     });
@@ -609,6 +697,7 @@ export default function PedidosPage() {
                 className="w-full py-2 px-3 text-xs sm:text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[40px]"
               >
                 <option value="Todos">Todos los Estados</option>
+                <option value="LISTO_PARA_RECOGER">Listo para Recoger</option>
                 <option value="ABIERTO">Abierto</option>
                 <option value="EN_PREPARACION">En Preparación</option>
                 <option value="ENTREGADO">Entregado</option>
@@ -678,11 +767,13 @@ export default function PedidosPage() {
               pedido={pedido}
               mesas={mesas}
               userRole={user.rol}
+              currentUserId={user?.id}
               onViewDetail={handleOpenDetail}
               onEdit={handleOpenEdit}
               onCancel={handleOpenCancel}
               onSolicitarCuenta={handleSolicitarCuenta}
               onCambiarEstadoCocina={handleCambiarEstadoCocina}
+              onRecogerPedido={handleRecogerPedido}
             />
           ))}
         </div>
@@ -708,6 +799,7 @@ export default function PedidosPage() {
         pedido={selectedDetailPedido}
         mesas={mesas}
         userRole={user.rol}
+        currentUserId={user?.id}
         onEdit={(p) => {
           setIsDetailOpen(false);
           handleOpenEdit(p);
@@ -718,6 +810,7 @@ export default function PedidosPage() {
         }}
         onSolicitarCuenta={handleSolicitarCuenta}
         onCambiarEstadoCocina={handleCambiarEstadoCocina}
+        onRecogerPedido={handleRecogerPedido}
       />
 
       <PedidoCancelModal
@@ -728,5 +821,24 @@ export default function PedidosPage() {
         onConfirmCancel={handleConfirmCancel}
       />
     </div>
+  );
+}
+
+export default function PedidosPage() {
+  return (
+    <RoleGuard allowedRoles={['Administrador', 'Mesero']}>
+      <Suspense
+        fallback={
+          <div className="py-16 flex flex-col items-center justify-center space-y-3">
+            <Spinner size="lg" />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 animate-pulse">
+              Cargando comandas del restaurante...
+            </p>
+          </div>
+        }
+      >
+        <PedidosPageContent />
+      </Suspense>
+    </RoleGuard>
   );
 }

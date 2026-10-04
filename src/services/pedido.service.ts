@@ -5,6 +5,7 @@ import {
   ActualizarPedidoDTO,
   ActualizarEstadoPedidoDTO,
   PedidosQueryParams,
+  RespuestaRecogerPedido,
 } from '@/types';
 
 export const pedidoService = {
@@ -22,6 +23,8 @@ export const pedidoService = {
       if (params.cajero) query.cajero = params.cajero;
       if (params.mesero) query.mesero = params.mesero;
       if (params.reportesCierre !== undefined) query.reportesCierre = String(params.reportesCierre);
+      if (params.recogido !== undefined) query.recogido = String(params.recogido);
+      if (params.incluirRecogidos !== undefined) query.incluirRecogidos = String(params.incluirRecogidos);
     }
 
     const list = await apiClient.get<Pedido[]>('/pedidos', { params: query });
@@ -34,6 +37,15 @@ export const pedidoService = {
   async getPedidosPendientesCobro(cajero?: string): Promise<Pedido[]> {
     const params = cajero ? { cajero } : undefined;
     const list = await apiClient.get<Pedido[]>('/pedidos/pendientes-cobro', { params });
+    return Array.isArray(list) ? list : [];
+  },
+
+  /**
+   * Obtiene la cola de pedidos activos para Cocina (Cocinero, Administrador).
+   * Llama a GET /api/pedidos/cocina que omite datos financieros y retorna pedidos en flujo culinario.
+   */
+  async getPedidosCocina(): Promise<Pedido[]> {
+    const list = await apiClient.get<Pedido[]>('/pedidos/cocina');
     return Array.isArray(list) ? list : [];
   },
 
@@ -108,5 +120,13 @@ export const pedidoService = {
    */
   async cancelarPedido(id: string): Promise<{ mensaje: string; pedido: Pedido }> {
     return apiClient.patch<{ mensaje: string; pedido: Pedido }>(`/pedidos/${id}/cancel`, {});
+  },
+
+  /**
+   * Marca el pedido como recogido por el mesero responsable o Administrador (Mesero, Administrador).
+   * Requiere que el pedido esté en estado ENTREGADO. Persiste recogido: true sin cambiar el estado.
+   */
+  async marcarRecogido(id: string): Promise<RespuestaRecogerPedido> {
+    return apiClient.patch<RespuestaRecogerPedido>(`/pedidos/${id}/recoger`, {});
   },
 };

@@ -23,11 +23,13 @@ export interface PedidoDetailModalProps {
   onClose: () => void;
   pedido: Pedido | null;
   userRole: RolUsuario;
+  currentUserId?: string;
   mesas?: Mesa[];
   onEdit?: (pedido: Pedido) => void;
   onCancel?: (pedido: Pedido) => void;
   onSolicitarCuenta?: (pedido: Pedido) => Promise<void>;
   onCambiarEstadoCocina?: (pedido: Pedido, nuevoEstado: 'EN_PREPARACION' | 'ENTREGADO') => Promise<void>;
+  onRecogerPedido?: (pedido: Pedido) => Promise<void>;
 }
 
 export function PedidoDetailModal({
@@ -35,11 +37,13 @@ export function PedidoDetailModal({
   onClose,
   pedido,
   userRole,
+  currentUserId,
   mesas,
   onEdit,
   onCancel,
   onSolicitarCuenta,
   onCambiarEstadoCocina,
+  onRecogerPedido,
 }: PedidoDetailModalProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -61,6 +65,16 @@ export function PedidoDetailModal({
 
   const canCocineroAdvance = (canManage || isCocinero) &&
     (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
+
+  const meseroId =
+    typeof pedido.usuario === 'object' && pedido.usuario !== null
+      ? String(pedido.usuario._id || (pedido.usuario as { id?: string }).id || '')
+      : String(pedido.usuario || '');
+  const isResponsable = currentUserId ? meseroId === currentUserId : true;
+  const canRecoger =
+    (canManage || (isMesero && isResponsable)) &&
+    pedido.estado === 'ENTREGADO' &&
+    !pedido.recogido;
 
   const handleSolicitarCuenta = async () => {
     if (!onSolicitarCuenta || isActionLoading) return;
@@ -84,6 +98,17 @@ export function PedidoDetailModal({
     }
   };
 
+  const handleRecogerPedido = async () => {
+    if (!onRecogerPedido || isActionLoading) return;
+    setIsActionLoading(true);
+    try {
+      await onRecogerPedido(pedido);
+      onClose();
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const formatEstadoBadge = (estado: EstadoPedido) => {
     switch (estado) {
       case 'ABIERTO':
@@ -99,9 +124,16 @@ export function PedidoDetailModal({
           </Badge>
         );
       case 'ENTREGADO':
+        if (!pedido.recogido) {
+          return (
+            <Badge variant="pedido-en-preparacion" dot className="font-bold text-xs px-2.5 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-800 animate-pulse">
+              Listo para Recoger
+            </Badge>
+          );
+        }
         return (
           <Badge variant="pedido-entregado" dot className="font-semibold text-xs px-2.5 py-0.5">
-            Entregado
+            Entregado (Recogido)
           </Badge>
         );
       case 'CANCELADO':
@@ -207,6 +239,15 @@ export function PedidoDetailModal({
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-medium">
                 <QrCode className="w-3.5 h-3.5" />
                 <span>Pago QR disponible</span>
+              </div>
+            )}
+
+            {pedido.recogido && (
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>
+                  Recogido de cocina {pedido.fechaRecogidaBolivia ? `(${pedido.fechaRecogidaBolivia})` : ''}
+                </span>
               </div>
             )}
           </div>
@@ -319,6 +360,20 @@ export function PedidoDetailModal({
               >
                 <CheckCircle2 className="w-4 h-4 mr-1.5" />
                 Marcar como Entregado
+              </Button>
+            )}
+
+            {/* Mesero responsable o Admin: Recoger Pedido */}
+            {canRecoger && onRecogerPedido && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleRecogerPedido}
+                disabled={isActionLoading}
+                className="min-h-[40px] px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs hover:shadow-sm"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                Recoger Pedido
               </Button>
             )}
 

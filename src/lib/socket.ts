@@ -35,6 +35,7 @@ export const SOCKET_EVENTS = {
   // Cocina
   COCINA_NUEVO_PEDIDO: 'cocina:nuevo_pedido',
   COCINA_ACTUALIZAR_TABLERO: 'cocina:actualizar_tablero',
+  COCINA_PEDIDO_RECOGIDO: 'cocina:pedido_recogido',
   
   // Mesas
   MESAS_ALERTA_LISTO: 'mesas:alerta_listo',
