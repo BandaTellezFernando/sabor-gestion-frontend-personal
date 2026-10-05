@@ -1,3 +1,4 @@
+//src/services/receta.service.ts
 import { apiClient } from '@/lib/api-client';
 import { Receta, GuardarRecetaDTO, RespuestaGuardarReceta } from '@/types';
 

@@ -1,3 +1,4 @@
+//src/types/receta.ts
 import { Plato } from './plato';
 import { Ingrediente } from './ingrediente';
 

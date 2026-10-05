@@ -4,6 +4,7 @@ export interface Ingrediente {
   nombre: string;
   unidadMedida: string;
   disponible: boolean;
+  stockActual: number;
   fechaRegistro?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -12,11 +13,12 @@ export interface Ingrediente {
 export interface CrearIngredienteDTO {
   nombre: string;
   unidadMedida: string;
+  stockActual: number;
   disponible?: boolean;
 }
 
 export interface ActualizarIngredienteDTO {
   nombre?: string;
-  unidadMedida?: string;
+  stockActual?: number;
   disponible?: boolean;
 }

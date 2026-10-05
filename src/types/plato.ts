@@ -2,6 +2,11 @@ import { Categoria } from './categoria';
 
 export type { Categoria };
 
+export interface IngredienteRecetaDTO {
+  ingrediente: string;
+  cantidadNecesaria: number;
+}
+
 export interface Plato {
   _id: string;
   id?: string;
@@ -24,6 +29,7 @@ export interface CrearPlatoDTO {
   imagenUrl?: string;
   imagenPublicId?: string;
   disponible?: boolean;
+  ingredientes: IngredienteRecetaDTO[];
 }
 
 export interface ActualizarPlatoDTO {

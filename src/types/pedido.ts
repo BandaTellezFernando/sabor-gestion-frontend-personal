@@ -1,3 +1,5 @@
+
+//src/types/pedido.ts
 import { Plato } from './plato';
 import { Mesa } from './mesa';
 import { Usuario } from './usuario';
