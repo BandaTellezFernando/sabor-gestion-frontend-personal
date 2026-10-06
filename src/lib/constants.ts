@@ -53,6 +53,7 @@ export interface RouteNavItem {
  */
 export const NAVIGATION_ROUTES: RouteNavItem[] = [
   { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Usuarios', href: '/dashboard/usuarios', allowedRoles: ['Administrador'], isImplemented: true },
   { label: 'Mesas', href: '/dashboard/mesas', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
   { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
   { label: 'Cocina', href: '/dashboard/cocina', allowedRoles: ['Administrador', 'Cocinero'], isImplemented: true },
@@ -68,6 +69,7 @@ export const NAVIGATION_ROUTES: RouteNavItem[] = [
  */
 export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
   '/dashboard': ['Administrador'],
+  '/dashboard/usuarios': ['Administrador'],
   '/dashboard/mesas': ['Administrador', 'Mesero'],
   '/dashboard/pedidos': ['Administrador', 'Mesero'],
   '/dashboard/cocina': ['Administrador', 'Cocinero'],
@@ -83,6 +85,7 @@ export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
   '/caja': ['Cajero', 'Administrador'],
   '/platos': ['Administrador'],
   '/categorias': ['Administrador'],
+  '/usuarios': ['Administrador'],
   '/ingredientes': ['Administrador'],
   '/recetas': ['Administrador'],
 };
