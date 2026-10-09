@@ -80,6 +80,23 @@ export function initSocket(token: string): Socket {
     reconnectionDelay: 1000,
   });
 
+  socketInstance.on('auth:unauthorized', (data: { mensaje?: string; usuarioId?: string }) => {
+    try {
+      const storedUser = localStorage.getItem('sabor_user');
+      if (storedUser && data.usuarioId) {
+        const user = JSON.parse(storedUser);
+        if (user.id !== data.usuarioId && user._id !== data.usuarioId) {
+          return; // El evento es para otro usuario (evita conflictos si se comparten tokens en la misma ventana de navegador)
+        }
+      }
+    } catch (e) {}
+
+    if (data && data.mensaje) {
+      alert(data.mensaje);
+    }
+    window.dispatchEvent(new Event('auth:unauthorized'));
+  });
+
   notifySocketChange(socketInstance);
 
   return socketInstance;
