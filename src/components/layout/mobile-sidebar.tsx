@@ -19,6 +19,7 @@ import {
   Apple,
   ScrollText,
   X,
+  Users,
   LucideIcon,
 } from 'lucide-react';
 
@@ -26,6 +27,7 @@ import { getDefaultRouteForRole } from '@/lib/constants';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
+  '/dashboard/usuarios': Users,
   '/dashboard/mesas': Grid,
   '/dashboard/pedidos': Receipt,
   '/dashboard/cocina': ChefHat,
@@ -133,7 +135,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
   const allowedRoutes = NAVIGATION_ROUTES.filter((r) => r.allowedRoles.includes(user.rol));
 
-  const generalRoutes = allowedRoutes.filter((r) => r.href === '/dashboard');
+  const generalRoutes = allowedRoutes.filter((r) => ['/dashboard', '/dashboard/usuarios'].includes(r.href));
   const operacionesRoutes = allowedRoutes.filter((r) =>
     ['/dashboard/mesas', '/dashboard/pedidos', '/dashboard/cocina', '/dashboard/caja'].includes(r.href)
   );

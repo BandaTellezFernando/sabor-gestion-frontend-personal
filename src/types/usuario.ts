@@ -28,3 +28,21 @@ export interface ReporteCierreCajaDTO {
   propinas: number;
   pagosProcesados: number;
 }
+
+export interface CrearUsuarioDTO {
+  nombre: string;
+  apellido: string;
+  ci: string;
+  email: string;
+  rol: RolUsuario;
+  password?: string;
+}
+
+export interface ActualizarUsuarioDTO {
+  nombre?: string;
+  apellido?: string;
+  ci?: string;
+  email?: string;
+  rol?: RolUsuario;
+  password?: string;
+}
