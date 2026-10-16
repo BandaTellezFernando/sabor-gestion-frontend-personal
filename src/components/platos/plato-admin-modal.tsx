@@ -14,6 +14,7 @@ import {
   ActualizarPlatoDTO,
   GuardarRecetaDTO,
   Receta,
+  UnidadMedida,
 } from '@/types';
 
 import { platoService } from '@/services/plato.service';
@@ -24,6 +25,7 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
+import { obtenerUnidadesCompatibles } from '@/lib/unidades-medida';
 
 import {
   Upload,
@@ -57,6 +59,7 @@ interface PlatoAdminFormContentProps {
 interface LineaIngrediente {
   ingredienteId: string;
   cantidad: string;
+  unidadMedida: string;
 }
 
 const DEFAULT_FOOD_IMAGE =
@@ -219,6 +222,7 @@ function PlatoAdminFormContent({
                       ingredienteId:
                         ingredientesData[0]._id,
                       cantidad: '',
+                      unidadMedida: ingredientesData[0].unidadMedida,
                     },
                   ]
                 : []
@@ -253,6 +257,12 @@ function PlatoAdminFormContent({
                     String(
                       linea.cantidadNecesaria
                     ),
+                  unidadMedida:
+                    linea.unidadMedida ||
+                    (typeof linea.ingrediente === 'object' && linea.ingrediente
+                      ? linea.ingrediente.unidadMedida
+                      : ingredientesData.find((item) => item._id === linea.ingrediente)?.unidadMedida) ||
+                    'unidad',
                 })
               )
             );
@@ -264,6 +274,7 @@ function PlatoAdminFormContent({
                       ingredienteId:
                         ingredientesData[0]._id,
                       cantidad: '',
+                      unidadMedida: ingredientesData[0].unidadMedida,
                     },
                   ]
                 : []
@@ -356,6 +367,7 @@ function PlatoAdminFormContent({
         ingredienteId:
           siguienteDisponible._id,
         cantidad: '',
+        unidadMedida: siguienteDisponible.unidadMedida,
       },
     ]);
 
@@ -382,9 +394,17 @@ function PlatoAdminFormContent({
     setLineas((prev) => {
       const nuevasLineas = [...prev];
 
+      const ingredienteSeleccionado =
+        campo === 'ingredienteId'
+          ? ingredientes.find((item) => item._id === valor)
+          : undefined;
+
       nuevasLineas[index] = {
         ...nuevasLineas[index],
         [campo]: valor,
+        ...(ingredienteSeleccionado
+          ? { unidadMedida: ingredienteSeleccionado.unidadMedida }
+          : {}),
       };
 
       return nuevasLineas;
@@ -478,6 +498,7 @@ function PlatoAdminFormContent({
       cantidadNecesaria: Number(
         linea.cantidad
       ),
+          unidadMedida: linea.unidadMedida as UnidadMedida,
     }));
 
   // ─────────────────────────────────────────────
@@ -1011,11 +1032,18 @@ function PlatoAdminFormContent({
                         Unidad
                       </span>
 
-                      <div className="h-10 flex items-center justify-center rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2">
-                        <span className="text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 truncate">
-                          {unidad}
-                        </span>
-                      </div>
+                      <select
+                        aria-label="Unidad utilizada en la receta"
+                        value={linea.unidadMedida}
+                        onChange={(e) =>
+                          actualizarLineaIngrediente(index, 'unidadMedida', e.target.value)
+                        }
+                        className="w-full h-10 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-2 text-sm"
+                      >
+                        {obtenerUnidadesCompatibles(unidad).map((opcion) => (
+                          <option key={opcion} value={opcion}>{opcion}</option>
+                        ))}
+                      </select>
                     </div>
 
                     <div className="flex justify-end sm:pt-5">

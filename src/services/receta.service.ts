@@ -20,6 +20,7 @@ export const recetaService = {
       ingredientes: data.ingredientes.map((i) => ({
         ingrediente: i.ingrediente,
         cantidadNecesaria: Number(i.cantidadNecesaria),
+        unidadMedida: i.unidadMedida,
       })),
     });
     return res.receta;

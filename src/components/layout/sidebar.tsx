@@ -18,6 +18,7 @@ import {
   Utensils,
   Apple,
   ScrollText,
+  History,
   ChevronLeft,
   ChevronRight,
   Users,
@@ -37,6 +38,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   '/dashboard/platos': Utensils,
   '/dashboard/ingredientes': Apple,
   '/dashboard/recetas': ScrollText,
+  '/dashboard/movimientos-inventario': History,
 };
 
 export interface SidebarProps {
@@ -59,7 +61,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
     ['/dashboard/mesas', '/dashboard/pedidos', '/dashboard/cocina', '/dashboard/caja'].includes(r.href)
   );
   const catalogoRoutes = allowedRoutes.filter((r) =>
-    ['/dashboard/categorias', '/dashboard/platos', '/dashboard/ingredientes', '/dashboard/recetas'].includes(r.href)
+    ['/dashboard/categorias', '/dashboard/platos', '/dashboard/ingredientes', '/dashboard/recetas', '/dashboard/movimientos-inventario'].includes(r.href)
   );
 
   const groups = [

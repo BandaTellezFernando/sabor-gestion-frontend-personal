@@ -19,7 +19,6 @@ import { Alert } from '@/components/ui/alert';
 import { EmptyState } from '@/components/ui/empty-state';
 import {
   ScrollText,
-  Plus,
   Search,
   RefreshCw,
   Pencil,
@@ -145,11 +144,6 @@ function RecetasPageContent() {
     }
   }, [notification]);
 
-  const handleOpenCreate = () => {
-    setRecetaToEdit(null);
-    setIsModalOpen(true);
-  };
-
   const handleOpenEdit = (receta: Receta) => {
     setRecetaToEdit(receta);
     setIsModalOpen(true);
@@ -219,16 +213,7 @@ function RecetasPageContent() {
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={handleOpenCreate}
-            disabled={platos.length === 0 || ingredientes.length === 0}
-            className="flex items-center gap-2 shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nueva Receta</span>
-          </Button>
+
         </div>
       </div>
 
@@ -312,13 +297,15 @@ function RecetasPageContent() {
               : 'Empieza definiendo los ingredientes necesarios para los platos de la carta.'
           }
           action={
-            <Button
-              variant={searchTerm ? 'outline' : 'primary'}
-              size="sm"
-              onClick={searchTerm ? () => setSearchTerm('') : handleOpenCreate}
-            >
-              {searchTerm ? 'Limpiar búsqueda' : 'Crear Receta'}
-            </Button>
+            searchTerm ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSearchTerm('')}
+              >
+                Limpiar búsqueda
+              </Button>
+            ) : undefined
           }
         />
       )}
@@ -433,7 +420,7 @@ function RecetasPageContent() {
                               )}
                             </div>
                             <span className="font-mono text-stone-600 dark:text-stone-400 shrink-0 font-medium">
-                              {det.cantidadNecesaria} {ingUnidad}
+                              {det.cantidadNecesaria} {det.unidadMedida || ingUnidad}
                             </span>
                           </li>
                         );

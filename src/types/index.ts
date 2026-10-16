@@ -7,4 +7,5 @@ export * from './mesa';
 export * from './pedido';
 export * from './pago';
 export * from './inventario';
+export * from './movimiento-inventario';
 export * from './dashboard';

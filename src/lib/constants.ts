@@ -62,6 +62,7 @@ export const NAVIGATION_ROUTES: RouteNavItem[] = [
   { label: 'Platos', href: '/dashboard/platos', allowedRoles: ['Administrador'], isImplemented: true },
   { label: 'Ingredientes', href: '/dashboard/ingredientes', allowedRoles: ['Administrador'], isImplemented: true },
   { label: 'Recetas', href: '/dashboard/recetas', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Historial de inventario', href: '/dashboard/movimientos-inventario', allowedRoles: ['Administrador', 'Cocinero'], isImplemented: true },
 ];
 
 /**
@@ -79,6 +80,7 @@ export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
   '/dashboard/menu': ['Administrador'],
   '/dashboard/ingredientes': ['Administrador'],
   '/dashboard/recetas': ['Administrador'],
+  '/dashboard/movimientos-inventario': ['Administrador', 'Cocinero'],
   '/mesas': ['Administrador', 'Mesero'],
   '/pedidos': ['Administrador', 'Mesero'],
   '/cocina': ['Administrador', 'Cocinero'],

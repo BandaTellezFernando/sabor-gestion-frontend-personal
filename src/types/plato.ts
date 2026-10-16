@@ -1,10 +1,12 @@
 import { Categoria } from './categoria';
+import { UnidadMedida } from './ingrediente';
 
 export type { Categoria };
 
 export interface IngredienteRecetaDTO {
   ingrediente: string;
   cantidadNecesaria: number;
+  unidadMedida: UnidadMedida;
 }
 
 export interface Plato {

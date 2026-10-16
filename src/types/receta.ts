@@ -1,10 +1,11 @@
 //src/types/receta.ts
 import { Plato } from './plato';
-import { Ingrediente } from './ingrediente';
+import { Ingrediente, UnidadMedida } from './ingrediente';
 
 export interface RecetaIngredienteDetalle {
   ingrediente: string | Ingrediente;
   cantidadNecesaria: number;
+  unidadMedida: UnidadMedida;
 }
 
 export interface Receta {
@@ -21,6 +22,7 @@ export interface GuardarRecetaDTO {
   ingredientes: {
     ingrediente: string;
     cantidadNecesaria: number;
+  unidadMedida: UnidadMedida;
   }[];
 }
 

@@ -7,12 +7,14 @@ import {
   Plato,
   Ingrediente,
   GuardarRecetaDTO,
+  UnidadMedida,
 } from '@/types';
 
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
+import { obtenerUnidadesCompatibles } from '@/lib/unidades-medida';
 
 import {
   Plus,
@@ -43,6 +45,7 @@ interface RecetaFormContentProps {
 interface LineaIngrediente {
   ingredienteId: string;
   cantidad: string;
+  unidadMedida: string;
 }
 
 function obtenerPlatoId(
@@ -92,6 +95,12 @@ function RecetaFormContent({
               String(
                 linea.cantidadNecesaria
               ),
+            unidadMedida:
+              linea.unidadMedida ||
+              (typeof linea.ingrediente === 'object' && linea.ingrediente
+                ? linea.ingrediente.unidadMedida
+                : ingredientes.find((item) => item._id === linea.ingrediente)?.unidadMedida) ||
+              'unidad',
           })
         )
       : ingredientes.length > 0
@@ -100,6 +109,7 @@ function RecetaFormContent({
               ingredienteId:
                 ingredientes[0]._id,
               cantidad: '',
+              unidadMedida: ingredientes[0].unidadMedida,
             },
           ]
         : [];
@@ -155,6 +165,7 @@ function RecetaFormContent({
         ingredienteId:
           siguiente._id,
         cantidad: '',
+        unidadMedida: siguiente.unidadMedida,
       },
     ]);
 
@@ -179,9 +190,17 @@ function RecetaFormContent({
     setLineas((prev) => {
       const nuevas = [...prev];
 
+      const ingredienteSeleccionado =
+        campo === 'ingredienteId'
+          ? ingredientes.find((item) => item._id === valor)
+          : undefined;
+
       nuevas[index] = {
         ...nuevas[index],
         [campo]: valor,
+        ...(ingredienteSeleccionado
+          ? { unidadMedida: ingredienteSeleccionado.unidadMedida }
+          : {}),
       };
 
       return nuevas;
@@ -289,6 +308,7 @@ function RecetaFormContent({
               Number(
                 linea.cantidad
               ),
+            unidadMedida: linea.unidadMedida as UnidadMedida,
           })
         ),
       });
@@ -515,11 +535,18 @@ function RecetaFormContent({
                         Unidad
                       </span>
 
-                      <div className="h-10 flex items-center justify-center rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2">
-                        <span className="text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 truncate">
-                          {unidad}
-                        </span>
-                      </div>
+                      <select
+                          aria-label="Unidad utilizada en la receta"
+                          value={linea.unidadMedida}
+                          onChange={(e) =>
+                            actualizarLinea(index, 'unidadMedida', e.target.value)
+                          }
+                          className="w-full h-10 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-2 text-sm"
+                        >
+                          {obtenerUnidadesCompatibles(unidad).map((opcion) => (
+                            <option key={opcion} value={opcion}>{opcion}</option>
+                          ))}
+                        </select>
                     </div>
 
                     {/* Eliminar */}

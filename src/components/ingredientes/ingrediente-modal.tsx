@@ -31,13 +31,11 @@ interface IngredienteFormContentProps {
 const COMMON_UNITS = [
   'kg',
   'g',
-  'l',
+  'mg',
+  'L',
   'ml',
   'unidad',
-  'porción',
-  'pieza',
-  'cucharada',
-];
+] as const;
 
 function IngredienteFormContent({
   onClose,
@@ -50,7 +48,7 @@ function IngredienteFormContent({
     ingredienteToEdit?.nombre || ''
   );
 
-  const [unidadMedida, setUnidadMedida] = useState(
+  const [unidadMedida, setUnidadMedida] = useState<Ingrediente['unidadMedida']>(
     ingredienteToEdit?.unidadMedida || 'kg'
   );
 
@@ -84,12 +82,17 @@ function IngredienteFormContent({
       return;
     }
 
-    const cleanUnidad = unidadMedida.trim();
+    const cleanUnidad = unidadMedida.trim() as Ingrediente['unidadMedida'];
 
     if (!cleanUnidad) {
       setFormError(
         'La unidad de medida es obligatoria.'
       );
+      return;
+    }
+
+    if (!COMMON_UNITS.includes(cleanUnidad as (typeof COMMON_UNITS)[number])) {
+      setFormError('Selecciona una unidad válida: kg, g, mg, L, ml o unidad.');
       return;
     }
 
@@ -164,24 +167,9 @@ function IngredienteFormContent({
         </label>
 
         <div className="space-y-2">
-          <Input
-            id="ingrediente-unidad"
-            name="unidadMedida"
-            placeholder="Ej: kg, g, l, ml, unidad"
-            value={unidadMedida}
-            onChange={(e) =>
-              setUnidadMedida(e.target.value)
-            }
-            disabled={isEditing}
-            required
-            list="unidades-sugeridas"
-          />
-
-          <datalist id="unidades-sugeridas">
-            {COMMON_UNITS.map((u) => (
-              <option key={u} value={u} />
-            ))}
-          </datalist>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Selecciona una unidad usando los botones. Solo se permiten las unidades definidas por el sistema.
+          </p>
 
           {!isEditing && (
             <div className="flex flex-wrap gap-1.5">
@@ -205,8 +193,7 @@ function IngredienteFormContent({
 
           {isEditing && (
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              La unidad de medida queda fija después de crear el
-              ingrediente.
+              Unidad configurada: {unidadMedida}. No se puede cambiar después de crear el ingrediente.
             </p>
           )}
         </div>

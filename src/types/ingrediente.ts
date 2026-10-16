@@ -1,8 +1,19 @@
+export type UnidadMedida = 'kg' | 'g' | 'mg' | 'L' | 'ml' | 'unidad';
+
+export const UNIDADES_MEDIDA: UnidadMedida[] = [
+  'kg',
+  'g',
+  'mg',
+  'L',
+  'ml',
+  'unidad',
+];
+
 export interface Ingrediente {
   _id: string;
   id?: string;
   nombre: string;
-  unidadMedida: string;
+  unidadMedida: UnidadMedida;
   disponible: boolean;
   stockActual: number;
   fechaRegistro?: string;
@@ -12,7 +23,7 @@ export interface Ingrediente {
 
 export interface CrearIngredienteDTO {
   nombre: string;
-  unidadMedida: string;
+  unidadMedida: UnidadMedida;
   stockActual: number;
   disponible?: boolean;
 }

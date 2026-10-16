@@ -74,6 +74,7 @@ export const platoService = {
           cantidadNecesaria: Number(
             ingrediente.cantidadNecesaria
           ),
+          unidadMedida: ingrediente.unidadMedida,
         })
       ),
     });
