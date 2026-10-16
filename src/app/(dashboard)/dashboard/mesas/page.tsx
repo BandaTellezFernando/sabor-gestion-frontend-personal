@@ -39,6 +39,21 @@ import {
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
+function obtenerMesasConCuentaDisponible(pedidos: Pedido[]): string[] {
+  const ids = pedidos
+    .filter((pedido) => pedido.estado === 'ENTREGADO' && pedido.recogido === true)
+    .map((pedido) => {
+      const mesaId =
+        typeof pedido.mesa === 'object' && pedido.mesa
+          ? pedido.mesa._id
+          : pedido.mesa;
+      return mesaId ? String(mesaId) : '';
+    })
+    .filter((id) => id.length > 0);
+
+  return Array.from(new Set(ids));
+}
+
 function MesasPageContent() {
   const { user } = useAuth();
   const { isConnected } = useSocketStatus();
@@ -68,6 +83,8 @@ function MesasPageContent() {
   const [comandaExpiraEn, setComandaExpiraEn] = useState<string | Date | null>(null);
   const [isComandaOpen, setIsComandaOpen] = useState<boolean>(false);
   const [processingMesaId, setProcessingMesaId] = useState<string | null>(null);
+  const [requestingAccountMesaId, setRequestingAccountMesaId] = useState<string | null>(null);
+  const [mesasConCuentaDisponible, setMesasConCuentaDisponible] = useState<string[]>([]);
 
   // Estados para visualización y edición de Pedido Activo en mesa (Caso D)
   const [activePedido, setActivePedido] = useState<Pedido | null>(null);
@@ -78,6 +95,7 @@ function MesasPageContent() {
   const [isCancelOpen, setIsCancelOpen] = useState<boolean>(false);
   const [platos, setPlatos] = useState<Plato[]>([]);
   const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});
+  const solicitarCuentaMesaLockRef = useRef<Record<string, boolean>>({});
 
   const canManage = user?.rol === 'Administrador';
   const isMesero = user?.rol === 'Mesero';
@@ -87,12 +105,14 @@ function MesasPageContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const [mesasList, ubicacionesList] = await Promise.all([
+      const [mesasList, ubicacionesList, pedidosList] = await Promise.all([
         mesaService.getMesas(),
         ubicacionService.getUbicaciones().catch(() => []),
+        pedidoService.getPedidos({ activo: true, incluirRecogidos: true }).catch(() => []),
       ]);
       setMesas(mesasList);
       setUbicaciones(ubicacionesList);
+      setMesasConCuentaDisponible(obtenerMesasConCuentaDisponible(pedidosList));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al conectar con el servidor para cargar las mesas.');
     } finally {
@@ -148,6 +168,12 @@ function MesasPageContent() {
         return m;
       })
     );
+    void pedidoService
+      .getPedidos({ activo: true, incluirRecogidos: true })
+      .then((pedidosList) => {
+        setMesasConCuentaDisponible(obtenerMesasConCuentaDisponible(pedidosList));
+      })
+      .catch(() => setMesasConCuentaDisponible([]));
   }, []);
 
   const handleMesaDeleted = useCallback((data: unknown) => {
@@ -333,6 +359,7 @@ function MesasPageContent() {
       const pedidosActivos = await pedidoService.getPedidos({
         mesa: mesa._id,
         activo: true,
+        incluirRecogidos: true,
       });
 
       if (pedidosActivos.length > 0) {
@@ -363,6 +390,105 @@ function MesasPageContent() {
       }
     } finally {
       setProcessingMesaId(null);
+    }
+  };
+
+  // Solicita la cuenta de un pedido existente y sincroniza el estado de la mesa.
+  const solicitarCuentaPedido = async (p: Pedido, cerrarDetalle = false) => {
+    if (!p._id || solicitarCuentaLockRef.current[p._id]) return;
+    if (p.estado !== 'ENTREGADO' || p.recogido !== true) {
+      setNotification({
+        type: 'info',
+        message: 'Solo puedes solicitar la cuenta cuando el pedido esté entregado y recogido.',
+      });
+      return;
+    }
+    solicitarCuentaLockRef.current[p._id] = true;
+
+    try {
+      await pedidoService.solicitarCuenta(p._id);
+
+      if (cerrarDetalle) {
+        setIsDetailOpen(false);
+      }
+
+      const mesaId =
+        typeof p.mesa === 'object' && p.mesa ? p.mesa._id : p.mesa;
+
+      if (mesaId) {
+        setMesas((prev) =>
+          prev.map((m) =>
+            m._id === mesaId ? { ...m, estado: 'Cuenta Solicitada' } : m
+          )
+        );
+        setMesasConCuentaDisponible((prev) =>
+          prev.filter((id) => id !== String(mesaId))
+        );
+      }
+
+      setNotification({
+        type: 'success',
+        message: `Cuenta solicitada para la comanda ${p.codigo}.`,
+      });
+    } catch (err: unknown) {
+      setNotification({
+        type: 'info',
+        message: `Error al pedir cuenta: ${err instanceof Error ? err.message : 'Error del servidor'}`,
+      });
+      throw err;
+    } finally {
+      solicitarCuentaLockRef.current[p._id] = false;
+    }
+  };
+
+  // Permite solicitar la cuenta directamente desde la tarjeta de una mesa ocupada.
+  const handleSolicitarCuentaDesdeMesa = async (mesa: Mesa) => {
+    const mesaId = mesa._id;
+
+    if (
+      !mesaId ||
+      mesa.estado !== 'Ocupada' ||
+      solicitarCuentaMesaLockRef.current[mesaId]
+    ) {
+      return;
+    }
+
+    solicitarCuentaMesaLockRef.current[mesaId] = true;
+    setRequestingAccountMesaId(mesaId);
+
+    try {
+      const pedidosActivos = await pedidoService.getPedidos({
+        mesa: mesaId,
+        activo: true,
+        incluirRecogidos: true,
+      });
+
+      const pedidoListo = pedidosActivos.find(
+        (pedido) => pedido.estado === 'ENTREGADO' && pedido.recogido === true
+      );
+
+      if (!pedidoListo) {
+        setNotification({
+          type: 'info',
+          message: `No se puede solicitar la cuenta de ${mesa.numero}: aún hay platos pendientes de entrega o recogida.`,
+        });
+        void fetchData();
+        return;
+      }
+
+      try {
+        await solicitarCuentaPedido(pedidoListo);
+      } catch {
+        // El flujo compartido ya muestra el error en la notificación.
+      }
+    } catch (err: unknown) {
+      setNotification({
+        type: 'info',
+        message: `No se pudo buscar la comanda: ${err instanceof Error ? err.message : 'Error del servidor'}`,
+      });
+    } finally {
+      solicitarCuentaMesaLockRef.current[mesaId] = false;
+      setRequestingAccountMesaId(null);
     }
   };
 
@@ -746,7 +872,10 @@ function MesasPageContent() {
               onDelete={handleOpenDelete}
               onStateChange={handleStateChange}
               onSelectMesa={handleSelectMesa}
+              onRequestAccount={handleSolicitarCuentaDesdeMesa}
+              canRequestAccount={mesasConCuentaDisponible.includes(mesa._id)}
               isProcessing={processingMesaId === mesa._id}
+              isAccountProcessing={requestingAccountMesaId === mesa._id}
             />
           ))}
         </div>
@@ -788,33 +917,7 @@ function MesasPageContent() {
           setPedidoToCancel(p);
           setIsCancelOpen(true);
         }}
-        onSolicitarCuenta={async (p) => {
-          if (!p._id || solicitarCuentaLockRef.current[p._id]) return;
-          solicitarCuentaLockRef.current[p._id] = true;
-          try {
-            await pedidoService.solicitarCuenta(p._id);
-            setIsDetailOpen(false);
-            setMesas((prev) =>
-              prev.map((m) =>
-                m._id === (typeof p.mesa === 'object' && p.mesa ? p.mesa._id : p.mesa)
-                  ? { ...m, estado: 'Cuenta Solicitada' }
-                  : m
-              )
-            );
-            setNotification({
-              type: 'success',
-              message: `Cuenta solicitada para la comanda ${p.codigo}.`,
-            });
-          } catch (err: unknown) {
-            setNotification({
-              type: 'info',
-              message: `Error al pedir cuenta: ${err instanceof Error ? err.message : 'Error del servidor'}`,
-            });
-            throw err;
-          } finally {
-            solicitarCuentaLockRef.current[p._id] = false;
-          }
-        }}
+        onSolicitarCuenta={async (p) => solicitarCuentaPedido(p, true)}
         onCambiarEstadoCocina={async (p, nuevoEstado) => {
           const res = await pedidoService.actualizarEstado(p._id, nuevoEstado);
           setActivePedido(res.pedido || { ...p, estado: nuevoEstado });

@@ -14,7 +14,10 @@ export interface MesaCardProps {
   onDelete?: (mesa: Mesa) => void;
   onStateChange?: (mesa: Mesa, nuevoEstado: EstadoMesa) => Promise<void>;
   onSelectMesa?: (mesa: Mesa) => void;
+  onRequestAccount?: (mesa: Mesa) => Promise<void>;
+  canRequestAccount?: boolean;
   isProcessing?: boolean;
+  isAccountProcessing?: boolean;
 }
 
 export function MesaCard({
@@ -23,7 +26,10 @@ export function MesaCard({
   onEdit,
   onDelete,
   onSelectMesa,
+  onRequestAccount,
+  canRequestAccount = false,
   isProcessing = false,
+  isAccountProcessing = false,
 }: MesaCardProps) {
   const canManage = userRole === 'Administrador';
   const canOperateComanda = userRole === 'Mesero' || userRole === 'Administrador';
@@ -71,14 +77,14 @@ export function MesaCard({
   return (
     <div
       onClick={() => {
-        if (canOperateComanda && onSelectMesa && !isProcessing) {
+        if (canOperateComanda && onSelectMesa && !isProcessing && !isAccountProcessing) {
           onSelectMesa(mesa);
         }
       }}
       role={canOperateComanda ? 'button' : 'region'}
       tabIndex={canOperateComanda ? 0 : -1}
       onKeyDown={(e) => {
-        if (canOperateComanda && (e.key === 'Enter' || e.key === ' ')) {
+        if (canOperateComanda && !isProcessing && !isAccountProcessing && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           onSelectMesa?.(mesa);
         }
@@ -194,25 +200,48 @@ export function MesaCard({
               )}
             </button>
           ) : mesa.estado === 'Ocupada' ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectMesa?.(mesa);
-              }}
-              disabled={isProcessing}
-              className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#C84B26] hover:bg-[#B23D1B] active:bg-[#9B3214] text-white shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[42px] cursor-pointer"
-              title="Consultar comanda o continuar pedido en salón"
-            >
-              {isProcessing ? (
-                <Spinner size="sm" className="text-white" />
-              ) : (
-                <>
-                  <UtensilsCrossed className="w-4 h-4" />
-                  <span>Ver / Continuar Comanda</span>
-                </>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectMesa?.(mesa);
+                }}
+                disabled={isProcessing || isAccountProcessing}
+                className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#C84B26] hover:bg-[#B23D1B] active:bg-[#9B3214] text-white shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[42px] cursor-pointer"
+                title="Consultar comanda o continuar pedido en salón"
+              >
+                {isProcessing ? (
+                  <Spinner size="sm" className="text-white" />
+                ) : (
+                  <>
+                    <UtensilsCrossed className="w-4 h-4" />
+                    <span>Ver / Continuar Comanda</span>
+                  </>
+                )}
+              </button>
+              {onRequestAccount && canRequestAccount && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void onRequestAccount(mesa);
+                  }}
+                  disabled={isProcessing || isAccountProcessing}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 dark:bg-amber-950/40 dark:hover:bg-amber-950/70 dark:text-amber-200 border border-amber-300 dark:border-amber-800 flex items-center justify-center gap-2 transition-all disabled:opacity-50 min-h-[42px] cursor-pointer"
+                  title="Solicitar la cuenta de la comanda existente"
+                >
+                  {isAccountProcessing ? (
+                    <Spinner size="sm" className="text-amber-800 dark:text-amber-200" />
+                  ) : (
+                    <>
+                      <Receipt className="w-4 h-4" />
+                      <span>Solicitar cuenta</span>
+                    </>
+                  )}
+                </button>
               )}
-            </button>
+            </div>
           ) : (
             <button
               type="button"

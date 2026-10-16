@@ -54,9 +54,17 @@ export function PedidoCard({
       ? pedido.mesa._id
       : pedido.mesa;
   const mesaObj = mesas?.find((m) => m._id === mesaId);
-  const yaSolicitada = cuentaYaSolicitada || mesaObj?.estado === 'Cuenta Solicitada';
+  const estadoMesaPedido =
+    typeof pedido.mesa === 'object' && pedido.mesa !== null
+      ? pedido.mesa.estado
+      : undefined;
+  const yaSolicitada =
+    cuentaYaSolicitada ||
+    mesaObj?.estado === 'Cuenta Solicitada' ||
+    estadoMesaPedido === 'Cuenta Solicitada';
 
   const canEdit = (canManage || isMesero) &&
+    !yaSolicitada &&
     (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION' || pedido.estado === 'ENTREGADO');
 
   const canCancel = (canManage || isMesero) &&
@@ -64,7 +72,9 @@ export function PedidoCard({
 
   const canPedirCuenta = (canManage || isMesero) &&
     Boolean(pedido.mesa) &&
-    (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION' || pedido.estado === 'ENTREGADO');
+    !yaSolicitada &&
+    pedido.estado === 'ENTREGADO' &&
+    pedido.recogido === true;
 
   const canCocineroAdvance = (canManage || isCocinero) &&
     (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
