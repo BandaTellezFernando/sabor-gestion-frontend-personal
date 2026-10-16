@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Usuario, CrearUsuarioDTO, ActualizarUsuarioDTO, RolUsuario } from '@/types';
+import { Usuario, CrearUsuarioDTO, RolUsuario } from '@/types';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,13 @@ import { ROLES } from '@/lib/constants';
 export interface UsuarioModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: CrearUsuarioDTO) => Promise<void>;
   usuarioToEdit?: Usuario | null;
 }
 
 interface UsuarioFormContentProps {
   onClose: () => void;
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: CrearUsuarioDTO) => Promise<void>;
   usuarioToEdit?: Usuario | null;
 }
 
@@ -58,7 +58,7 @@ function UsuarioFormContent({
 
     setIsSubmitting(true);
     try {
-      const data: any = {
+      const data: CrearUsuarioDTO = {
         nombre: cleanNombre,
         apellido: cleanApellido,
         ci: cleanCi,

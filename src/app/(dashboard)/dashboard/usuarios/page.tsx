@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Usuario } from '@/types';
+import { CrearUsuarioDTO, Usuario } from '@/types';
 import { usuarioService } from '@/services/usuario.service';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UsuarioModal } from '@/components/usuarios/usuario-modal';
@@ -94,7 +94,7 @@ function UsuariosPageContent() {
     setIsEstadoOpen(true);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: CrearUsuarioDTO) => {
     if (usuarioToEdit) {
       await usuarioService.actualizarUsuario(usuarioToEdit._id || usuarioToEdit.id, data);
       setNotification({ type: 'success', message: `Usuario "${data.nombre} ${data.apellido}" actualizado exitosamente.` });

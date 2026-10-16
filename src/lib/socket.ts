@@ -89,7 +89,7 @@ export function initSocket(token: string): Socket {
           return; // El evento es para otro usuario (evita conflictos si se comparten tokens en la misma ventana de navegador)
         }
       }
-    } catch (e) {}
+    } catch { /* Los datos almacenados pueden no ser JSON válido. */ }
 
     if (data && data.mensaje) {
       alert(data.mensaje);
