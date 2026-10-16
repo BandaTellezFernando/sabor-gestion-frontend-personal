@@ -9,6 +9,7 @@ import { SOCKET_EVENTS } from '@/lib/socket';
 import { Mesa, EstadoMesa, CrearMesaDTO, Ubicacion, Pedido, Plato, ActualizarPedidoDTO } from '@/types';
 import { MesaCard } from '@/components/mesas/mesa-card';
 import { MesaFormModal } from '@/components/mesas/mesa-form-modal';
+import { UbicacionManagerModal } from '@/components/mesas/ubicacion-manager-modal';
 import { MesaDeleteModal } from '@/components/mesas/mesa-delete-modal';
 import { ComandaModal } from '@/components/mesas/comanda-modal';
 import { PedidoDetailModal } from '@/components/pedidos/pedido-detail-modal';
@@ -34,6 +35,7 @@ import {
   UtensilsCrossed,
   Clock,
   Radio,
+  MapPin,
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
@@ -59,6 +61,7 @@ function MesasPageContent() {
 
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [mesaToDelete, setMesaToDelete] = useState<Mesa | null>(null);
+  const [isUbicacionesOpen, setIsUbicacionesOpen] = useState<boolean>(false);
 
   // Estados para Ocupación Temporal y Apertura de Comanda
   const [comandaMesa, setComandaMesa] = useState<Mesa | null>(null);
@@ -515,7 +518,7 @@ function MesasPageContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button
             variant="outline"
             size="sm"
@@ -528,14 +531,24 @@ function MesasPageContent() {
           </Button>
 
           {canManage && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleOpenCreate}
-              leftIcon={<Plus className="w-4 h-4" />}
-            >
-              Nueva Mesa
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsUbicacionesOpen(true)}
+                leftIcon={<MapPin className="w-4 h-4" />}
+              >
+                Gestionar ubicaciones
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleOpenCreate}
+                leftIcon={<Plus className="w-4 h-4" />}
+              >
+                Nueva Mesa
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -852,6 +865,13 @@ function MesasPageContent() {
             onClose={() => setIsDeleteOpen(false)}
             onConfirm={handleDeleteMesa}
             mesa={mesaToDelete}
+          />
+
+          <UbicacionManagerModal
+            isOpen={isUbicacionesOpen}
+            onClose={() => setIsUbicacionesOpen(false)}
+            ubicaciones={ubicaciones}
+            onRefresh={fetchData}
           />
         </>
       )}
