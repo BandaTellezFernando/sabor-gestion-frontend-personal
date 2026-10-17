@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
   Clock,
   User,
-  ChefHat,
   Receipt,
   CheckCircle2,
   XCircle,
@@ -38,7 +37,6 @@ export function PedidoCard({
   onEdit,
   onCancel,
   onSolicitarCuenta,
-  onCambiarEstadoCocina,
   onRecogerPedido,
 }: PedidoCardProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -47,7 +45,6 @@ export function PedidoCard({
 
   const canManage = userRole === 'Administrador';
   const isMesero = userRole === 'Mesero';
-  const isCocinero = userRole === 'Cocinero';
 
   const mesaId =
     typeof pedido.mesa === 'object' && pedido.mesa !== null
@@ -76,9 +73,6 @@ export function PedidoCard({
     pedido.estado === 'ENTREGADO' &&
     pedido.recogido === true;
 
-  const canCocineroAdvance = (canManage || isCocinero) &&
-    (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
-
   const meseroId =
     typeof pedido.usuario === 'object' && pedido.usuario !== null
       ? String(pedido.usuario._id || pedido.usuario.id || '')
@@ -99,17 +93,6 @@ export function PedidoCard({
       setCuentaYaSolicitada(true);
     } finally {
       solicitarCuentaLockRef.current = false;
-      setIsActionLoading(false);
-    }
-  };
-
-  const handleEstadoCocina = async (nuevo: 'EN_PREPARACION' | 'ENTREGADO', e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onCambiarEstadoCocina || isActionLoading) return;
-    setIsActionLoading(true);
-    try {
-      await onCambiarEstadoCocina(pedido, nuevo);
-    } finally {
       setIsActionLoading(false);
     }
   };
@@ -326,36 +309,6 @@ export function PedidoCard({
             >
               <Eye className="w-3.5 h-3.5 mr-1" />
               Ver Detalle
-            </Button>
-          )}
-
-          {/* Acciones de Cocina: ABIERTO -> EN_PREPARACION */}
-          {canCocineroAdvance && pedido.estado === 'ABIERTO' && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={(e) => handleEstadoCocina('EN_PREPARACION', e)}
-              disabled={isActionLoading}
-              className="min-h-[38px] px-3 text-xs font-semibold rounded-xl"
-              title="Iniciar preparación en cocina"
-            >
-              <ChefHat className="w-3.5 h-3.5 mr-1" />
-              Cocinar
-            </Button>
-          )}
-
-          {/* Acciones de Cocina: EN_PREPARACION -> ENTREGADO */}
-          {canCocineroAdvance && pedido.estado === 'EN_PREPARACION' && (
-            <Button
-              variant="success"
-              size="sm"
-              onClick={(e) => handleEstadoCocina('ENTREGADO', e)}
-              disabled={isActionLoading}
-              className="min-h-[38px] px-3 text-xs font-semibold rounded-xl"
-              title="Marcar pedido como entregado a meseros"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-              Entregar
             </Button>
           )}
 
