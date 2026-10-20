@@ -7,7 +7,24 @@
 export interface ApiErrorResponse {
   mensaje: string;
   errores?: string[];
-  faltantes?: string[];
+  faltantes?: Array<
+    | string
+    | {
+        ingrediente: string;
+        disponible: number;
+        requerido: number;
+        faltante: number;
+        unidad: string;
+      }
+    | {
+        plato: string;
+        mensaje: string;
+      }
+    | {
+        ingrediente: string;
+        plato: string;
+      }
+  >;
 }
 
 export interface MensajeRespuestaResponse {
