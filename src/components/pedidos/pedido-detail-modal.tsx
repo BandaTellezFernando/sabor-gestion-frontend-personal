@@ -1,3 +1,4 @@
+//src/components/pedidos/pedido-detail-modal.tsx
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -29,7 +30,8 @@ export interface PedidoDetailModalProps {
   onEdit?: (pedido: Pedido) => void;
   onCancel?: (pedido: Pedido) => void;
   onSolicitarCuenta?: (pedido: Pedido) => Promise<void>;
-  onCambiarEstadoCocina?: (pedido: Pedido, nuevoEstado: 'EN_PREPARACION' | 'ENTREGADO') => Promise<void>;
+  onEnviarCocina?: (pedido: Pedido) => Promise<void>;
+onCambiarEstadoCocina?: (pedido: Pedido, nuevoEstado: 'EN_PREPARACION' | 'LISTO') => Promise<void>;
   onRecogerPedido?: (pedido: Pedido) => Promise<void>;
 }
 
@@ -43,6 +45,7 @@ export function PedidoDetailModal({
   onEdit,
   onCancel,
   onSolicitarCuenta,
+  onEnviarCocina,
   onCambiarEstadoCocina,
   onRecogerPedido,
 }: PedidoDetailModalProps) {
@@ -70,12 +73,15 @@ export function PedidoDetailModal({
     mesaObj?.estado === 'Cuenta Solicitada' ||
     estadoMesaPedido === 'Cuenta Solicitada';
 
-  const canEdit = (canManage || isMesero) &&
-    !yaSolicitada &&
-    (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION' || pedido.estado === 'ENTREGADO');
+  
 
-  const canCancel = (canManage || isMesero) &&
-    (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
+ const canCancel =
+  (canManage || isMesero) &&
+  (
+    pedido.estado === 'BORRADOR' ||
+    pedido.estado === 'PENDIENTE' ||
+    pedido.estado === 'ABIERTO'
+  );
 
   const canPedirCuenta = (canManage || isMesero) &&
     Boolean(pedido.mesa) &&
@@ -83,18 +89,25 @@ export function PedidoDetailModal({
     pedido.estado === 'ENTREGADO' &&
     pedido.recogido === true;
 
-  const canCocineroAdvance = (canManage || isCocinero) &&
-    (pedido.estado === 'ABIERTO' || pedido.estado === 'EN_PREPARACION');
+  const canCocineroAdvance = isCocinero &&
+  (
+    pedido.estado === 'PENDIENTE' ||
+    pedido.estado === 'ABIERTO' ||
+    pedido.estado === 'EN_PREPARACION'
+  );
 
   const meseroId =
     typeof pedido.usuario === 'object' && pedido.usuario !== null
       ? String(pedido.usuario._id || (pedido.usuario as { id?: string }).id || '')
       : String(pedido.usuario || '');
   const isResponsable = currentUserId ? meseroId === currentUserId : true;
+  const canEdit =
+  (canManage || (isMesero && isResponsable)) &&
+  pedido.estado === 'BORRADOR';
   const canRecoger =
-    (canManage || (isMesero && isResponsable)) &&
-    pedido.estado === 'ENTREGADO' &&
-    !pedido.recogido;
+  (canManage || (isMesero && isResponsable)) &&
+  pedido.estado === 'LISTO' &&
+  !pedido.recogido;
 
   const handleSolicitarCuenta = async () => {
     if (!onSolicitarCuenta || solicitarCuentaLockRef.current || isActionLoading || yaSolicitada) return;
@@ -110,7 +123,7 @@ export function PedidoDetailModal({
     }
   };
 
-  const handleEstadoCocina = async (nuevo: 'EN_PREPARACION' | 'ENTREGADO') => {
+  const handleEstadoCocina = async (nuevo: 'EN_PREPARACION' | 'LISTO') => {
     if (!onCambiarEstadoCocina || isActionLoading) return;
     setIsActionLoading(true);
     try {
@@ -120,6 +133,20 @@ export function PedidoDetailModal({
       setIsActionLoading(false);
     }
   };
+
+  const handleEnviarCocina = async () => {
+  if (!onEnviarCocina || isActionLoading || pedido.estado !== 'BORRADOR') {
+    return;
+  }
+
+  setIsActionLoading(true);
+
+  try {
+    await onEnviarCocina(pedido);
+  } finally {
+    setIsActionLoading(false);
+  }
+};
 
   const handleRecogerPedido = async () => {
     if (!onRecogerPedido || isActionLoading) return;
@@ -134,6 +161,26 @@ export function PedidoDetailModal({
 
   const formatEstadoBadge = (estado: EstadoPedido) => {
     switch (estado) {
+      case 'BORRADOR':
+  return (
+    <Badge variant="neutral" dot className="font-semibold text-xs px-2.5 py-0.5">
+      Borrador · Sin enviar
+    </Badge>
+  );
+
+case 'PENDIENTE':
+  return (
+    <Badge variant="neutral" dot className="font-semibold text-xs px-2.5 py-0.5">
+      Pendiente de preparación
+    </Badge>
+  );
+
+case 'LISTO':
+  return (
+    <Badge variant="pedido-entregado" dot className="font-semibold text-xs px-2.5 py-0.5">
+      {pedido.recogido ? 'Recogido por mesero' : 'Listo para recoger'}
+    </Badge>
+  );
       case 'ABIERTO':
         return (
           <Badge variant="pedido-abierto" dot className="font-semibold text-xs px-2.5 py-0.5">
@@ -358,8 +405,37 @@ export function PedidoDetailModal({
         {/* Barra de Acciones según RBAC */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
           <div className="flex flex-wrap items-center gap-2.5">
+            {canEdit && onEdit && (
+  <Button
+    variant="outline"
+    size="md"
+    onClick={() => onEdit(pedido)}
+    disabled={isActionLoading}
+    className="min-h-[40px] px-3.5 text-xs font-semibold"
+  >
+    <Pencil className="w-4 h-4 mr-1.5" />
+    Editar borrador
+  </Button>
+)}
+            {/* Mesero / Admin: Enviar borrador a cocina */}
+{(canManage || isMesero) &&
+  pedido.estado === 'BORRADOR' &&
+  onEnviarCocina && (
+    <Button
+      variant="primary"
+      size="md"
+      onClick={() => void handleEnviarCocina()}
+      disabled={isActionLoading}
+      isLoading={isActionLoading}
+      className="min-h-[40px] px-3.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold"
+    >
+      <ChefHat className="w-4 h-4 mr-1.5" />
+      {isActionLoading ? 'Enviando a cocina...' : 'Enviar a cocina'}
+    </Button>
+)}
             {/* Cocinero: Iniciar preparación */}
-            {canCocineroAdvance && pedido.estado === 'ABIERTO' && (
+           {canCocineroAdvance &&
+  (pedido.estado === 'PENDIENTE' || pedido.estado === 'ABIERTO') && (
               <Button
                 variant="primary"
                 size="md"
@@ -377,12 +453,12 @@ export function PedidoDetailModal({
               <Button
                 variant="primary"
                 size="md"
-                onClick={() => handleEstadoCocina('ENTREGADO')}
+               onClick={() => handleEstadoCocina('LISTO')}
                 disabled={isActionLoading}
                 className="min-h-[40px] px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
               >
                 <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                Marcar como Entregado
+                Marcar como Listo
               </Button>
             )}
 
@@ -427,22 +503,7 @@ export function PedidoDetailModal({
               )
             )}
 
-            {/* Mesero / Admin: Editar */}
-            {canEdit && onEdit && (
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => {
-                  onClose();
-                  onEdit(pedido);
-                }}
-                disabled={isActionLoading}
-                className="min-h-[40px] px-3.5 text-xs font-medium"
-              >
-                <Pencil className="w-4 h-4 mr-1.5" />
-                Editar Comanda
-              </Button>
-            )}
+           
 
             {/* Mesero / Admin: Cancelar */}
             {canCancel && onCancel && (

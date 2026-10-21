@@ -1,6 +1,4 @@
-//src/components/mesas/comanda-modal.tsx
 'use client';
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Mesa, Plato, CrearPedidoDTO, ComandaDraft, ComandaDraftItem, Pedido } from '@/types';
 import { platoService } from '@/services/plato.service';
@@ -25,22 +23,24 @@ import {
   Info,
   Minimize2,
 } from 'lucide-react';
-
 export interface ComandaModalProps {
   isOpen: boolean;
   mesa: Mesa | null;
   expiraEn: string | Date | null;
+  modoPedidoAdicional?: boolean;
+  pedidoAEditar?: Pedido | null;
   onClose: () => void;
   onMinimize?: () => void;
   onSuccess: (pedido: Pedido) => void;
   onMesaLiberada: (mesaId: string) => void;
   onExpired?: (mesaId: string) => void;
 }
-
 export function ComandaModal({
   isOpen,
   mesa,
   expiraEn,
+  modoPedidoAdicional = false,
+  pedidoAEditar,
   onClose,
   onMinimize,
   onSuccess,
@@ -48,70 +48,68 @@ export function ComandaModal({
   onExpired,
 }: ComandaModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  // Catálogo de platos
+// Catálogo de platos
   const [platos, setPlatos] = useState<Plato[]>([]);
   const [isLoadingPlatos, setIsLoadingPlatos] = useState<boolean>(true);
   const [platosError, setPlatosError] = useState<string | null>(null);
-
-  // Filtros de búsqueda en catálogo
+// Filtros de búsqueda en catálogo
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
-
-  // Items de la comanda
+// Items de la comanda
   const [items, setItems] = useState<ComandaDraftItem[]>([]);
   const [draftRestored, setDraftRestored] = useState<boolean>(false);
-
-  // Estados de envío y errores
+// Estados de envío y errores
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Diálogo de confirmación de cancelación (X)
+// Diálogo de confirmación de cancelación (X)
   const [showCancelDialog, setShowCancelDialog] = useState<boolean>(false);
   const [isCancelling, setIsCancelling] = useState<boolean>(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
-
-  // Temporizador regresivo de 10 minutos
+// Temporizador regresivo de 10 minutos
   const [secondsLeft, setSecondsLeft] = useState<number>(600);
   const [isExpired, setIsExpired] = useState<boolean>(false);
-
-  const draftKey = mesa ? `mishi-food-comanda-draft:${mesa._id}` : null;
-
-  // ─── 1. Cálculo del Contador Regresivo contra expiraEn ─────────────
+ const draftKey =
+  mesa && !pedidoAEditar
+    ? `mishi-food-comanda-draft:${mesa._id}${modoPedidoAdicional ? ':adicional' : ''}`
+    : null;
+const isExpiredForCurrentMode =
+  !modoPedidoAdicional &&
+  !pedidoAEditar &&
+  Boolean(expiraEn) &&
+  isExpired;
+// ─── 1. Cálculo del Contador Regresivo contra expiraEn ─────────────
   useEffect(() => {
-    if (!isOpen || !expiraEn) return;
+    if (!isOpen || modoPedidoAdicional || pedidoAEditar || !expiraEn) return;
 
     const calculateRemaining = () => {
-      const expiryTimestamp = new Date(expiraEn).getTime();
-      const now = Date.now();
-      const diffSec = Math.max(0, Math.floor((expiryTimestamp - now) / 1000));
-      setSecondsLeft(diffSec);
-
-      if (diffSec <= 0) {
-        setIsExpired(true);
-        if (mesa && onExpired) {
-          onExpired(mesa._id);
-        }
-      } else {
-        setIsExpired(false);
+    const expiryTimestamp = new Date(expiraEn).getTime();
+    const now = Date.now();
+    const diffSec = Math.max(
+      0,
+      Math.floor((expiryTimestamp - now) / 1000)
+    );
+    setSecondsLeft(diffSec);
+    if (diffSec <= 0) {
+      setIsExpired(true);
+      if (mesa && onExpired) {
+        onExpired(mesa._id);
       }
-    };
-
-    calculateRemaining();
-    const interval = setInterval(calculateRemaining, 1000);
-    return () => clearInterval(interval);
-  }, [isOpen, expiraEn, mesa, onExpired]);
-
-  // Formato mm:ss
+    } else {
+      setIsExpired(false);
+    }
+  };
+  const interval = window.setInterval(calculateRemaining, 1000);
+  return () => window.clearInterval(interval);
+}, [isOpen, expiraEn, mesa, onExpired, modoPedidoAdicional, pedidoAEditar]);
+// Formato mm:ss
   const formattedTime = useMemo(() => {
     const mins = Math.floor(secondsLeft / 60);
     const secs = secondsLeft % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   }, [secondsLeft]);
-
-  // ─── 2. Cargar Catálogo de Platos Disponibles ───────────────────────
+// ─── 2. Cargar Catálogo de Platos Disponibles ───────────────────────
   useEffect(() => {
     if (!isOpen) return;
-
     let isMounted = true;
     const fetchPlatos = async () => {
       setIsLoadingPlatos(true);
@@ -119,11 +117,10 @@ export function ComandaModal({
       try {
         const list = await platoService.getPlatos();
         if (isMounted) {
-          // Filtrar platos activos y disponibles
+// Filtrar platos activos y disponibles
           const disponibles = list.filter((p) => p.disponible !== false);
           setPlatos(disponibles);
-
-          // Reconciliar items existentes del borrador con los platos disponibles
+// Reconciliar items existentes del borrador con los platos disponibles
           setItems((currentItems) =>
             currentItems.map((item) => {
               const platoReal = disponibles.find((p) => p._id === item.platoId);
@@ -151,42 +148,82 @@ export function ComandaModal({
         }
       }
     };
-
     void fetchPlatos();
     return () => {
       isMounted = false;
     };
   }, [isOpen]);
-
-  // ─── 3. Gestión y Reconciliación del Borrador en localStorage ──────
-  // Recuperar borrador al abrir (diferido con microtask para evitar render en cascada)
+// ─── 3. Gestión y Reconciliación del Borrador en localStorage ──────
+// Recuperar borrador al abrir (diferido con microtask para evitar render en cascada)
   useEffect(() => {
-    queueMicrotask(() => {
-      if (!isOpen || !draftKey) {
+  queueMicrotask(() => {
+    if (!isOpen) {
+      setItems([]);
+      setDraftRestored(false);
+      return;
+    }
+    if (pedidoAEditar) {
+      const itemsExistentes: ComandaDraftItem[] = (
+        pedidoAEditar.detalles || []
+      ).map((detalle) => {
+        const platoPoblado =
+          typeof detalle.plato === 'object' && detalle.plato !== null
+            ? detalle.plato
+            : null;
+        const platoId =
+          typeof detalle.plato === 'object' && detalle.plato !== null
+            ? detalle.plato._id
+            : detalle.plato;
+        const platoCatalogo = platos.find((p) => p._id === platoId);
+        return {
+          platoId,
+          nombre:
+            detalle.nombrePlato ||
+            platoPoblado?.nombre ||
+            platoCatalogo?.nombre ||
+            'Plato',
+          precio: Number(
+            detalle.precioUnitario ?? platoCatalogo?.precio ?? 0
+          ),
+          imagenUrl:
+            platoCatalogo?.imagenUrl || platoPoblado?.imagenUrl || '',
+          cantidad: detalle.cantidad || 1,
+          observacion: detalle.observacion || '',
+        };
+      });
+      setItems(itemsExistentes);
+      setDraftRestored(false);
+      return;
+    }
+    if (!draftKey) {
+      setItems([]);
+      setDraftRestored(false);
+      return;
+    }
+    try {
+      const stored = localStorage.getItem(draftKey);
+      if (stored) {
+        const parsed: ComandaDraft = JSON.parse(stored);
+        if (Array.isArray(parsed.items) && parsed.items.length > 0) {
+          setItems(parsed.items);
+          setDraftRestored(true);
+        } else {
+          setItems([]);
+          setDraftRestored(false);
+        }
+      } else {
         setItems([]);
         setDraftRestored(false);
-        return;
       }
-
-      try {
-        const stored = localStorage.getItem(draftKey);
-        if (stored) {
-          const parsed: ComandaDraft = JSON.parse(stored);
-          if (Array.isArray(parsed.items) && parsed.items.length > 0) {
-            setItems(parsed.items);
-            setDraftRestored(true);
-          }
-        }
-      } catch {
-        // Ignorar fallas de lectura de localStorage
-      }
-    });
-  }, [isOpen, draftKey]);
-
-  // Persistir cambios en localStorage
+    } catch {
+      setItems([]);
+      setDraftRestored(false);
+    }
+  });
+}, [isOpen, draftKey, pedidoAEditar]);
+// Persistir cambios en localStorage
   useEffect(() => {
     if (!isOpen || !draftKey || !mesa) return;
-
     if (items.length > 0) {
       const draft: ComandaDraft = {
         mesaId: mesa._id,
@@ -198,23 +235,21 @@ export function ComandaModal({
       try {
         localStorage.setItem(draftKey, JSON.stringify(draft));
       } catch {
-        // Ignorar excepciones de cuota de localStorage
+// Ignorar excepciones de cuota de localStorage
       }
     } else {
-      // Si la comanda quedó vacía, limpiar el borrador
+// Si la comanda quedó vacía, limpiar el borrador
       try {
         localStorage.removeItem(draftKey);
       } catch {
-        // Noop
+// Noop
       }
     }
   }, [items, isOpen, draftKey, mesa, expiraEn]);
-
-  // ─── 4. Acciones sobre la Comanda ──────────────────────────────────
-  // Agregar plato o incrementar cantidad
+// ─── 4. Acciones sobre la Comanda ──────────────────────────────────
+// Agregar plato o incrementar cantidad
   const handleAddItem = (plato: Plato) => {
-    if (isExpired) return;
-
+    if (isExpiredForCurrentMode) return;
     setItems((prev) => {
       const existingIndex = prev.findIndex((i) => i.platoId === plato._id);
       if (existingIndex >= 0) {
@@ -238,125 +273,134 @@ export function ComandaModal({
       ];
     });
   };
-
-  // Disminuir cantidad o eliminar si llega a 0
+// Disminuir cantidad o eliminar si llega a 0
   const handleDecreaseItem = (platoId: string) => {
-    if (isExpired) return;
-
+    if (isExpiredForCurrentMode) return;
     setItems((prev) => {
       const existing = prev.find((i) => i.platoId === platoId);
       if (!existing) return prev;
-
       if (existing.cantidad <= 1) {
         return prev.filter((i) => i.platoId !== platoId);
       }
-
       return prev.map((i) =>
         i.platoId === platoId ? { ...i, cantidad: i.cantidad - 1 } : i
       );
     });
   };
-
-  // Eliminar item por completo
+// Eliminar item por completo
   const handleRemoveItem = (platoId: string) => {
     setItems((prev) => prev.filter((i) => i.platoId !== platoId));
   };
-
-  // Actualizar observación de un plato
+// Actualizar observación de un plato
   const handleObservationChange = (platoId: string, observacion: string) => {
     setItems((prev) =>
       prev.map((i) => (i.platoId === platoId ? { ...i, observacion } : i))
     );
   };
-
-  // ─── 5. Confirmar y Enviar Pedido (POST /api/pedidos) ──────────────
+// ─── 5. Confirmar y Enviar Pedido (POST /api/pedidos) ──────────────
   const handleConfirmOrder = async () => {
-    if (!mesa || items.length === 0 || isSubmitting || isExpired) return;
+    if (
+      !mesa ||
+      items.length === 0 ||
+      isSubmitting ||
+      isExpiredForCurrentMode
+    ) {
+      return;
+    }
+
+    if (pedidoAEditar && pedidoAEditar.estado !== 'BORRADOR') {
+      setSubmitError('Solo puedes editar comandas que sigan en estado BORRADOR.');
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      // Construir DTO exacto esperado por el backend sin usar precios de cliente
-      const dto: CrearPedidoDTO = {
-        mesa: mesa._id,
-        detalles: items.map((i) => ({
-          plato: i.platoId,
-          cantidad: i.cantidad,
-          observacion: i.observacion.trim(),
-        })),
-      };
-
-      const nuevoPedido = await pedidoService.crearPedido(dto);
-
-      // Limpiar borrador local tras 201 exitoso
-      if (draftKey) {
-        try {
-          localStorage.removeItem(draftKey);
-        } catch {
-          // Noop
-        }
+    const detalles = items.map((item) => ({
+      plato: item.platoId,
+      cantidad: item.cantidad,
+      observacion: item.observacion.trim(),
+    }));
+    const pedidoGuardado = pedidoAEditar
+      ? await pedidoService.actualizarPedido(pedidoAEditar._id, {
+          detalles,
+        })
+      : await pedidoService.crearPedido({
+          mesa: mesa._id,
+          detalles,
+        });
+    if (draftKey) {
+      try {
+        localStorage.removeItem(draftKey);
+      } catch {
+// No impedir la operación si falla la limpieza local.
       }
-
-      // El backend consume automáticamente la ocupación temporal (NO llamar DELETE)
-      onSuccess(nuevoPedido);
-    } catch (err: unknown) {
-      // Si falla, la ocupación temporal y el borrador SE MANTIENEN
-      if (err instanceof ApiError) {
-        setSubmitError(err.getUserMessage());
-      } else if (err instanceof Error) {
-        setSubmitError(err.message);
-      } else {
-        setSubmitError('Ocurrió un error inesperado al procesar la comanda.');
-      }
-    } finally {
-      setIsSubmitting(false);
     }
-  };
-
-  // ─── 6. Cancelar con X y Confirmación ──────────────────────────────
+    setItems([]);
+    setDraftRestored(false);
+    onSuccess(pedidoGuardado);
+  } catch (err: unknown) {
+    if (err instanceof ApiError) {
+      setSubmitError(err.getUserMessage());
+    } else if (err instanceof Error) {
+      setSubmitError(err.message);
+    } else {
+      setSubmitError('Ocurrió un error inesperado al guardar la comanda.');
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+// ─── 6. Cancelar con X y Confirmación ──────────────────────────────
   const handleRequestClose = () => {
     setShowCancelDialog(true);
   };
-
-  const handleConfirmCancelOccupation = async () => {
-    if (!mesa) return;
-
-    setIsCancelling(true);
-    setCancelError(null);
-
-    try {
-      // Invocar DELETE /api/mesas/:id/ocupar-temporal
-      await mesaService.cancelarOcupacionTemporal(mesa._id);
-
-      // Eliminar borrador local
+ const handleConfirmCancelOccupation = async () => {
+  if (!mesa) return;
+  setIsCancelling(true);
+  setCancelError(null);
+  try {
+    if (pedidoAEditar || modoPedidoAdicional) {
       if (draftKey) {
-        try {
-          localStorage.removeItem(draftKey);
-        } catch {
-          // Noop
-        }
+        localStorage.removeItem(draftKey);
       }
-
+      setItems([]);
+      setDraftRestored(false);
       setShowCancelDialog(false);
-      onMesaLiberada(mesa._id);
       onClose();
-    } catch (err: unknown) {
-      if (err instanceof ApiError) {
-        setCancelError(err.getUserMessage());
-      } else if (err instanceof Error) {
-        setCancelError(err.message);
-      } else {
-        setCancelError('Error al cancelar la ocupación temporal.');
-      }
-    } finally {
-      setIsCancelling(false);
+      return;
     }
-  };
-
-  // ─── 7. Minimizar Comanda (Conserva Ocupación y Borrador) ──────────
+    await mesaService.cancelarOcupacionTemporal(mesa._id);
+    if (draftKey) {
+      localStorage.removeItem(draftKey);
+    }
+    setItems([]);
+    setDraftRestored(false);
+    setShowCancelDialog(false);
+    onMesaLiberada(mesa._id);
+    onClose();
+  } catch (err: unknown) {
+    if (err instanceof ApiError) {
+      setCancelError(err.getUserMessage());
+    } else if (err instanceof Error) {
+      setCancelError(err.message);
+    } else {
+      setCancelError(
+        pedidoAEditar
+          ? 'Error al cancelar la edición.'
+          : modoPedidoAdicional
+            ? 'Error al descartar la nueva comanda.'
+            : 'Error al cancelar la ocupación temporal.'
+      );
+    }
+  } finally {
+    setIsCancelling(false);
+  }
+};
+// ─── 7. Minimizar Comanda (Conserva Ocupación y Borrador) ──────────
   const handleMinimize = () => {
-    // Si hay items, asegurar persistencia inmediata en localStorage
+// Si hay items, asegurar persistencia inmediata en localStorage
     if (draftKey && mesa && items.length > 0) {
       try {
         const draft: ComandaDraft = {
@@ -368,21 +412,18 @@ export function ComandaModal({
         };
         localStorage.setItem(draftKey, JSON.stringify(draft));
       } catch {
-        // Noop
+// Noop
       }
     }
-
     if (onMinimize) {
       onMinimize();
     } else {
       onClose();
     }
   };
-
-  // Focus Trap y Tecla Escape (Accesibilidad Modal)
+// Focus Trap y Tecla Escape (Accesibilidad Modal)
   useEffect(() => {
     if (!isOpen) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -393,7 +434,6 @@ export function ComandaModal({
         }
         return;
       }
-
       if (e.key === 'Tab' && modalRef.current) {
         const focusableSelector =
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -401,15 +441,12 @@ export function ComandaModal({
         const focusable = Array.from(focusableElements).filter(
           (el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true'
         );
-
         if (focusable.length === 0) {
           e.preventDefault();
           return;
         }
-
         const firstElement = focusable[0];
         const lastElement = focusable[focusable.length - 1];
-
         if (e.shiftKey) {
           if (document.activeElement === firstElement || !modalRef.current.contains(document.activeElement)) {
             e.preventDefault();
@@ -423,15 +460,13 @@ export function ComandaModal({
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, showCancelDialog]);
-
-  // ─── 8. Cálculos y Filtros Visuales ────────────────────────────────
-  // Categorías de platos únicas
+// ─── 8. Cálculos y Filtros Visuales ────────────────────────────────
+// Categorías de platos únicas
   const categories = useMemo(() => {
     const set = new Set<string>();
     platos.forEach((p) => {
@@ -440,32 +475,25 @@ export function ComandaModal({
     });
     return ['Todas', ...Array.from(set).sort()];
   }, [platos]);
-
-  // Platos filtrados
+// Platos filtrados
   const filteredPlatos = useMemo(() => {
     return platos.filter((p) => {
       const matchesSearch =
         p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (p.descripcion && p.descripcion.toLowerCase().includes(searchTerm.toLowerCase()));
-
       const catName = typeof p.categoria === 'object' && p.categoria ? p.categoria.nombre : String(p.categoria || '');
       const matchesCat = selectedCategory === 'Todas' || catName.toLowerCase() === selectedCategory.toLowerCase();
-
       return matchesSearch && matchesCat;
     });
   }, [platos, searchTerm, selectedCategory]);
-
-  // Subtotal visual informativo
+// Subtotal visual informativo
   const visualSubtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   }, [items]);
-
   const totalItemsCount = useMemo(() => {
     return items.reduce((sum, item) => sum + item.cantidad, 0);
   }, [items]);
-
   if (!isOpen || !mesa) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
@@ -489,16 +517,18 @@ export function ComandaModal({
                 id="comanda-modal-title"
                 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate"
               >
-                Nueva comanda · {mesa.numero}
+               {pedidoAEditar
+  ? `Editar comanda ${pedidoAEditar.codigo}`
+  : `Nueva comanda${modoPedidoAdicional ? ' adicional' : ''} · ${mesa.numero}`}
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
                 Capacidad: {mesa.capacidad} comensales{mesa.ubicacion ? ` · ${mesa.ubicacion}` : ''}
               </p>
             </div>
           </div>
-
           {/* Contador de Tiempo Restante (10 minutos) */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {!modoPedidoAdicional && !pedidoAEditar && (
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold transition-colors ${
                 isExpired
@@ -512,33 +542,38 @@ export function ComandaModal({
               <Clock className="w-4 h-4 shrink-0" />
               <span>{isExpired ? 'Expirada' : formattedTime}</span>
             </div>
-
+              )}
             {/* Botón Minimizar */}
             <button
               type="button"
               onClick={handleMinimize}
+              disabled={Boolean(pedidoAEditar)}
               className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="Minimizar comanda"
               title="Minimizar (conserva la mesa ocupada y el borrador guardado)"
             >
               <Minimize2 className="w-5 h-5" />
             </button>
-
             {/* Botón X con confirmación */}
             <button
               type="button"
               onClick={handleRequestClose}
               className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="Cerrar y cancelar comanda"
-              title="Cancelar comanda y liberar mesa"
+              title={
+                pedidoAEditar
+                  ? 'Cancelar edición sin modificar el pedido original'
+                  : modoPedidoAdicional
+                    ? 'Descartar la nueva comanda'
+                    : 'Cancelar comanda y liberar mesa'
+              }
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
-
         {/* Alerta de Expiración o Error */}
-        {isExpired && (
+        {isExpiredForCurrentMode && (
           <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border-b border-rose-200 dark:border-rose-900 text-xs sm:text-sm text-rose-800 dark:text-rose-300 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -551,7 +586,6 @@ export function ComandaModal({
             </Button>
           </div>
         )}
-
         {submitError && (
           <div className="p-3 bg-amber-50 dark:bg-amber-950/50 border-b border-amber-200 dark:border-amber-900 text-xs sm:text-sm text-amber-800 dark:text-amber-300 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
@@ -564,7 +598,6 @@ export function ComandaModal({
             </button>
           </div>
         )}
-
         {/* Cuerpo Principal Dividido (Catálogo Izquierda, Resumen Derecha) */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
           {/* Columna Izquierda: Catálogo de Platos (7 cols en desktop) */}
@@ -581,7 +614,6 @@ export function ComandaModal({
                   className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[38px]"
                 />
               </div>
-
               {/* Píldoras de Categoría */}
               {categories.length > 1 && (
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
@@ -602,7 +634,6 @@ export function ComandaModal({
                 </div>
               )}
             </div>
-
             {/* Listado de Platos */}
             <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
               {isLoadingPlatos ? (
@@ -625,7 +656,6 @@ export function ComandaModal({
                   {filteredPlatos.map((plato) => {
                     const itemInCart = items.find((i) => i.platoId === plato._id);
                     const qty = itemInCart ? itemInCart.cantidad : 0;
-
                     return (
                       <div
                         key={plato._id}
@@ -637,7 +667,7 @@ export function ComandaModal({
                       >
                         <div className="flex gap-2.5">
                           {plato.imagenUrl ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
+/* eslint-disable-next-line @next/next/no-img-element */
                             <img
                               src={plato.imagenUrl}
                               alt={plato.nombre}
@@ -651,7 +681,6 @@ export function ComandaModal({
                               <UtensilsCrossed className="w-6 h-6 opacity-60" />
                             </div>
                           )}
-
                           <div className="min-w-0 flex-1">
                             <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
                               {plato.nombre}
@@ -666,14 +695,13 @@ export function ComandaModal({
                             </div>
                           </div>
                         </div>
-
                         {/* Controles de Agregar / Stepper */}
                         <div className="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-end">
                           {qty === 0 ? (
                             <button
                               type="button"
                               onClick={() => handleAddItem(plato)}
-                              disabled={isExpired}
+                              disabled={isExpiredForCurrentMode}
                               className="py-1.5 px-3 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 min-h-[36px] active:scale-95 disabled:opacity-50"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -684,21 +712,19 @@ export function ComandaModal({
                               <button
                                 type="button"
                                 onClick={() => handleDecreaseItem(plato._id)}
-                                disabled={isExpired}
+                                disabled={isExpiredForCurrentMode}
                                 className="w-8 h-8 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                                 aria-label={`Disminuir ${plato.nombre}`}
                               >
                                 <Minus className="w-3.5 h-3.5" />
                               </button>
-
                               <span className="text-xs sm:text-sm font-bold w-6 text-center text-stone-900 dark:text-stone-100">
                                 {qty}
                               </span>
-
                               <button
                                 type="button"
                                 onClick={() => handleAddItem(plato)}
-                                disabled={isExpired}
+                                disabled={isExpiredForCurrentMode}
                                 className="w-8 h-8 rounded-xl bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50 shadow-xs"
                                 aria-label={`Aumentar ${plato.nombre}`}
                               >
@@ -714,7 +740,6 @@ export function ComandaModal({
               )}
             </div>
           </div>
-
           {/* Columna Derecha: Resumen de la Comanda (5 cols en desktop) */}
           <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-stone-50/60 dark:bg-stone-900/60">
             {/* Cabecera del Resumen */}
@@ -735,7 +760,6 @@ export function ComandaModal({
                 </div>
               )}
             </div>
-
             {/* Listado Editable de Items Seleccionados */}
             <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
               {items.length === 0 ? (
@@ -763,13 +787,12 @@ export function ComandaModal({
                           Bs. {item.precio.toFixed(2)} c/u
                         </div>
                       </div>
-
                       <div className="flex items-center gap-1.5 shrink-0">
                         {/* Steppers */}
                         <button
                           type="button"
                           onClick={() => handleDecreaseItem(item.platoId)}
-                          disabled={isExpired}
+                          disabled={isExpiredForCurrentMode}
                           className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Disminuir cantidad"
                         >
@@ -784,18 +807,17 @@ export function ComandaModal({
                             const platoObj = platos.find((p) => p._id === item.platoId);
                             if (platoObj) handleAddItem(platoObj);
                           }}
-                          disabled={isExpired}
+                          disabled={isExpiredForCurrentMode}
                           className="w-7 h-7 rounded-lg bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Aumentar cantidad"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
-
                         {/* Botón Eliminar */}
                         <button
                           type="button"
                           onClick={() => handleRemoveItem(item.platoId)}
-                          disabled={isExpired}
+                          disabled={isExpiredForCurrentMode}
                           className="w-7 h-7 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors ml-1"
                           title="Quitar plato de la comanda"
                         >
@@ -803,7 +825,6 @@ export function ComandaModal({
                         </button>
                       </div>
                     </div>
-
                     {/* Subtotal del item */}
                     <div className="flex items-center justify-between text-xs pt-1.5 border-t border-stone-100 dark:border-stone-800/60">
                       <span className="text-stone-400">Subtotal plato:</span>
@@ -811,7 +832,6 @@ export function ComandaModal({
                         Bs. {(item.cantidad * item.precio).toFixed(2)}
                       </span>
                     </div>
-
                     {/* Campo de Observación por Plato */}
                     <div>
                       <input
@@ -819,7 +839,7 @@ export function ComandaModal({
                         placeholder="Observación de cocina (ej. Sin cebolla, término medio)..."
                         value={item.observacion}
                         onChange={(e) => handleObservationChange(item.platoId, e.target.value)}
-                        disabled={isExpired}
+                        disabled={isExpiredForCurrentMode}
                         maxLength={120}
                         className="w-full text-xs px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-primary/40"
                       />
@@ -828,7 +848,6 @@ export function ComandaModal({
                 ))
               )}
             </div>
-
             {/* Pie del Resumen: Subtotal Visual e Informativo */}
             <div className="p-4 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shrink-0 space-y-2">
               <div className="flex items-baseline justify-between text-sm sm:text-base font-bold text-stone-900 dark:text-stone-50">
@@ -846,7 +865,6 @@ export function ComandaModal({
             </div>
           </div>
         </div>
-
         {/* Barra de Acciones / Pie General */}
         <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex items-center justify-between gap-3 shrink-0">
           <Button
@@ -858,13 +876,12 @@ export function ComandaModal({
           >
             Cancelar
           </Button>
-
           <div className="flex items-center gap-2">
             <Button
               variant="success"
               size="sm"
               onClick={handleConfirmOrder}
-              disabled={items.length === 0 || isSubmitting || isExpired}
+              disabled={items.length === 0 || isSubmitting || isExpiredForCurrentMode}
               isLoading={isSubmitting}
               className="min-h-[42px] px-6 text-xs sm:text-sm font-bold rounded-xl shadow-xs"
               title={
@@ -876,11 +893,10 @@ export function ComandaModal({
               }
             >
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              Confirmar Comanda
+              {pedidoAEditar ? 'Guardar cambios' : 'Confirmar Comanda'}
             </Button>
           </div>
         </div>
-
         {/* Diálogo de Confirmación de Cancelación Voluntaria (DELETE /ocupar-temporal) */}
         {showCancelDialog && (
           <div
@@ -895,20 +911,24 @@ export function ComandaModal({
                 </div>
                 <div>
                   <h4 id="cancel-dialog-title" className="text-base font-bold text-stone-900 dark:text-stone-100">
-                    ¿Cancelar la creación de la comanda?
+                    {pedidoAEditar
+                      ? '¿Cancelar la edición de la comanda?'
+                      : '¿Cancelar la creación de la comanda?'}
                   </h4>
                   <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
-                    La mesa volverá a estar disponible para otro mesero y se descartará el borrador actual.
-                  </p>
+                    {pedidoAEditar
+                      ? 'Se descartarán los cambios realizados aquí. El pedido original seguirá intacto.'
+                      : modoPedidoAdicional
+                        ? 'Se descartarán únicamente los productos de esta nueva comanda. Los pedidos existentes de la mesa no se modificarán.'
+                        : 'La mesa volverá a estar disponible para otro mesero y se descartará el borrador actual.'}
+</p>
                 </div>
               </div>
-
               {cancelError && (
                 <Alert variant="error" title="Error al cancelar">
                   {cancelError}
                 </Alert>
               )}
-
               <div className="flex items-center justify-end gap-2.5 pt-2">
                 <Button
                   variant="outline"

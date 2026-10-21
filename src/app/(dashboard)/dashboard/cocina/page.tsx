@@ -1,3 +1,4 @@
+//src/app/(dashboard)/dashboard/cocina/page.tsx
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -40,12 +41,16 @@ function CocinaPageContent() {
       const data = await pedidoService.getPedidosCocina();
       // Excluir cancelados, cerrados y ya recogidos
       const filtrados = data.filter(
-        (p) =>
-          (p.estado === 'ABIERTO' ||
-            p.estado === 'EN_PREPARACION' ||
-            p.estado === 'ENTREGADO') &&
-          p.recogido !== true
-      );
+  (p) =>
+    (
+      p.estado === 'PENDIENTE' ||
+      p.estado === 'ABIERTO' ||
+      p.estado === 'EN_PREPARACION' ||
+      p.estado === 'LISTO' ||
+      p.estado === 'ENTREGADO'
+    ) &&
+    p.recogido !== true
+);
       setPedidos(filtrados);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
@@ -127,12 +132,13 @@ function CocinaPageContent() {
   const handleAdvancePedido = async (pedido: Pedido) => {
     if (processingIds.has(pedido._id)) return;
 
-    let siguienteEstado: 'EN_PREPARACION' | 'ENTREGADO' | null = null;
-    if (pedido.estado === 'ABIERTO') {
-      siguienteEstado = 'EN_PREPARACION';
-    } else if (pedido.estado === 'EN_PREPARACION') {
-      siguienteEstado = 'ENTREGADO';
-    }
+    let siguienteEstado: 'EN_PREPARACION' | 'LISTO' | null = null;
+
+if (pedido.estado === 'PENDIENTE' || pedido.estado === 'ABIERTO') {
+  siguienteEstado = 'EN_PREPARACION';
+} else if (pedido.estado === 'EN_PREPARACION') {
+  siguienteEstado = 'LISTO';
+}
 
     if (!siguienteEstado) return;
 
@@ -162,18 +168,26 @@ function CocinaPageContent() {
   };
 
   // Clasificación por columnas
-  const pedidosAbiertos = useMemo(
-    () => pedidos.filter((p) => p.estado === 'ABIERTO'),
-    [pedidos]
-  );
+ const pedidosAbiertos = useMemo(
+  () =>
+    pedidos.filter(
+      (p) => p.estado === 'PENDIENTE' || p.estado === 'ABIERTO'
+    ),
+  [pedidos]
+);
   const pedidosEnPreparacion = useMemo(
     () => pedidos.filter((p) => p.estado === 'EN_PREPARACION'),
     [pedidos]
   );
   const pedidosListos = useMemo(
-    () => pedidos.filter((p) => p.estado === 'ENTREGADO' && p.recogido !== true),
-    [pedidos]
-  );
+  () =>
+    pedidos.filter(
+      (p) =>
+        (p.estado === 'LISTO' || p.estado === 'ENTREGADO') &&
+        p.recogido !== true
+    ),
+  [pedidos]
+);
 
   if (isAuthLoading || !user) {
     return (
@@ -251,7 +265,7 @@ function CocinaPageContent() {
                 <Inbox className="w-4 h-4" />
               </div>
               <h2 className="font-extrabold text-sm sm:text-base text-sky-950 dark:text-sky-100 tracking-tight">
-                ABIERTO
+                PENDIENTE
               </h2>
             </div>
             <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-sky-200/80 dark:bg-sky-900/80 text-sky-900 dark:text-sky-200">

@@ -1,3 +1,4 @@
+//src/app/(dashboard)/dashboard/mesas/page.tsx
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -6,7 +7,7 @@ import { mesaService, normalizeMesa, MesaBackendRaw } from '@/services/mesa.serv
 import { ubicacionService } from '@/services/ubicacion.service';
 import { useSocketEvent, useSocketStatus } from '@/hooks/use-socket';
 import { SOCKET_EVENTS } from '@/lib/socket';
-import { Mesa, EstadoMesa, CrearMesaDTO, Ubicacion, Pedido, Plato, ActualizarPedidoDTO } from '@/types';
+import { Mesa, EstadoMesa,CrearPedidoDTO, CrearMesaDTO, Ubicacion, Pedido, Plato, ActualizarPedidoDTO } from '@/types';
 import { MesaCard } from '@/components/mesas/mesa-card';
 import { MesaFormModal } from '@/components/mesas/mesa-form-modal';
 import { UbicacionManagerModal } from '@/components/mesas/ubicacion-manager-modal';
@@ -82,15 +83,23 @@ function MesasPageContent() {
   const [comandaMesa, setComandaMesa] = useState<Mesa | null>(null);
   const [comandaExpiraEn, setComandaExpiraEn] = useState<string | Date | null>(null);
   const [isComandaOpen, setIsComandaOpen] = useState<boolean>(false);
+  const [modoPedidoAdicional, setModoPedidoAdicional] = useState<boolean>(false);
   const [processingMesaId, setProcessingMesaId] = useState<string | null>(null);
   const [requestingAccountMesaId, setRequestingAccountMesaId] = useState<string | null>(null);
   const [mesasConCuentaDisponible, setMesasConCuentaDisponible] = useState<string[]>([]);
 
   // Estados para visualización y edición de Pedido Activo en mesa (Caso D)
   const [activePedido, setActivePedido] = useState<Pedido | null>(null);
+  const [mesaListaPedidos, setMesaListaPedidos] = useState<Mesa | null>(null);
+  const [pedidosMesaSeleccionada, setPedidosMesaSeleccionada] = useState<Pedido[]>([]);
+  const [isListaPedidosMesaOpen, setIsListaPedidosMesaOpen] = useState<boolean>(false);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   const [pedidoToEdit, setPedidoToEdit] = useState<Pedido | null>(null);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [mesaInicialPedidoFormId, setMesaInicialPedidoFormId] =
+  useState<string | undefined>(undefined);
+const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
+  useState<boolean>(false);
   const [pedidoToCancel, setPedidoToCancel] = useState<Pedido | null>(null);
   const [isCancelOpen, setIsCancelOpen] = useState<boolean>(false);
   const [platos, setPlatos] = useState<Plato[]>([]);
@@ -308,9 +317,10 @@ function MesasPageContent() {
           setMesas((prev) =>
             prev.map((m) => (m._id === mesa._id ? { ...m, estado: 'Ocupada' } : m))
           );
-          setComandaMesa(mesa);
-          setComandaExpiraEn(res.ocupacion.expiraEn);
-          setIsComandaOpen(true);
+          setModoPedidoAdicional(false);
+            setComandaMesa(mesa);
+            setComandaExpiraEn(res.ocupacion.expiraEn);
+            setIsComandaOpen(true);
         } catch (err: unknown) {
           // ── CASO B: 409 CONFLICT ──
           if (err instanceof ApiError && err.statusCode === 409) {
@@ -339,8 +349,9 @@ function MesasPageContent() {
 
           if (esDuenio) {
             // Permitir continuar comanda temporal y restaurar borrador
+            setModoPedidoAdicional(false);
             setComandaMesa(mesa);
-            setComandaExpiraEn(ocupacionRes.expiraEn || null);
+           setComandaExpiraEn(ocupacionRes.expiraEn || null);
             setIsComandaOpen(true);
             return;
           } else {
@@ -363,11 +374,11 @@ function MesasPageContent() {
       });
 
       if (pedidosActivos.length > 0) {
-        // Mostrar pedido activo (nunca abrir una segunda comanda)
-        setActivePedido(pedidosActivos[0]);
-        setIsDetailOpen(true);
-        return;
-      }
+  setMesaListaPedidos(mesa);
+  setPedidosMesaSeleccionada(pedidosActivos);
+  setIsListaPedidosMesaOpen(true);
+  return;
+}
 
       // Si no existe ni ocupación ni pedido activo (expirada en servidor)
       setNotification({
@@ -494,21 +505,64 @@ function MesasPageContent() {
 
   // Manejo de Comanda Exitosa (POST /api/pedidos 201)
   const handleComandaSuccess = (nuevoPedido: Pedido) => {
-    setIsComandaOpen(false);
-    const mesaObjetivo = comandaMesa;
-    setComandaMesa(null);
-    setComandaExpiraEn(null);
+  const estabaEditando = pedidoToEdit !== null;
+  const mesaObjetivo = comandaMesa;
 
-    if (mesaObjetivo) {
-      setMesas((prev) =>
-        prev.map((m) => (m._id === mesaObjetivo._id ? { ...m, estado: 'Ocupada' } : m))
-      );
-    }
+  setIsComandaOpen(false);
+  setIsEditOpen(false);
+  setModoPedidoAdicional(false);
+  setPedidoToEdit(null);
+  setComandaMesa(null);
+  setComandaExpiraEn(null);
+
+  if (mesaObjetivo) {
+    setMesas((prev) =>
+      prev.map((m) =>
+        m._id === mesaObjetivo._id
+          ? { ...m, estado: 'Ocupada' }
+          : m
+      )
+    );
+  }
+
+  setActivePedido(nuevoPedido);
+  setIsDetailOpen(true);
+
+  setNotification({
+    type: 'success',
+    message: estabaEditando
+      ? `Comanda ${nuevoPedido.codigo} actualizada correctamente.`
+      : `Comanda ${nuevoPedido.codigo} guardada como borrador para ${
+          mesaObjetivo?.numero || 'la mesa'
+        }. Puedes enviarla a cocina desde el detalle.`,
+  });
+};
+
+
+const handleEnviarPedidoCocina = async (pedido: Pedido) => {
+  try {
+    const resultado = await pedidoService.enviarPedidoCocina(pedido._id);
+
+    setActivePedido(resultado.pedido);
+
     setNotification({
       type: 'success',
-      message: `Comanda ${nuevoPedido.codigo} abierta exitosamente para ${mesaObjetivo?.numero || 'la mesa'}.`,
+      message: resultado.yaEnviado
+        ? `La comanda ${resultado.pedido.codigo} ya había sido enviada a cocina.`
+        : `Comanda ${resultado.pedido.codigo} enviada a cocina y pendiente de preparación.`,
     });
-  };
+  } catch (err: unknown) {
+    setNotification({
+      type: 'info',
+      message:
+        err instanceof ApiError
+          ? err.getUserMessage()
+          : err instanceof Error
+            ? err.message
+            : 'No se pudo enviar la comanda a cocina.',
+    });
+  }
+};
 
   // Manejo de Cancelación de Ocupación Temporal (DELETE 200)
   const handleMesaLiberada = (mesaId: string) => {
@@ -563,23 +617,51 @@ function MesasPageContent() {
     });
   };
 
+  const handleSaveCreateOrder = async (data: CrearPedidoDTO) => {
+  const nuevoPedido = await pedidoService.crearPedido(data);
+
+  setMesas((prev) =>
+    prev.map((m) =>
+      m._id === data.mesa
+        ? { ...m, estado: 'Ocupada' }
+        : m
+    )
+  );
+
+  setIsEditOpen(false);
+  setPedidoToEdit(null);
+  setMesaInicialPedidoFormId(undefined);
+  setModoCreacionAdicionalForm(false);
+
+  setMesaListaPedidos(null);
+  setPedidosMesaSeleccionada([]);
+  setIsListaPedidosMesaOpen(false);
+
+  setActivePedido(nuevoPedido);
+  setIsDetailOpen(true);
+
+  setNotification({
+    type: 'success',
+    message: `Comanda ${nuevoPedido.codigo} guardada como borrador. Puedes enviarla a cocina desde el detalle.`,
+  });
+};
+
   // Cancelar pedido activo y liberar mesa (Caso D)
+    // Cancelar una comanda y sincronizar el estado real de la mesa.
   const handleConfirmCancelOrder = async (pedido: Pedido) => {
     await pedidoService.cancelarPedido(pedido._id);
+
     setIsCancelOpen(false);
     setActivePedido(null);
-    const mesaId = typeof pedido.mesa === 'object' && pedido.mesa ? pedido.mesa._id : pedido.mesa;
-    if (mesaId) {
-      setMesas((prev) =>
-        prev.map((m) => (m._id === mesaId ? { ...m, estado: 'Libre' } : m))
-      );
-    }
+
+    // El backend decide si la mesa queda Libre u Ocupada.
+    await fetchData();
+
     setNotification({
       type: 'success',
-      message: `Comanda ${pedido.codigo} anulada y mesa liberada correctamente.`,
+      message: `Comanda ${pedido.codigo} anulada correctamente. Se actualizó el estado de la mesa.`,
     });
   };
-
   // Métricas consolidadas del salón
   const stats = useMemo(() => {
     const total = mesas.length;
@@ -882,15 +964,129 @@ function MesasPageContent() {
       )}
 
       {/* Modal de Apertura de Comanda desde Mesa Física */}
+      {isListaPedidosMesaOpen && mesaListaPedidos && (
+  <div
+    className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="lista-comandas-title"
+    onClick={() => setIsListaPedidosMesaOpen(false)}
+  >
+    <div
+      className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-2xl dark:border-stone-800 dark:bg-stone-900"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="border-b border-stone-200 p-5 dark:border-stone-800">
+        <h2
+          id="lista-comandas-title"
+          className="text-lg font-bold text-stone-900 dark:text-stone-100"
+        >
+          Comandas de Mesa {mesaListaPedidos.numero}
+        </h2>
+
+        <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+          {pedidosMesaSeleccionada.length}{' '}
+          {pedidosMesaSeleccionada.length === 1
+            ? 'comanda activa'
+            : 'comandas activas'}
+          . Selecciona una para ver su detalle.
+        </p>
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-y-auto p-4">
+        {pedidosMesaSeleccionada.map((pedido) => (
+          <div
+            key={pedido._id}
+            className="flex flex-col gap-3 rounded-xl border border-stone-200 p-4 dark:border-stone-700 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="min-w-0">
+              <p className="font-bold text-stone-900 dark:text-stone-100">
+                {pedido.codigo || 'Comanda sin código'}
+              </p>
+
+              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                Estado: {pedido.estado}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-stone-700 dark:text-stone-300">
+                Total: Bs. {Number(pedido.total ?? 0).toFixed(2)}
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setActivePedido(pedido);
+                setIsListaPedidosMesaOpen(false);
+                setIsDetailOpen(true);
+              }}
+              className="shrink-0"
+            >
+              Ver detalle
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-2 border-t border-stone-200 p-4 dark:border-stone-800">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setIsListaPedidosMesaOpen(false);
+            setMesaListaPedidos(null);
+            setPedidosMesaSeleccionada([]);
+          }}
+        >
+          Cerrar
+        </Button>
+
+        {mesaListaPedidos.estado !== 'Cuenta Solicitada' && (
+          <Button
+            type="button"
+            variant="success"
+            onClick={() => {
+  setIsEditOpen(false);
+  setPedidoToEdit(null);
+  setMesaInicialPedidoFormId(undefined);
+  setModoCreacionAdicionalForm(false);
+
+  setIsListaPedidosMesaOpen(false);
+  setModoPedidoAdicional(true);
+  setComandaMesa(mesaListaPedidos);
+  setComandaExpiraEn(null);
+  setIsComandaOpen(true);
+}}
+          >
+            Nueva comanda
+          </Button>
+        )}
+      </div>
+    </div>
+  </div>
+)}
       <ComandaModal
         isOpen={isComandaOpen}
         mesa={comandaMesa}
         expiraEn={comandaExpiraEn}
+        modoPedidoAdicional={modoPedidoAdicional}
+        pedidoAEditar={pedidoToEdit}
         onClose={() => {
-          setIsComandaOpen(false);
-          setComandaMesa(null);
-          setComandaExpiraEn(null);
-        }}
+  const pedidoOriginal = pedidoToEdit;
+
+  setIsComandaOpen(false);
+  setComandaMesa(null);
+  setComandaExpiraEn(null);
+  setModoPedidoAdicional(false);
+  setPedidoToEdit(null);
+
+  if (pedidoOriginal) {
+    setActivePedido(pedidoOriginal);
+    setIsDetailOpen(true);
+  }
+}}
         onMinimize={handleMinimizeComanda}
         onSuccess={handleComandaSuccess}
         onMesaLiberada={handleMesaLiberada}
@@ -908,16 +1104,40 @@ function MesasPageContent() {
         mesas={mesas}
         userRole={user.rol}
         onEdit={(p) => {
-          setIsDetailOpen(false);
-          setPedidoToEdit(p);
-          setIsEditOpen(true);
-        }}
+  const mesaDelPedido =
+    typeof p.mesa === 'object' && p.mesa !== null ? p.mesa : null;
+
+  const mesaId =
+    mesaDelPedido?._id ??
+    (typeof p.mesa === 'string' ? p.mesa : '');
+
+  const mesaParaEditar =
+    mesas.find((m) => m._id === mesaId) ?? mesaDelPedido;
+
+  if (!mesaParaEditar) {
+    setNotification({
+      type: 'info',
+      message: 'No se encontró la mesa asignada a esta comanda.',
+    });
+    return;
+  }
+
+  setIsDetailOpen(false);
+  setIsEditOpen(false);
+  setActivePedido(p);
+  setPedidoToEdit(p);
+  setComandaMesa(mesaParaEditar);
+  setComandaExpiraEn(null);
+  setModoPedidoAdicional(false);
+  setIsComandaOpen(true);
+}}
         onCancel={(p) => {
           setIsDetailOpen(false);
           setPedidoToCancel(p);
           setIsCancelOpen(true);
         }}
         onSolicitarCuenta={async (p) => solicitarCuentaPedido(p, true)}
+        onEnviarCocina={handleEnviarPedidoCocina}
         onCambiarEstadoCocina={async (p, nuevoEstado) => {
           const res = await pedidoService.actualizarEstado(p._id, nuevoEstado);
           setActivePedido(res.pedido || { ...p, estado: nuevoEstado });
@@ -929,17 +1149,21 @@ function MesasPageContent() {
       />
 
       <PedidoFormModal
-        isOpen={isEditOpen}
-        onClose={() => {
-          setIsEditOpen(false);
-          setPedidoToEdit(null);
-        }}
-        onSaveCreate={async () => {}}
-        onSaveUpdate={handleSaveEditOrder}
-        pedidoToEdit={pedidoToEdit}
-        mesas={mesas}
-        platos={platos}
-      />
+  isOpen={isEditOpen}
+  onClose={() => {
+    setIsEditOpen(false);
+    setPedidoToEdit(null);
+    setMesaInicialPedidoFormId(undefined);
+    setModoCreacionAdicionalForm(false);
+  }}
+  onSaveCreate={handleSaveCreateOrder}
+  onSaveUpdate={handleSaveEditOrder}
+  pedidoToEdit={pedidoToEdit}
+  mesaInicialId={mesaInicialPedidoFormId}
+  modoPedidoAdicional={modoCreacionAdicionalForm}
+  mesas={mesas}
+  platos={platos}
+/>
 
       <PedidoCancelModal
         isOpen={isCancelOpen}

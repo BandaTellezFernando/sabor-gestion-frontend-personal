@@ -1,3 +1,4 @@
+//src/lib/constants.ts
 import { RolUsuario, EstadoMesa, EstadoPedido, MetodoPago } from '@/types';
 
 export const ROLES: readonly RolUsuario[] = ['Administrador', 'Mesero', 'Cajero', 'Cocinero'] as const;
@@ -5,8 +6,11 @@ export const ROLES: readonly RolUsuario[] = ['Administrador', 'Mesero', 'Cajero'
 export const ESTADOS_MESA: readonly EstadoMesa[] = ['Libre', 'Ocupada', 'Cuenta Solicitada'] as const;
 
 export const ESTADOS_PEDIDO: readonly EstadoPedido[] = [
+  'BORRADOR',
+  'PENDIENTE',
   'ABIERTO',
   'EN_PREPARACION',
+  'LISTO',
   'ENTREGADO',
   'CANCELADO',
   'CERRADO',
@@ -25,8 +29,11 @@ export const ESTADO_MESA_LABELS: Record<EstadoMesa, string> = {
 };
 
 export const ESTADO_PEDIDO_LABELS: Record<EstadoPedido, string> = {
+  BORRADOR: 'Borrador',
+  PENDIENTE: 'Pendiente de preparación',
   ABIERTO: 'Abierto',
   EN_PREPARACION: 'En Preparación',
+  LISTO: 'Listo para recoger',
   ENTREGADO: 'Entregado',
   CANCELADO: 'Cancelado',
   CERRADO: 'Cerrado',

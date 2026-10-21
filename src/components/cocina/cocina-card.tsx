@@ -1,3 +1,4 @@
+//src/components/cocina/cocina-card.tsx
 'use client';
 
 import React from 'react';
@@ -38,11 +39,16 @@ export function CocinaCard({
   isLoading = false,
   disabled = false,
 }: CocinaCardProps) {
-  const isAbierto = pedido.estado === 'ABIERTO';
-  const isEnPreparacion = pedido.estado === 'EN_PREPARACION';
-  const isListo = pedido.estado === 'ENTREGADO';
+  const isPendiente =
+  pedido.estado === 'PENDIENTE' || pedido.estado === 'ABIERTO';
 
-  const isInteractive = (isAbierto || isEnPreparacion) && !isLoading && !disabled;
+const isEnPreparacion = pedido.estado === 'EN_PREPARACION';
+
+const isListo =
+  pedido.estado === 'LISTO' || pedido.estado === 'ENTREGADO';
+
+const isInteractive =
+  (isPendiente || isEnPreparacion) && !isLoading && !disabled;
 
   const handleClick = () => {
     if (!isInteractive || !onAdvance) return;
@@ -58,7 +64,7 @@ export function CocinaCard({
   };
 
   const getContainerStyles = () => {
-    if (isAbierto) {
+    if (isPendiente) {
       return 'border-sky-300 dark:border-sky-800 bg-white dark:bg-stone-900 hover:border-sky-500 dark:hover:border-sky-400 hover:shadow-md active:scale-[0.99] cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500';
     }
     if (isEnPreparacion) {
@@ -75,7 +81,7 @@ export function CocinaCard({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label={
-        isAbierto
+        isPendiente
           ? `Comanda ${pedido.codigo} para ${getMesaLabel(pedido.mesa)}. Tocar para iniciar preparación.`
           : isEnPreparacion
           ? `Comanda ${pedido.codigo} para ${getMesaLabel(pedido.mesa)}. Tocar para marcar como listo.`
@@ -131,7 +137,7 @@ export function CocinaCard({
 
       {/* Indicador de Acción o Estado al Pie */}
       <div className="pt-4 mt-3 border-t border-stone-100 dark:border-stone-800/80">
-        {isAbierto && (
+        {isPendiente && (
           <div className="flex items-center justify-between text-sky-700 dark:text-sky-300 text-xs font-bold">
             <span className="flex items-center gap-1.5">
               <ChefHat className="w-4 h-4" />

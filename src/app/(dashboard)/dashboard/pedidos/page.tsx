@@ -1,3 +1,4 @@
+//src/app/(dashboard)/dashboard/pedidos/page.tsx
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -427,25 +428,35 @@ function PedidosPageContent() {
 
   // Cambiar estado de cocina (Cocinero / Admin)
   const handleCambiarEstadoCocina = async (
-    pedido: Pedido,
-    nuevoEstado: 'EN_PREPARACION' | 'ENTREGADO'
-  ) => {
-    try {
-      const res = await pedidoService.actualizarEstado(pedido._id, nuevoEstado);
-      const nuevoObj = res.pedido || { ...pedido, estado: nuevoEstado };
-      setPedidos((prev) => upsertPedido(prev, nuevoObj, mesas));
-      setNotification({
-        type: 'success',
-        message: `Comanda ${pedido.codigo} movida a ${nuevoEstado === 'EN_PREPARACION' ? 'En Preparación' : 'Entregado'}.`,
-      });
-    } catch (err: unknown) {
-      setNotification({
-        type: 'info',
-        message: `No se pudo actualizar el estado: ${err instanceof Error ? err.message : 'Error del servidor'}`,
-      });
-      throw err;
-    }
-  };
+  pedido: Pedido,
+  nuevoEstado: 'EN_PREPARACION' | 'LISTO' | 'ENTREGADO'
+) => {
+  try {
+    const res = await pedidoService.actualizarEstado(pedido._id, nuevoEstado);
+    const nuevoObj = res.pedido || { ...pedido, estado: nuevoEstado };
+
+    setPedidos((prev) => upsertPedido(prev, nuevoObj, mesas));
+
+    setNotification({
+      type: 'success',
+      message: `Comanda ${pedido.codigo} movida a ${
+        nuevoEstado === 'EN_PREPARACION'
+          ? 'En Preparación'
+          : nuevoEstado === 'LISTO'
+          ? 'Lista para recoger'
+          : 'Entregado'
+      }.`,
+    });
+  } catch (err: unknown) {
+    setNotification({
+      type: 'info',
+      message: `No se pudo actualizar el estado: ${
+        err instanceof Error ? err.message : 'Error del servidor'
+      }`,
+    });
+    throw err;
+  }
+};
 
   // Bloqueo inmediato para evitar múltiples solicitudes simultáneas de cuenta
   const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});

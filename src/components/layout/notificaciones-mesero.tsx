@@ -1,3 +1,4 @@
+//src/components/layout/notificaciones-mesero.tsx
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -57,7 +58,7 @@ export function NotificacionesMesero() {
       const data = await pedidoService.getPedidos({ activo: true });
       const filtrados = data.filter(
         (p) =>
-          p.estado === 'ENTREGADO' &&
+          (p.estado === 'LISTO' || p.estado === 'ENTREGADO') &&
           p.recogido !== true &&
           esPedidoDelMesero(p, user.id, user.rol)
       );
@@ -90,7 +91,10 @@ export function NotificacionesMesero() {
       setPedidosListos((prev) => {
         const id = pedidoActualizado._id;
         const pertenece = esPedidoDelMesero(pedidoActualizado, user.id, user.rol);
-        const esListo = pedidoActualizado.estado === 'ENTREGADO' && pedidoActualizado.recogido !== true;
+       const esListo =
+  (pedidoActualizado.estado === 'LISTO' ||
+    pedidoActualizado.estado === 'ENTREGADO') &&
+  pedidoActualizado.recogido !== true;
 
         if (pertenece && esListo) {
           const index = prev.findIndex((p) => p._id === id || p.codigo === pedidoActualizado.codigo);

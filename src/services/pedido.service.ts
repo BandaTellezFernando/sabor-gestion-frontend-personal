@@ -10,6 +10,12 @@ import {
   PayloadCajaDTO,
 } from '@/types';
 
+export interface RespuestaEnviarPedidoCocina {
+  mensaje: string
+  pedido: Pedido
+  yaEnviado: boolean
+}
+
 export const pedidoService = {
   /**
    * Obtiene un pedido específico por su ID (Administrador, Mesero, Cocinero, Cajero).
@@ -79,6 +85,20 @@ export const pedidoService = {
     });
   },
 
+    /**
+   * Envía un pedido en borrador a cocina.
+   * El backend valida ingredientes, descuenta el inventario
+   * y cambia el estado a PENDIENTE.
+   */
+  async enviarPedidoCocina(
+    id: string
+  ): Promise<RespuestaEnviarPedidoCocina> {
+    return apiClient.patch<RespuestaEnviarPedidoCocina>(
+      `/pedidos/${id}/enviar-cocina`,
+      {}
+    )
+  },
+
   /**
    * Actualiza los detalles o datos comerciales de un pedido existente (Mesero, Administrador).
    * No envía estado ni campos protegidos.
@@ -108,7 +128,7 @@ export const pedidoService = {
    */
   async actualizarEstado(
     id: string,
-    estado: 'EN_PREPARACION' | 'ENTREGADO'
+    estado: 'EN_PREPARACION' | 'LISTO' | 'ENTREGADO'
   ): Promise<{ mensaje: string; pedido: Pedido }> {
     const body: ActualizarEstadoPedidoDTO = { estado };
     return apiClient.patch<{ mensaje: string; pedido: Pedido }>(`/pedidos/${id}/estado`, body);

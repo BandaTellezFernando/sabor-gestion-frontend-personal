@@ -4,7 +4,15 @@ import { Plato } from './plato';
 import { Mesa } from './mesa';
 import { Usuario } from './usuario';
 
-export type EstadoPedido = 'ABIERTO' | 'EN_PREPARACION' | 'ENTREGADO' | 'CANCELADO' | 'CERRADO';
+export type EstadoPedido =
+  | 'BORRADOR'
+  | 'PENDIENTE'
+  | 'ABIERTO'
+  | 'EN_PREPARACION'
+  | 'LISTO'
+  | 'ENTREGADO'
+  | 'CANCELADO'
+  | 'CERRADO';
 export type MetodoPago = 'Efectivo' | 'Tarjeta' | 'QR';
 
 export interface DetallePedido {
@@ -70,7 +78,7 @@ export interface ActualizarPedidoDTO {
 }
 
 export interface ActualizarEstadoPedidoDTO {
-  estado: 'EN_PREPARACION' | 'ENTREGADO';
+  estado: 'EN_PREPARACION' | 'LISTO' | 'ENTREGADO';
 }
 
 export interface PedidosQueryParams {

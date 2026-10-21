@@ -1,3 +1,4 @@
+//src/components/pedidos/pedido-form-modal.tsx
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -21,6 +22,8 @@ export interface PedidoFormModalProps {
   onSaveCreate: (data: CrearPedidoDTO) => Promise<void>;
   onSaveUpdate?: (id: string, data: ActualizarPedidoDTO) => Promise<void>;
   pedidoToEdit?: Pedido | null;
+  mesaInicialId?: string;
+modoPedidoAdicional?: boolean;
   mesas: Mesa[];
   platos: Plato[];
 }
@@ -38,6 +41,8 @@ interface PedidoFormContentProps {
   onSaveCreate: (data: CrearPedidoDTO) => Promise<void>;
   onSaveUpdate?: (id: string, data: ActualizarPedidoDTO) => Promise<void>;
   pedidoToEdit?: Pedido | null;
+  mesaInicialId?: string;
+modoPedidoAdicional?: boolean;
   mesas: Mesa[];
   platos: Plato[];
 }
@@ -47,6 +52,8 @@ function PedidoFormContent({
   onSaveCreate,
   onSaveUpdate,
   pedidoToEdit,
+  mesaInicialId,
+  modoPedidoAdicional,
   mesas,
   platos,
 }: PedidoFormContentProps) {
@@ -54,9 +61,14 @@ function PedidoFormContent({
 
   // Inicializar mesa seleccionada
   const initialMesaId = useMemo(() => {
-    if (!pedidoToEdit?.mesa) return '';
-    return typeof pedidoToEdit.mesa === 'object' ? pedidoToEdit.mesa._id : pedidoToEdit.mesa;
-  }, [pedidoToEdit]);
+  if (pedidoToEdit?.mesa) {
+    return typeof pedidoToEdit.mesa === 'object'
+      ? pedidoToEdit.mesa._id
+      : pedidoToEdit.mesa;
+  }
+
+  return mesaInicialId || '';
+}, [pedidoToEdit, mesaInicialId]);
 
   // Inicializar items
   const initialItems = useMemo<ItemDetalleForm[]>(() => {
@@ -256,7 +268,7 @@ function PedidoFormContent({
         <select
           id="pedido-mesa"
           value={selectedMesaId}
-          disabled={isEditing}
+          disabled={isEditing || modoPedidoAdicional}
           onChange={(e) => setSelectedMesaId(e.target.value)}
           className="w-full py-2.5 px-3 min-h-[42px] text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
           required
@@ -277,8 +289,10 @@ function PedidoFormContent({
         </select>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
           {isEditing
-            ? 'La mesa asignada no puede modificarse una vez creada la comanda.'
-            : 'Selecciona una mesa física en estado Libre para abrir la comanda.'}
+  ? 'La mesa asignada no puede modificarse una vez creada la comanda.'
+  : modoPedidoAdicional
+    ? 'La nueva comanda se registrará independientemente en esta mesa, sin modificar los pedidos existentes.'
+    : 'Selecciona una mesa física en estado Libre para abrir la comanda.'}
         </p>
       </div>
 
@@ -535,6 +549,8 @@ export function PedidoFormModal({
   onSaveCreate,
   onSaveUpdate,
   pedidoToEdit,
+  mesaInicialId,
+modoPedidoAdicional,
   mesas,
   platos,
 }: PedidoFormModalProps) {
@@ -544,20 +560,35 @@ export function PedidoFormModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? `Editar Comanda ${pedidoToEdit?.codigo}` : 'Apertura de Nuevo Pedido'}
+      title={
+  isEditing
+    ? `Editar Comanda ${pedidoToEdit?.codigo}`
+    : modoPedidoAdicional
+      ? `Nueva comanda adicional · Mesa ${mesas.find((m) => m._id === mesaInicialId)?.numero ?? ''}`
+      : 'Apertura de Nuevo Pedido'
+}
       description={
-        isEditing
-          ? 'Modifica los platos, observaciones o datos del comensal para la mesa asignada.'
-          : 'Selecciona una mesa disponible y agrega los platos solicitados por los comensales.'
-      }
+  isEditing
+    ? 'Modifica los platos, observaciones o datos del comensal para la mesa asignada.'
+    : modoPedidoAdicional
+      ? 'Agrega productos a una nueva comanda independiente de los pedidos existentes de la mesa.'
+      : 'Selecciona una mesa disponible y agrega los platos solicitados por los comensales.'
+}
       maxWidth="lg"
     >
       <PedidoFormContent
-        key={pedidoToEdit?._id || 'nuevo-pedido'}
+        key={
+  pedidoToEdit?._id ||
+  (modoPedidoAdicional && mesaInicialId
+    ? `nuevo-adicional-${mesaInicialId}`
+    : 'nuevo-pedido')
+}
         onClose={onClose}
         onSaveCreate={onSaveCreate}
         onSaveUpdate={onSaveUpdate}
         pedidoToEdit={pedidoToEdit}
+        mesaInicialId={mesaInicialId}
+        modoPedidoAdicional={modoPedidoAdicional}
         mesas={mesas}
         platos={platos}
       />
