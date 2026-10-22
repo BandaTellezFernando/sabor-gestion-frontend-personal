@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -77,10 +78,15 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
   const [qrData, setQrData] = useState<DatosQRCuentaResponse | null>(null);
   const [isLoadingQR, setIsLoadingQR] = useState<boolean>(false);
   const [qrConfirmado, setQrConfirmado] = useState<boolean>(false);
+  const [emailRecibo, setEmailRecibo] = useState<string>('');
+  const [isSendingRecibo, setIsSendingRecibo] = useState<boolean>(false);
+  const [reciboEmailSuccess, setReciboEmailSuccess] = useState<string | null>(null);
+  const [reciboEmailError, setReciboEmailError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const confirmarPagoLockRef = useRef<boolean>(false);
   const generarQRLockRef = useRef<boolean>(false);
+  const enviarReciboLockRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!isOpen || !cuenta) return;
@@ -97,6 +103,10 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       setTarjetaCVV('');
       setQrData(null);
       setQrConfirmado(false);
+      setEmailRecibo('');
+      setIsSendingRecibo(false);
+      setReciboEmailSuccess(null);
+      setReciboEmailError(null);
       setError(null);
     });
   }, [isOpen, cuenta]);
@@ -110,6 +120,42 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       }
     },
   );
+
+  const handleEnviarReciboEmail = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (
+      !cuenta?._id ||
+      !qrConfirmado ||
+      !emailRecibo.trim() ||
+      enviarReciboLockRef.current ||
+      isSendingRecibo
+    ) {
+      return;
+    }
+
+    enviarReciboLockRef.current = true;
+    setIsSendingRecibo(true);
+    setReciboEmailSuccess(null);
+    setReciboEmailError(null);
+
+    try {
+      const respuesta = await pagoService.enviarReciboCuenta(cuenta._id, {
+        email: emailRecibo.trim(),
+      });
+      setReciboEmailSuccess(
+        respuesta.mensaje || 'Recibo enviado correctamente por correo electrónico.',
+      );
+      setEmailRecibo('');
+    } catch (err: unknown) {
+      if (err instanceof ApiError) setReciboEmailError(err.getUserMessage());
+      else if (err instanceof Error) setReciboEmailError(err.message);
+      else setReciboEmailError('No se pudo enviar el recibo por correo.');
+    } finally {
+      enviarReciboLockRef.current = false;
+      setIsSendingRecibo(false);
+    }
+  };
 
   if (!cuenta) return null;
 
@@ -414,10 +460,45 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             </div>
 
             {qrConfirmado ? (
-              <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span><strong>Pago QR registrado.</strong> La cuenta fue pagada y la mesa se liberó.</span>
-              </div>
+              <>
+                <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span><strong>Pago QR registrado.</strong> La cuenta fue pagada y la mesa se liberó.</span>
+                </div>
+
+                <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950/60 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+                    <Smartphone className="w-4 h-4 text-[#C84B26]" />
+                    Enviar recibo por correo
+                  </div>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
+                    El pago ya está confirmado. Introduce el correo del cliente para enviar el recibo completo de la cuenta.
+                  </p>
+                  {reciboEmailSuccess && <Alert variant="success">{reciboEmailSuccess}</Alert>}
+                  {reciboEmailError && <Alert variant="error">{reciboEmailError}</Alert>}
+                  <form onSubmit={handleEnviarReciboEmail} className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      type="email"
+                      label="Correo electrónico"
+                      placeholder="correo@ejemplo.com"
+                      value={emailRecibo}
+                      onChange={(event) => setEmailRecibo(event.target.value)}
+                      autoComplete="email"
+                      required
+                      disabled={isSendingRecibo}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="shrink-0 self-end"
+                      isLoading={isSendingRecibo}
+                      disabled={isSendingRecibo || !emailRecibo.trim()}
+                    >
+                      {isSendingRecibo ? 'Enviando...' : 'Enviar recibo'}
+                    </Button>
+                  </form>
+                </div>
+              </>
             ) : (
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs">
                 El cobro se confirma desde la página pública abierta al escanear el QR. No se debe confirmar aquí desde Caja.
@@ -427,7 +508,9 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
         )}
 
         <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
-          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting || isSendingRecibo}>
+            {metodoPago === 'QR' && qrConfirmado ? 'Cerrar' : 'Cancelar'}
+          </Button>
           <Button
             type="submit"
             variant="primary"
@@ -442,3 +525,4 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
     </Modal>
   );
 }
+

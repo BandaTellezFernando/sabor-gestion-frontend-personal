@@ -38,7 +38,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
 
   const handleEnviarCorreo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email.trim() || !comprobante.pedidoId || comprobante.cuentaId || enviarCorreoLockRef.current || isSendingEmail) return;
+    if (!email.trim() || (!comprobante.pedidoId && !comprobante.cuentaId) || enviarCorreoLockRef.current || isSendingEmail) return;
 
     enviarCorreoLockRef.current = true;
     setIsSendingEmail(true);
@@ -46,11 +46,15 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
     setEmailError(null);
 
     try {
-      const respuesta = await pagoService.enviarRecibo(comprobante.pedidoId, {
-        email: email.trim(),
-        clienteNombre: comprobante.clienteNombre,
-        clienteCI: comprobante.clienteCI,
-      });
+      const respuesta = comprobante.cuentaId
+        ? await pagoService.enviarReciboCuenta(comprobante.cuentaId, {
+            email: email.trim(),
+          })
+        : await pagoService.enviarRecibo(comprobante.pedidoId, {
+            email: email.trim(),
+            clienteNombre: comprobante.clienteNombre,
+            clienteCI: comprobante.clienteCI,
+          });
       setEmailSuccess(respuesta.mensaje || 'Recibo enviado correctamente por correo electrónico.');
       setReciboEnviado(true);
       setEmail('');
@@ -171,8 +175,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
           </div>
         )}
 
-        {!comprobante.cuentaId && (
-          <div className="p-3.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 space-y-2">
+        <div className="p-3.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300"><Mail className="w-4 h-4 text-primary" /><span>Enviar comprobante digital por correo</span></div>
             {emailSuccess && <Alert variant="success" className="text-xs py-2">{emailSuccess}</Alert>}
             {emailError && <Alert variant="error" className="text-xs py-2">{emailError}</Alert>}
@@ -183,7 +186,6 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
               </Button>
             </form>
           </div>
-        )}
 
         <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
           <Button type="button" variant="outline" size="sm" onClick={handleImprimir} leftIcon={<Printer className="w-4 h-4" />}>Abrir / imprimir PDF</Button>

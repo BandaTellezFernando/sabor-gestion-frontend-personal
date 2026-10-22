@@ -9,7 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ApiError } from '@/lib/api-error';
 import { pagoService } from '@/services/pago.service';
 import { ComprobantePdfDTO, EstadoQRCuentaResponse } from '@/types';
-import { CheckCircle2, Download, FileText, Utensils } from 'lucide-react';
+import { CheckCircle2, Download, FileText, Mail, Utensils } from 'lucide-react';
 
 function descargarPdf(pdf: ComprobantePdfDTO): void {
   const binario = window.atob(pdf.contenidoBase64);
@@ -44,6 +44,11 @@ export default function PagarCuentaQRPage() {
   const [clienteCI, setClienteCI] = useState<string>('');
   const [clienteNIT, setClienteNIT] = useState<string>('');
   const [comprobantePdf, setComprobantePdf] = useState<ComprobantePdfDTO | null>(null);
+  const [email, setEmail] = useState<string>('');
+  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const enviarEmailLockRef = useRef<boolean>(false);
   const confirmarLockRef = useRef<boolean>(false);
   const detenerConsultaRef = useRef<boolean>(false);
 
@@ -116,6 +121,28 @@ export default function PagarCuentaQRPage() {
     } finally {
       confirmarLockRef.current = false;
       setIsConfirming(false);
+    }
+  };
+
+  const handleEnviarReciboEmail = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!token || !email.trim() || !estadoCuenta?.yaPagada || enviarEmailLockRef.current || isSendingEmail) return;
+
+    enviarEmailLockRef.current = true;
+    setIsSendingEmail(true);
+    setEmailError(null);
+    setEmailSuccess(null);
+    try {
+      const respuesta = await pagoService.enviarReciboQR(token, { email: email.trim() });
+      setEmailSuccess(respuesta.mensaje || 'Recibo enviado por correo correctamente.');
+      setEmail('');
+    } catch (err: unknown) {
+      if (err instanceof ApiError) setEmailError(err.getUserMessage());
+      else if (err instanceof Error) setEmailError(err.message);
+      else setEmailError('No se pudo enviar el recibo por correo.');
+    } finally {
+      enviarEmailLockRef.current = false;
+      setIsSendingEmail(false);
     }
   };
 
@@ -211,8 +238,29 @@ export default function PagarCuentaQRPage() {
                     Descargar comprobante PDF
                   </Button>
                 ) : (
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400">Si el pago se confirmó desde otro dispositivo, el comprobante se entregó a esa sesión.</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">Si el pago se confirmó desde otro dispositivo, el comprobante PDF no está disponible en esta sesión.</p>
                 )}
+                <div className="mt-3 space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-white dark:bg-stone-900 p-4 text-left">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+                    <Mail className="h-4 w-4" /> Recibir comprobante por correo
+                  </div>
+                  {emailSuccess && <Alert variant="success">{emailSuccess}</Alert>}
+                  {emailError && <Alert variant="error">{emailError}</Alert>}
+                  <form onSubmit={handleEnviarReciboEmail} className="flex flex-col gap-2 sm:flex-row">
+                    <Input
+                      type="email"
+                      label="Correo electrónico"
+                      placeholder="correo@ejemplo.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      autoComplete="email"
+                      required
+                    />
+                    <Button type="submit" variant="outline" className="shrink-0 self-end" isLoading={isSendingEmail} disabled={isSendingEmail || !email.trim()}>
+                      {isSendingEmail ? 'Enviando...' : 'Enviar recibo'}
+                    </Button>
+                  </form>
+                </div>
               </section>
             ) : (
               <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 sm:p-6 space-y-4">

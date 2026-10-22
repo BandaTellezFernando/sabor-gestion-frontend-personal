@@ -61,4 +61,17 @@ export const pagoService = {
   async enviarRecibo(pedidoId: string, data: EnviarReciboCorreoRequest): Promise<{ mensaje: string }> {
     return apiClient.post<{ mensaje: string }>(`/pagos/${pedidoId}/enviar-recibo`, data);
   },
+
+  /** Envía el recibo consolidado de todas las comandas de una cuenta ya pagada. */
+  async enviarReciboCuenta(cuentaId: string, data: Pick<EnviarReciboCorreoRequest, 'email'>): Promise<{ mensaje: string }> {
+    return apiClient.post<{ mensaje: string }>(`/pagos/cuentas/${encodeURIComponent(cuentaId)}/enviar-recibo`, data);
+  },
+
+  /** Permite al cliente recibir por correo el recibo QR ya pagado usando el token del enlace. */
+  async enviarReciboQR(token: string, data: Pick<EnviarReciboCorreoRequest, 'email'>): Promise<{ mensaje: string }> {
+    return apiClient.post<{ mensaje: string }>('/pagos/cuentas/qr/enviar-recibo', {
+      token,
+      email: data.email,
+    });
+  },
 };
