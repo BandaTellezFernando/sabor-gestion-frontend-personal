@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
 import { useSocketStatus, useSocketEvent } from '@/hooks/use-socket';
 import { dashboardService } from '@/services/dashboard.service';
+import { ReportesPdfSection } from '@/components/dashboard/reportes-pdf';
 import { ResumenDashboardDTO } from '@/types';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -432,6 +433,9 @@ function DashboardAdminContent() {
           </div>
         </>
       )}
+
+      {/* Reportes descargables: sección adicional, sin alterar los indicadores existentes. */}
+      <ReportesPdfSection />
     </div>
   );
 }
