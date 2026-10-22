@@ -1,3 +1,4 @@
+
 //src/app/(dashboard)/dashboard/mesas/page.tsx
 'use client';
 
@@ -17,6 +18,7 @@ import { PedidoDetailModal } from '@/components/pedidos/pedido-detail-modal';
 import { PedidoFormModal } from '@/components/pedidos/pedido-form-modal';
 import { PedidoCancelModal } from '@/components/pedidos/pedido-cancel-modal';
 import { pedidoService } from '@/services/pedido.service';
+import { cuentaMesaService } from '@/services/cuenta-mesa.service';
 import { platoService } from '@/services/plato.service';
 import { ApiError } from '@/lib/api-error';
 import { StatCard } from '@/components/ui/stat-card';
@@ -37,22 +39,36 @@ import {
   Clock,
   Radio,
   MapPin,
+  Receipt,
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
 function obtenerMesasConCuentaDisponible(pedidos: Pedido[]): string[] {
-  const ids = pedidos
-    .filter((pedido) => pedido.estado === 'ENTREGADO' && pedido.recogido === true)
-    .map((pedido) => {
-      const mesaId =
-        typeof pedido.mesa === 'object' && pedido.mesa
-          ? pedido.mesa._id
-          : pedido.mesa;
-      return mesaId ? String(mesaId) : '';
-    })
-    .filter((id) => id.length > 0);
+  const pedidosPorMesa = new Map<string, Pedido[]>();
 
-  return Array.from(new Set(ids));
+  for (const pedido of pedidos) {
+    const mesaId =
+      typeof pedido.mesa === 'object' && pedido.mesa
+        ? pedido.mesa._id
+        : pedido.mesa;
+    if (!mesaId) continue;
+
+    const clave = String(mesaId);
+    const grupo = pedidosPorMesa.get(clave) ?? [];
+    grupo.push(pedido);
+    pedidosPorMesa.set(clave, grupo);
+  }
+
+  return Array.from(pedidosPorMesa.entries())
+    .filter(([, comandas]) =>
+      comandas.length > 0 &&
+      comandas.every(
+        (pedido) =>
+          (pedido.estado === 'LISTO' || pedido.estado === 'ENTREGADO') &&
+          pedido.recogido === true
+      )
+    )
+    .map(([mesaId]) => mesaId);
 }
 
 function MesasPageContent() {
@@ -93,6 +109,7 @@ function MesasPageContent() {
   const [mesaListaPedidos, setMesaListaPedidos] = useState<Mesa | null>(null);
   const [pedidosMesaSeleccionada, setPedidosMesaSeleccionada] = useState<Pedido[]>([]);
   const [isListaPedidosMesaOpen, setIsListaPedidosMesaOpen] = useState<boolean>(false);
+  const [cuentaModalError, setCuentaModalError] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   const [pedidoToEdit, setPedidoToEdit] = useState<Pedido | null>(null);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
@@ -103,7 +120,6 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
   const [pedidoToCancel, setPedidoToCancel] = useState<Pedido | null>(null);
   const [isCancelOpen, setIsCancelOpen] = useState<boolean>(false);
   const [platos, setPlatos] = useState<Plato[]>([]);
-  const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});
   const solicitarCuentaMesaLockRef = useRef<Record<string, boolean>>({});
 
   const canManage = user?.rol === 'Administrador';
@@ -376,6 +392,7 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
       if (pedidosActivos.length > 0) {
   setMesaListaPedidos(mesa);
   setPedidosMesaSeleccionada(pedidosActivos);
+  setCuentaModalError(null);
   setIsListaPedidosMesaOpen(true);
   return;
 }
@@ -404,103 +421,119 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
     }
   };
 
-  // Solicita la cuenta de un pedido existente y sincroniza el estado de la mesa.
-  const solicitarCuentaPedido = async (p: Pedido, cerrarDetalle = false) => {
-    if (!p._id || solicitarCuentaLockRef.current[p._id]) return;
-    if (p.estado !== 'ENTREGADO' || p.recogido !== true) {
-      setNotification({
-        type: 'info',
-        message: 'Solo puedes solicitar la cuenta cuando el pedido esté entregado y recogido.',
-      });
-      return;
+  // Solicita una cuenta agrupada para todas las comandas elegibles de una mesa.
+  // El backend valida que todas estén listas y recogidas, crea una única cuenta y notifica a Caja.
+  const crearCuentaAgrupadaPorMesa = async (
+    mesaIdEntrada: string,
+    mesaNumero: string,
+    opciones: { cerrarDetalle?: boolean; cerrarLista?: boolean } = {}
+  ): Promise<boolean> => {
+    const mesaId = String(mesaIdEntrada || '').trim();
+    if (!mesaId) {
+      const mensaje = 'No se pudo identificar la mesa para solicitar la cuenta.';
+      setNotification({ type: 'info', message: mensaje });
+      if (opciones.cerrarLista) setCuentaModalError(mensaje);
+      return false;
     }
-    solicitarCuentaLockRef.current[p._id] = true;
+
+    if (solicitarCuentaMesaLockRef.current[mesaId]) return false;
+
+    solicitarCuentaMesaLockRef.current[mesaId] = true;
+    setRequestingAccountMesaId(mesaId);
+    setCuentaModalError(null);
 
     try {
-      await pedidoService.solicitarCuenta(p._id);
+      const respuesta = await cuentaMesaService.crearPorMesa(mesaId);
+      const cuenta = respuesta.cuenta;
+      const cantidadComandas = Array.isArray(cuenta.pedidos) ? cuenta.pedidos.length : 0;
 
-      if (cerrarDetalle) {
-        setIsDetailOpen(false);
-      }
+      setMesas((prev) =>
+        prev.map((mesa) =>
+          mesa._id === mesaId ? { ...mesa, estado: 'Cuenta Solicitada' } : mesa
+        )
+      );
+      setMesasConCuentaDisponible((prev) => prev.filter((id) => id !== mesaId));
 
-      const mesaId =
-        typeof p.mesa === 'object' && p.mesa ? p.mesa._id : p.mesa;
-
-      if (mesaId) {
-        setMesas((prev) =>
-          prev.map((m) =>
-            m._id === mesaId ? { ...m, estado: 'Cuenta Solicitada' } : m
-          )
-        );
-        setMesasConCuentaDisponible((prev) =>
-          prev.filter((id) => id !== String(mesaId))
-        );
+      if (opciones.cerrarDetalle) setIsDetailOpen(false);
+      if (opciones.cerrarLista) {
+        setIsListaPedidosMesaOpen(false);
+        setMesaListaPedidos(null);
+        setPedidosMesaSeleccionada([]);
       }
 
       setNotification({
         type: 'success',
-        message: `Cuenta solicitada para la comanda ${p.codigo}.`,
+        message: `Cuenta ${cuenta.codigoCuenta} solicitada para ${mesaNumero}. Se agruparon ${cantidadComandas} comandas y Caja fue notificada. La mesa se liberará cuando se complete el pago.`,
       });
+
+      await fetchData();
+      return true;
     } catch (err: unknown) {
-      setNotification({
-        type: 'info',
-        message: `Error al pedir cuenta: ${err instanceof Error ? err.message : 'Error del servidor'}`,
-      });
-      throw err;
-    } finally {
-      solicitarCuentaLockRef.current[p._id] = false;
-    }
-  };
+      const mensaje =
+        err instanceof ApiError
+          ? err.getUserMessage()
+          : err instanceof Error
+            ? err.message
+            : 'Error del servidor al solicitar la cuenta.';
 
-  // Permite solicitar la cuenta directamente desde la tarjeta de una mesa ocupada.
-  const handleSolicitarCuentaDesdeMesa = async (mesa: Mesa) => {
-    const mesaId = mesa._id;
-
-    if (
-      !mesaId ||
-      mesa.estado !== 'Ocupada' ||
-      solicitarCuentaMesaLockRef.current[mesaId]
-    ) {
-      return;
-    }
-
-    solicitarCuentaMesaLockRef.current[mesaId] = true;
-    setRequestingAccountMesaId(mesaId);
-
-    try {
-      const pedidosActivos = await pedidoService.getPedidos({
-        mesa: mesaId,
-        activo: true,
-        incluirRecogidos: true,
-      });
-
-      const pedidoListo = pedidosActivos.find(
-        (pedido) => pedido.estado === 'ENTREGADO' && pedido.recogido === true
-      );
-
-      if (!pedidoListo) {
-        setNotification({
-          type: 'info',
-          message: `No se puede solicitar la cuenta de ${mesa.numero}: aún hay platos pendientes de entrega o recogida.`,
-        });
-        void fetchData();
-        return;
+      setNotification({ type: 'info', message: `No se pudo solicitar la cuenta: ${mensaje}` });
+      if (opciones.cerrarLista || isListaPedidosMesaOpen) {
+        setCuentaModalError(mensaje);
       }
-
-      try {
-        await solicitarCuentaPedido(pedidoListo);
-      } catch {
-        // El flujo compartido ya muestra el error en la notificación.
-      }
-    } catch (err: unknown) {
-      setNotification({
-        type: 'info',
-        message: `No se pudo buscar la comanda: ${err instanceof Error ? err.message : 'Error del servidor'}`,
-      });
+      return false;
     } finally {
       solicitarCuentaMesaLockRef.current[mesaId] = false;
       setRequestingAccountMesaId(null);
     }
+  };
+
+  // Desde una comanda, el botón solicita la cuenta de toda la mesa.
+  const solicitarCuentaPedido = async (pedido: Pedido, cerrarDetalle = false) => {
+    const mesaId =
+      typeof pedido.mesa === 'object' && pedido.mesa
+        ? pedido.mesa._id
+        : pedido.mesa;
+
+    if (!mesaId) {
+      setNotification({
+        type: 'info',
+        message: 'No se puede solicitar la cuenta porque la comanda no tiene una mesa asignada.',
+      });
+      return;
+    }
+
+    if (
+      (pedido.estado !== 'LISTO' && pedido.estado !== 'ENTREGADO') ||
+      pedido.recogido !== true
+    ) {
+      setNotification({
+        type: 'info',
+        message: 'Solo puedes solicitar la cuenta cuando la comanda esté lista y recogida por el mesero.',
+      });
+      return;
+    }
+
+    const mesaCompleta = mesas.find((mesa) => mesa._id === String(mesaId));
+    const mesaNumero = mesaCompleta?.numero ||
+      (typeof pedido.mesa === 'object' && pedido.mesa ? pedido.mesa.numero : 'Mesa');
+
+    await crearCuentaAgrupadaPorMesa(String(mesaId), mesaNumero, { cerrarDetalle });
+  };
+
+  // Botón de solicitud directa desde la tarjeta de mesa.
+  const handleSolicitarCuentaDesdeMesa = async (mesa: Mesa) => {
+    if (!mesa._id || mesa.estado !== 'Ocupada') return;
+    await crearCuentaAgrupadaPorMesa(mesa._id, mesa.numero);
+  };
+
+  // Botón del modal "Comandas de Mesa".
+  const handleSolicitarCuentaDesdeListaMesa = async () => {
+    if (!mesaListaPedidos) return;
+    await crearCuentaAgrupadaPorMesa(
+      mesaListaPedidos._id,
+      mesaListaPedidos.numero,
+      { cerrarLista: true }
+    );
   };
 
   // Manejo de Comanda Exitosa (POST /api/pedidos 201)
@@ -540,28 +573,18 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
 
 
 const handleEnviarPedidoCocina = async (pedido: Pedido) => {
-  try {
-    const resultado = await pedidoService.enviarPedidoCocina(pedido._id);
+  // Si falla la validación, dejamos propagar el error para que
+  // PedidoDetailModal muestre el detalle dentro del propio diálogo.
+  const resultado = await pedidoService.enviarPedidoCocina(pedido._id);
 
-    setActivePedido(resultado.pedido);
+  setActivePedido(resultado.pedido);
 
-    setNotification({
-      type: 'success',
-      message: resultado.yaEnviado
-        ? `La comanda ${resultado.pedido.codigo} ya había sido enviada a cocina.`
-        : `Comanda ${resultado.pedido.codigo} enviada a cocina y pendiente de preparación.`,
-    });
-  } catch (err: unknown) {
-    setNotification({
-      type: 'info',
-      message:
-        err instanceof ApiError
-          ? err.getUserMessage()
-          : err instanceof Error
-            ? err.message
-            : 'No se pudo enviar la comanda a cocina.',
-    });
-  }
+  setNotification({
+    type: 'success',
+    message: resultado.yaEnviado
+      ? `La comanda ${resultado.pedido.codigo} ya había sido enviada a cocina.`
+      : `Comanda ${resultado.pedido.codigo} enviada a cocina y pendiente de preparación.`,
+  });
 };
 
   // Manejo de Cancelación de Ocupación Temporal (DELETE 200)
@@ -993,6 +1016,25 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         </p>
       </div>
 
+      {cuentaModalError && (
+        <div className="px-4 pt-4">
+          <Alert variant="error" title="No se pudo solicitar la cuenta">
+            {cuentaModalError}
+          </Alert>
+        </div>
+      )}
+
+      {mesaListaPedidos.estado !== 'Cuenta Solicitada' &&
+        pedidosMesaSeleccionada.some(
+          (pedido) =>
+            (pedido.estado !== 'LISTO' && pedido.estado !== 'ENTREGADO') ||
+            pedido.recogido !== true
+        ) && (
+          <p className="px-5 pt-3 text-xs text-amber-700 dark:text-amber-300">
+            Para solicitar la cuenta, todas las comandas deben estar listas y marcadas como recogidas por el mesero.
+          </p>
+        )}
+
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {pedidosMesaSeleccionada.map((pedido) => (
           <div
@@ -1038,10 +1080,24 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             setIsListaPedidosMesaOpen(false);
             setMesaListaPedidos(null);
             setPedidosMesaSeleccionada([]);
+            setCuentaModalError(null);
           }}
         >
           Cerrar
         </Button>
+
+        {mesaListaPedidos.estado !== 'Cuenta Solicitada' && (
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => void handleSolicitarCuentaDesdeListaMesa()}
+            disabled={requestingAccountMesaId === mesaListaPedidos._id}
+            isLoading={requestingAccountMesaId === mesaListaPedidos._id}
+          >
+            <Receipt className="mr-1.5 h-4 w-4" />
+            Solicitar cuenta
+          </Button>
+        )}
 
         {mesaListaPedidos.estado !== 'Cuenta Solicitada' && (
           <Button
@@ -1213,3 +1269,4 @@ export default function MesasPage() {
     </RoleGuard>
   );
 }
+

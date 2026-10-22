@@ -35,6 +35,7 @@ export interface ItemPayloadCaja {
   observacion?: string;
 }
 
+/** DTO legado para eventos y pagos antiguos por pedido. */
 export interface PayloadCajaDTO {
   pedidoId: string;
   codigo: string;
@@ -66,6 +67,7 @@ export interface ProcesarPagoRequestDTO {
   porcentajePropina?: number;
   montoDescuento?: number;
   montoPropina?: number;
+  montoRecibido?: number;
   clienteNombre?: string;
   clienteCI?: string;
   clienteNIT?: string;
@@ -79,6 +81,7 @@ export interface GenerarPagoQRResponse {
 export interface ProcesarPagoResponse {
   mensaje: string;
   comprobante: ComprobantePago;
+  comprobantePdf?: ComprobantePdfDTO;
 }
 
 export interface SimularPagoQRResponse {
@@ -92,8 +95,102 @@ export interface EnviarReciboCorreoRequest {
   clienteCI?: string;
 }
 
+export interface ComprobantePdfDTO {
+  nombreArchivo: string;
+  tipoContenido: 'application/pdf';
+  contenidoBase64: string;
+}
+
+export interface DatosQRCuentaResponse {
+  codigoCuenta: string;
+  urlPago: string;
+  total: number;
+}
+
+export interface DatosTarjetaSimuladaDTO {
+  titular: string;
+  numero: string;
+  vencimiento: string;
+  cvv: string;
+}
+
+export interface ProcesarPagoCuentaRequestDTO {
+  metodoPago: MetodoPago;
+  montoPropina?: number;
+  montoRecibido?: number;
+  clienteNombre?: string;
+  clienteCI?: string;
+  clienteNIT?: string;
+  tarjeta?: DatosTarjetaSimuladaDTO;
+}
+
+export interface ResultadoProcesarPagoCuentaDTO {
+  cuentaId: string;
+  codigoCuenta: string;
+  pagoId: string;
+  codigoPago: string;
+  mesaId: string;
+  pedidosIds: string[];
+  subtotal: number;
+  propina: number;
+  totalPagado: number;
+  montoRecibido?: number;
+  cambio?: number;
+  metodoPago: MetodoPago;
+  estadoPago: 'Pagado';
+  fechaPago: string | Date;
+  comprobantePdf?: ComprobantePdfDTO;
+}
+
+export interface ProcesarPagoCuentaResponse {
+  mensaje: string;
+  pago: ResultadoProcesarPagoCuentaDTO;
+  comprobantePdf: ComprobantePdfDTO;
+}
+
+export interface EstadoQRCuentaResponse {
+  codigoCuenta: string;
+  estado: string;
+  yaPagada: boolean;
+  subtotal: number;
+  propina: number;
+  propinaAnadida: boolean;
+  total: number;
+  metodoPago?: string;
+  fechaPago?: string | Date | null;
+  pedidos: Array<{
+    codigo: string;
+    fecha: string;
+    estado: string;
+    subtotal: number;
+    detalles: Array<{
+      nombre: string;
+      cantidad: number;
+      precioUnitario: number;
+      subtotal: number;
+      observacion: string;
+    }>;
+  }>;
+}
+
+export interface ConfirmarPagoQRCuentaResponse {
+  exito?: boolean;
+  yaPagada: boolean;
+  mensaje: string;
+  pago?: ResultadoProcesarPagoCuentaDTO;
+  comprobantePdf?: ComprobantePdfDTO;
+  codigoCuenta?: string;
+  total?: number;
+  metodoPago?: string;
+  fechaPago?: string | Date | null;
+}
+
 export interface ComprobantePago {
   pedidoId: string;
+  pedidosIds?: string[];
+  cuentaId?: string;
+  codigoCuenta?: string;
+  codigoPago?: string;
   meseroNombre: string;
   subtotal: number;
   montoDescuento: number;
@@ -109,6 +206,9 @@ export interface ComprobantePago {
   clienteNIT?: string;
   fechaBolivia: string;
   fecha: string | Date;
+  montoRecibido?: number;
+  cambio?: number;
+  comprobantePdf?: ComprobantePdfDTO;
 }
 
 export interface CierreCaja {

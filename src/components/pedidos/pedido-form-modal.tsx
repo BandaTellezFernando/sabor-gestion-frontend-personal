@@ -28,6 +28,47 @@ modoPedidoAdicional?: boolean;
   platos: Plato[];
 }
 
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function formatFaltante(value: unknown): string | null {
+  if (typeof value === 'string') return value;
+  if (!isRecord(value)) return null;
+
+  const ingrediente = typeof value.ingrediente === 'string' ? value.ingrediente : '';
+  const unidad = typeof value.unidad === 'string' && value.unidad.trim()
+    ? ` ${value.unidad}`
+    : '';
+  const disponible = typeof value.disponible === 'number' ? value.disponible : null;
+  const requerido = typeof value.requerido === 'number' ? value.requerido : null;
+  const faltante = typeof value.faltante === 'number' ? value.faltante : null;
+
+  if (ingrediente && disponible !== null && requerido !== null && faltante !== null) {
+    return `${ingrediente}: disponible ${disponible}${unidad}, requerido ${requerido}${unidad}, faltante ${faltante}${unidad}`;
+  }
+
+  const plato = typeof value.plato === 'string' ? value.plato : '';
+  const mensaje = typeof value.mensaje === 'string' ? value.mensaje : '';
+  if (plato && mensaje) return `${plato}: ${mensaje}`;
+  if (ingrediente && mensaje) return `${ingrediente}: ${mensaje}`;
+  return mensaje || ingrediente || plato || null;
+}
+
+function obtenerCandidatosError(error: unknown): Record<string, unknown>[] {
+  if (!isRecord(error)) return [];
+  const candidatos: Record<string, unknown>[] = [error];
+  for (const key of ['data', 'details', 'payload', 'body', 'response', 'error']) {
+    const anidado = error[key];
+    if (isRecord(anidado)) {
+      candidatos.push(anidado);
+      if (isRecord(anidado.data)) candidatos.push(anidado.data);
+    }
+  }
+  return candidatos;
+}
+
 interface ItemDetalleForm {
   platoId: string;
   nombre: string;
@@ -224,15 +265,27 @@ function PedidoFormContent({
       }
       onClose();
     } catch (err: unknown) {
-      let mensaje = 'Error al procesar la comanda.';
-      if (err && typeof err === 'object') {
-        const errorObj = err as Record<string, unknown>;
-        if (typeof errorObj.message === 'string') mensaje = errorObj.message;
-        if (typeof errorObj.mensaje === 'string') mensaje = errorObj.mensaje;
-        if (Array.isArray(errorObj.faltantes)) {
-          setFaltantesList(errorObj.faltantes as string[]);
+      let mensaje = err instanceof Error ? err.message : 'Error al procesar la comanda.';
+      const candidatos = obtenerCandidatosError(err);
+      let faltantesFormateados: string[] = [];
+
+      for (const candidato of candidatos) {
+        if (typeof candidato.mensaje === 'string' && candidato.mensaje.trim()) {
+          mensaje = candidato.mensaje;
+        }
+        if (Array.isArray(candidato.faltantes)) {
+          faltantesFormateados = candidato.faltantes
+            .map(formatFaltante)
+            .filter((texto): texto is string => Boolean(texto));
+        }
+        if (Array.isArray(candidato.errores) && faltantesFormateados.length === 0) {
+          faltantesFormateados = candidato.errores
+            .map(formatFaltante)
+            .filter((texto): texto is string => Boolean(texto));
         }
       }
+
+      if (faltantesFormateados.length > 0) setFaltantesList(faltantesFormateados);
       setFormError(mensaje);
     } finally {
       setIsSubmitting(false);

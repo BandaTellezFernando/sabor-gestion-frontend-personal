@@ -1,5 +1,6 @@
 //src/services/pedido.service.ts
 import { apiClient } from '@/lib/api-client';
+import { cuentaMesaService } from '@/services/cuenta-mesa.service';
 import {
   Pedido,
   CrearPedidoDTO,
@@ -8,6 +9,7 @@ import {
   PedidosQueryParams,
   RespuestaRecogerPedido,
   PayloadCajaDTO,
+  CuentaMesaDTO,
 } from '@/types';
 
 export interface RespuestaEnviarPedidoCocina {
@@ -138,11 +140,20 @@ export const pedidoService = {
    * Solicita formalmente la cuenta para el pedido (Mesero, Administrador).
    * La mesa pasa a 'Cuenta Solicitada' y se notifica a Caja.
    */
-  async solicitarCuenta(id: string): Promise<{ mensaje: string; solicitud: unknown }> {
-    return apiClient.patch<{ mensaje: string; solicitud: unknown }>(
-      `/pedidos/${id}/solicitar-cuenta`,
-      {}
-    );
+  async solicitarCuenta(id: string): Promise<{ mensaje: string; solicitud: CuentaMesaDTO }> {
+    // El pedido es solo el punto de entrada; Caja cobra la cuenta agrupada de su mesa.
+    const pedido = await this.getPedidoById(id);
+    const mesaId = typeof pedido.mesa === 'string' ? pedido.mesa : pedido.mesa?._id;
+
+    if (!mesaId) {
+      throw new Error('No se pudo identificar la mesa asociada a la comanda.');
+    }
+
+    const respuesta = await cuentaMesaService.crearPorMesa(mesaId);
+    return {
+      mensaje: respuesta.mensaje,
+      solicitud: respuesta.cuenta,
+    };
   },
 
   /**
@@ -160,3 +171,5 @@ export const pedidoService = {
     return apiClient.patch<RespuestaRecogerPedido>(`/pedidos/${id}/recoger`, {});
   },
 };
+
+

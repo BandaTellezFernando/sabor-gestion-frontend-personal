@@ -70,7 +70,7 @@ export function PedidoCard({
   const canPedirCuenta = (canManage || isMesero) &&
     Boolean(pedido.mesa) &&
     !yaSolicitada &&
-    pedido.estado === 'ENTREGADO' &&
+    (pedido.estado === 'LISTO' || pedido.estado === 'ENTREGADO') &&
     pedido.recogido === true;
 
   const meseroId =
@@ -80,7 +80,7 @@ export function PedidoCard({
   const isResponsable = currentUserId ? meseroId === currentUserId : true;
   const canRecoger =
     (canManage || (isMesero && isResponsable)) &&
-    pedido.estado === 'ENTREGADO' &&
+    pedido.estado === 'LISTO' &&
     !pedido.recogido;
 
   const handleSolicitarCuenta = async (e: React.MouseEvent) => {

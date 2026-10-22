@@ -1,3 +1,4 @@
+
 //src/components/pedidos/pedido-detail-modal.tsx
 'use client';
 
@@ -6,6 +7,8 @@ import { Pedido, EstadoPedido, RolUsuario, Usuario, Mesa } from '@/types';
 import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Alert } from '@/components/ui/alert';
+import { ApiError } from '@/lib/api-error';
 import {
   Clock,
   User,
@@ -50,6 +53,7 @@ export function PedidoDetailModal({
   onRecogerPedido,
 }: PedidoDetailModalProps) {
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [cuentaYaSolicitada, setCuentaYaSolicitada] = useState(false);
   const solicitarCuentaLockRef = useRef(false);
 
@@ -86,7 +90,7 @@ export function PedidoDetailModal({
   const canPedirCuenta = (canManage || isMesero) &&
     Boolean(pedido.mesa) &&
     !yaSolicitada &&
-    pedido.estado === 'ENTREGADO' &&
+    (pedido.estado === 'LISTO' || pedido.estado === 'ENTREGADO') &&
     pedido.recogido === true;
 
   const canCocineroAdvance = isCocinero &&
@@ -135,18 +139,26 @@ export function PedidoDetailModal({
   };
 
   const handleEnviarCocina = async () => {
-  if (!onEnviarCocina || isActionLoading || pedido.estado !== 'BORRADOR') {
-    return;
-  }
+    if (!onEnviarCocina || isActionLoading || pedido.estado !== 'BORRADOR') {
+      return;
+    }
 
-  setIsActionLoading(true);
+    setActionError(null);
+    setIsActionLoading(true);
 
-  try {
-    await onEnviarCocina(pedido);
-  } finally {
-    setIsActionLoading(false);
-  }
-};
+    try {
+      await onEnviarCocina(pedido);
+    } catch (err: unknown) {
+      const mensaje = err instanceof ApiError
+        ? err.getUserMessage()
+        : err instanceof Error
+          ? err.message
+          : 'No se pudo enviar la comanda a cocina. Verifica el inventario y vuelve a intentarlo.';
+      setActionError(mensaje);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
 
   const handleRecogerPedido = async () => {
     if (!onRecogerPedido || isActionLoading) return;
@@ -402,6 +414,12 @@ case 'LISTO':
           </div>
         </div>
 
+        {actionError && (
+          <Alert variant="error" title="No se pudo enviar a cocina">
+            {actionError}
+          </Alert>
+        )}
+
         {/* Barra de Acciones según RBAC */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
           <div className="flex flex-wrap items-center gap-2.5">
@@ -531,3 +549,4 @@ case 'LISTO':
     </Modal>
   );
 }
+

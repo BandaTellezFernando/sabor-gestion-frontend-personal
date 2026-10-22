@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useSocketStatus, useSocketEvent } from '@/hooks/use-socket';
 import { SOCKET_EVENTS } from '@/lib/socket';
 import { pedidoService } from '@/services/pedido.service';
+import { cuentaMesaService } from '@/services/cuenta-mesa.service';
 import { mesaService } from '@/services/mesa.service';
 import { platoService } from '@/services/plato.service';
 import {
@@ -461,23 +462,34 @@ function PedidosPageContent() {
   // Bloqueo inmediato para evitar múltiples solicitudes simultáneas de cuenta
   const solicitarCuentaLockRef = useRef<Record<string, boolean>>({});
 
-  // Solicitar cuenta (Mesero / Admin)
+  // Solicitar cuenta agrupada (Mesero / Admin): consolida todas las comandas elegibles de la mesa.
   const handleSolicitarCuenta = async (pedido: Pedido) => {
     if (!pedido._id || solicitarCuentaLockRef.current[pedido._id]) return;
+
+    const mesaId =
+      typeof pedido.mesa === 'object' && pedido.mesa
+        ? pedido.mesa._id
+        : pedido.mesa;
+    if (!mesaId) {
+      throw new Error('No se puede solicitar la cuenta porque la comanda no tiene una mesa asignada.');
+    }
+
     solicitarCuentaLockRef.current[pedido._id] = true;
     try {
-      await pedidoService.solicitarCuenta(pedido._id);
-      // Actualizar mesa asociada localmente
-      if (pedido.mesa) {
-        const mId = typeof pedido.mesa === 'object' ? pedido.mesa._id : pedido.mesa;
-        setMesas((prev) =>
-          prev.map((m) => (m._id === mId ? { ...m, estado: 'Cuenta Solicitada' } : m))
-        );
-      }
+      const respuesta = await cuentaMesaService.crearPorMesa(String(mesaId));
+      const mesaNumero = mesas.find((mesa) => mesa._id === String(mesaId))?.numero ||
+        (typeof pedido.mesa === 'object' && pedido.mesa ? pedido.mesa.numero : 'Mesa');
+
+      setMesas((prev) =>
+        prev.map((mesa) =>
+          mesa._id === String(mesaId) ? { ...mesa, estado: 'Cuenta Solicitada' } : mesa
+        )
+      );
       setNotification({
         type: 'success',
-        message: `Cuenta solicitada para la comanda ${pedido.codigo}. Notificación enviada a Caja.`,
+        message: `Cuenta ${respuesta.cuenta.codigoCuenta} solicitada para ${mesaNumero}. Se agruparon ${respuesta.cuenta.pedidos.length} comandas y Caja fue notificada.`,
       });
+      void fetchData();
     } catch (err: unknown) {
       setNotification({
         type: 'info',
