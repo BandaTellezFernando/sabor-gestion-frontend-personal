@@ -61,3 +61,15 @@ a {
   outline: 2px solid var(--primary-ring);
   outline-offset: 2px;
 }
+
+/* Ocultar las flechas nativas de todos los campos numéricos del frontend */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

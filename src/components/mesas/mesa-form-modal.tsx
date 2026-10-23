@@ -31,7 +31,7 @@ function MesaFormContent({
   const isEditing = !!mesaToEdit;
 
   const [numero, setNumero] = useState(mesaToEdit?.numero || '');
-  const [capacidad, setCapacidad] = useState<number>(mesaToEdit?.capacidad || 4);
+  const [capacidad, setCapacidad] = useState<string>(String(mesaToEdit?.capacidad ?? 4));
   const [ubicacion, setUbicacion] = useState(
     mesaToEdit?.ubicacion || ubicaciones[0]?.nombre || 'Interior'
   );
@@ -72,8 +72,14 @@ function MesaFormContent({
       return;
     }
 
-    if (capacidad < 1) {
-      setFormError('La capacidad mínima debe ser de al menos 1 comensal.');
+    const capacidadNumerica = Number(capacidad);
+    if (
+      !/^\d+$/.test(capacidad) ||
+      !Number.isInteger(capacidadNumerica) ||
+      capacidadNumerica < 1 ||
+      capacidadNumerica > 100
+    ) {
+      setFormError('La capacidad debe ser un número entero entre 1 y 100 comensales.');
       return;
     }
 
@@ -86,7 +92,7 @@ function MesaFormContent({
     try {
       await onSave({
         numero: cleanNumero,
-        capacidad: Number(capacidad),
+        capacidad: capacidadNumerica,
         ubicacion: ubicacion.trim(),
         ubicacionId: ubicacionId || undefined,
       });
@@ -127,14 +133,30 @@ function MesaFormContent({
         <Input
           id="mesa-capacidad"
           name="capacidad"
-          type="number"
-          min={1}
-          max={50}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={3}
           label="Capacidad (Comensales)"
           value={capacidad}
-          onChange={(e) => setCapacidad(parseInt(e.target.value, 10) || 1)}
+          onChange={(e) => {
+            const valor = e.target.value;
+
+            // Permitir borrar temporalmente el campo mientras se edita.
+            if (valor === '') {
+              setCapacidad('');
+              return;
+            }
+
+            // Solo dígitos; no aceptar cero, negativos, decimales ni valores > 100.
+            if (!/^\d{1,3}$/.test(valor)) return;
+            const numero = Number(valor);
+            if (numero < 1 || numero > 100) return;
+
+            setCapacidad(valor);
+          }}
           required
-          helperText="Cantidad máxima de clientes que pueden acomodarse en la mesa."
+          helperText="Ingresa un número entero del 1 al 100. Puedes borrar el campo mientras editas."
         />
       </div>
 
