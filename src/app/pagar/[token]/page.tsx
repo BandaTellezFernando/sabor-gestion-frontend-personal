@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Alert } from '@/components/ui/alert';
@@ -10,7 +9,6 @@ import { ApiError } from '@/lib/api-error';
 import { pagoService } from '@/services/pago.service';
 import { ComprobantePdfDTO, EstadoQRCuentaResponse } from '@/types';
 import { CheckCircle2, Download, FileText, Mail, Utensils } from 'lucide-react';
-
 function descargarPdf(pdf: ComprobantePdfDTO): void {
   const binario = window.atob(pdf.contenidoBase64);
   const bytes = new Uint8Array(binario.length);
@@ -27,9 +25,53 @@ function descargarPdf(pdf: ComprobantePdfDTO): void {
   enlace.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-
 function formatearDinero(valor: number): string {
   return `Bs ${Number(valor || 0).toFixed(2)}`;
+}
+function validarDatosCliente(
+  nombreOriginal: string,
+  ciOriginal: string,
+  nitOriginal: string,
+  datosObligatorios: boolean,
+): string | null {
+  const nombre = nombreOriginal.trim().replace(/\s+/g, ' ');
+  const ci = ciOriginal.trim().replace(/\s+/g, '').toUpperCase();
+  const nit = nitOriginal.trim().replace(/\s+/g, '');
+
+  if (!datosObligatorios && !nombre && !ci && !nit) {
+    return null;
+  }
+
+  if (datosObligatorios && !nombre) {
+    return 'El nombre o razón social es obligatorio.';
+  }
+
+  // Acepta nombres personales y razones sociales, incluidos signos comunes.
+  const patronNombre = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}\d .,'’&/-]+$/u;
+  const longitudNombre = Array.from(nombre).length;
+
+  if (
+    nombre &&
+    (longitudNombre < 2 || longitudNombre > 80 || !patronNombre.test(nombre))
+  ) {
+    return 'El nombre o razón social debe tener entre 2 y 80 caracteres y usar caracteres válidos.';
+  }
+
+  if (datosObligatorios && !ci) {
+    return 'La CI es obligatoria para confirmar el pago.';
+  }
+
+  const patronCI = /^(?:\d{5,11}|\d{10}[A-Z0-9]{2})$/;
+
+  if (ci && !patronCI.test(ci)) {
+    return 'La CI debe tener entre 5 y 11 dígitos, o 12 caracteres con los últimos 2 alfanuméricos.';
+  }
+
+  if (nit && !/^\d{5,12}$/.test(nit)) {
+    return 'El NIT debe contener entre 5 y 12 dígitos numéricos.';
+  }
+
+  return null;
 }
 
 export default function PagarCuentaQRPage() {
@@ -51,7 +93,6 @@ export default function PagarCuentaQRPage() {
   const enviarEmailLockRef = useRef<boolean>(false);
   const confirmarLockRef = useRef<boolean>(false);
   const detenerConsultaRef = useRef<boolean>(false);
-
   const consultarEstado = useCallback(async () => {
     if (!token || detenerConsultaRef.current) return;
     try {
@@ -67,7 +108,6 @@ export default function PagarCuentaQRPage() {
       setIsLoading(false);
     }
   }, [token]);
-
   useEffect(() => {
     detenerConsultaRef.current = false;
     setIsLoading(true);
@@ -75,32 +115,28 @@ export default function PagarCuentaQRPage() {
     const identificador = window.setInterval(() => void consultarEstado(), 5000);
     return () => window.clearInterval(identificador);
   }, [consultarEstado]);
-
   const handleConfirmarPago = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!token || confirmarLockRef.current || isConfirming || estadoCuenta?.yaPagada) return;
-
     const nombre = clienteNombre.trim().replace(/\s+/g, ' ');
     const ci = clienteCI.trim().replace(/\s+/g, '').toUpperCase();
     const nit = clienteNIT.trim().replace(/\s+/g, '');
+    const errorDatosCliente = validarDatosCliente(nombre, ci, nit, true);
 
-    if (!nombre || !ci) {
-      setError('El nombre del cliente y la CI son obligatorios para confirmar el pago QR.');
+    if (errorDatosCliente) {
+      setError(errorDatosCliente);
       return;
     }
-
     confirmarLockRef.current = true;
     setIsConfirming(true);
     setError(null);
     setMensaje(null);
-
     try {
       const respuesta = await pagoService.confirmarPagoQRCuenta(token, {
         clienteNombre: nombre,
         clienteCI: ci,
         clienteNIT: nit || undefined,
       });
-
       setMensaje(respuesta.mensaje);
       if (respuesta.comprobantePdf) setComprobantePdf(respuesta.comprobantePdf);
       if (respuesta.yaPagada) {
@@ -123,11 +159,9 @@ export default function PagarCuentaQRPage() {
       setIsConfirming(false);
     }
   };
-
   const handleEnviarReciboEmail = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!token || !email.trim() || !estadoCuenta?.yaPagada || enviarEmailLockRef.current || isSendingEmail) return;
-
     enviarEmailLockRef.current = true;
     setIsSendingEmail(true);
     setEmailError(null);
@@ -145,7 +179,6 @@ export default function PagarCuentaQRPage() {
       setIsSendingEmail(false);
     }
   };
-
   if (isLoading && !estadoCuenta) {
     return (
       <main className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center p-4">
@@ -156,7 +189,6 @@ export default function PagarCuentaQRPage() {
       </main>
     );
   }
-
   return (
     <main className="min-h-screen bg-stone-50 dark:bg-stone-950 px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-5">
@@ -167,10 +199,8 @@ export default function PagarCuentaQRPage() {
           <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Mishi-Food</h1>
           <p className="text-sm text-stone-600 dark:text-stone-400">Consulta y confirmación de pago QR</p>
         </header>
-
         {error && <Alert variant="error">{error}</Alert>}
         {mensaje && <Alert variant="success">{mensaje}</Alert>}
-
         {!estadoCuenta ? (
           <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 text-center space-y-3">
             <p className="font-semibold text-stone-900 dark:text-stone-100">No se pudo cargar la cuenta</p>
@@ -190,7 +220,6 @@ export default function PagarCuentaQRPage() {
                   {estadoCuenta.yaPagada ? 'Pagada' : 'Pendiente de pago'}
                 </span>
               </div>
-
               <div className="space-y-5">
                 {estadoCuenta.pedidos.map((pedido, indicePedido) => (
                   <section key={`${pedido.codigo}-${indicePedido}`} className="space-y-2">
@@ -217,7 +246,6 @@ export default function PagarCuentaQRPage() {
                   </section>
                 ))}
               </div>
-
               <div className="border-t border-stone-200 dark:border-stone-800 pt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Subtotal</span><span>{formatearDinero(estadoCuenta.subtotal)}</span></div>
                 <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Propina</span><span>{estadoCuenta.propinaAnadida ? formatearDinero(estadoCuenta.propina) : 'No añadida'}</span></div>
@@ -226,7 +254,6 @@ export default function PagarCuentaQRPage() {
                 </div>
               </div>
             </section>
-
             {estadoCuenta.yaPagada ? (
               <section className="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-5 text-center space-y-3">
                 <CheckCircle2 className="mx-auto h-9 w-9 text-emerald-600 dark:text-emerald-400" />
@@ -270,8 +297,28 @@ export default function PagarCuentaQRPage() {
                 </div>
                 <form onSubmit={handleConfirmarPago} className="space-y-3">
                   <Input label="Nombre completo / razón social" value={clienteNombre} onChange={(event) => setClienteNombre(event.target.value)} required autoComplete="name" />
-                  <Input label="Cédula de identidad (CI)" value={clienteCI} onChange={(event) => setClienteCI(event.target.value)} required autoComplete="off" />
-                  <Input label="NIT (opcional)" value={clienteNIT} onChange={(event) => setClienteNIT(event.target.value)} autoComplete="off" />
+                  <Input
+                    label="Cédula de identidad (CI)"
+                    value={clienteCI}
+                    onChange={(event) =>
+                      setClienteCI(
+                        event.target.value
+                          .replace(/[^a-zA-Z0-9]/g, '')
+                          .toUpperCase()
+                          .slice(0, 12),
+                      )
+                    }
+                    required
+                    autoComplete="off"
+                  />
+                  <Input
+                    label="NIT (opcional)"
+                    value={clienteNIT}
+                    onChange={(event) =>
+                      setClienteNIT(event.target.value.replace(/\D/g, '').slice(0, 12))
+                    }
+                    autoComplete="off"
+                  />
                   <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-3 text-xs text-amber-800 dark:text-amber-300">
                     Esta aplicación registra una simulación de pago QR. No comprueba ni recibe confirmaciones de una entidad bancaria real.
                   </div>
@@ -283,7 +330,6 @@ export default function PagarCuentaQRPage() {
             )}
           </>
         )}
-
         <footer className="text-center text-xs text-stone-500 dark:text-stone-400 flex items-center justify-center gap-1.5">
           <FileText className="h-3.5 w-3.5" />
           Conserva el comprobante PDF después de finalizar el pago.

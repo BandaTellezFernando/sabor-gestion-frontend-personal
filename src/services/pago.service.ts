@@ -1,3 +1,4 @@
+//src/services/pago.service.ts
 import { apiClient } from '@/lib/api-client';
 import {
   ConfirmarPagoQRCuentaResponse,

@@ -1,6 +1,4 @@
-
 'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   CuentaMesaDTO,
@@ -31,21 +29,18 @@ import {
   Percent,
   Smartphone,
 } from 'lucide-react';
-
 interface CobroModalProps {
   isOpen: boolean;
   onClose: () => void;
   cuenta: CuentaMesaDTO | null;
   onSuccess: (comprobante: ComprobantePago) => void;
 }
-
 function obtenerNombrePlato(detalle: DetallePedido): string {
   if (detalle.nombrePlato?.trim()) return detalle.nombrePlato.trim();
   return typeof detalle.plato === 'string'
     ? 'Producto'
     : detalle.plato?.nombre?.trim() || 'Producto';
 }
-
 function obtenerNombreMesero(pedido: Pedido | undefined): string {
   if (!pedido) return 'No identificado';
   if (typeof pedido.usuario === 'string') return 'Mesero asignado';
@@ -53,7 +48,6 @@ function obtenerNombreMesero(pedido: Pedido | undefined): string {
   const apellido = pedido.usuario?.apellido?.trim() || '';
   return `${nombre} ${apellido}`.trim() || 'No identificado';
 }
-
 function fechaBolivia(fecha: string | Date): string {
   const valor = new Date(fecha);
   if (Number.isNaN(valor.getTime())) return new Date().toLocaleString('es-BO');
@@ -62,6 +56,51 @@ function fechaBolivia(fecha: string | Date): string {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(valor);
+}
+function validarDatosCliente(
+  nombreOriginal: string,
+  ciOriginal: string,
+  nitOriginal: string,
+  datosObligatorios: boolean,
+): string | null {
+  const nombre = nombreOriginal.trim().replace(/\s+/g, ' ');
+  const ci = ciOriginal.trim().replace(/\s+/g, '').toUpperCase();
+  const nit = nitOriginal.trim().replace(/\s+/g, '');
+
+  if (!datosObligatorios && !nombre && !ci && !nit) {
+    return null;
+  }
+
+  if (datosObligatorios && !nombre) {
+    return 'El nombre o razón social es obligatorio.';
+  }
+
+  // Acepta nombres personales y razones sociales, incluidos signos comunes.
+  const patronNombre = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}\d .,'’&/-]+$/u;
+  const longitudNombre = Array.from(nombre).length;
+
+  if (
+    nombre &&
+    (longitudNombre < 2 || longitudNombre > 80 || !patronNombre.test(nombre))
+  ) {
+    return 'El nombre o razón social debe tener entre 2 y 80 caracteres y usar caracteres válidos.';
+  }
+
+  if (datosObligatorios && !ci) {
+    return 'La CI es obligatoria para confirmar el pago.';
+  }
+
+  const patronCI = /^(?:\d{5,11}|\d{10}[A-Z0-9]{2})$/;
+
+  if (ci && !patronCI.test(ci)) {
+    return 'La CI debe tener entre 5 y 11 dígitos, o 12 caracteres con los últimos 2 alfanuméricos.';
+  }
+
+  if (nit && !/^\d{5,12}$/.test(nit)) {
+    return 'El NIT debe contener entre 5 y 12 dígitos numéricos.';
+  }
+
+  return null;
 }
 
 export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalProps) {
@@ -87,7 +126,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
   const confirmarPagoLockRef = useRef<boolean>(false);
   const generarQRLockRef = useRef<boolean>(false);
   const enviarReciboLockRef = useRef<boolean>(false);
-
   useEffect(() => {
     if (!isOpen || !cuenta) return;
     queueMicrotask(() => {
@@ -110,7 +148,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       setError(null);
     });
   }, [isOpen, cuenta]);
-
   useSocketEvent<{ cuentaId?: string; pedidoId?: string }>(
     SOCKET_EVENTS.CAJA_PAGO_CONFIRMADO,
     (data) => {
@@ -120,10 +157,8 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       }
     },
   );
-
   const handleEnviarReciboEmail = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (
       !cuenta?._id ||
       !qrConfirmado ||
@@ -133,12 +168,10 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
     ) {
       return;
     }
-
     enviarReciboLockRef.current = true;
     setIsSendingRecibo(true);
     setReciboEmailSuccess(null);
     setReciboEmailError(null);
-
     try {
       const respuesta = await pagoService.enviarReciboCuenta(cuenta._id, {
         email: emailRecibo.trim(),
@@ -156,9 +189,7 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       setIsSendingRecibo(false);
     }
   };
-
   if (!cuenta) return null;
-
   const subtotal = Number(cuenta.subtotal || 0);
   const propina = Math.max(0, Number(montoPropina) || 0);
   const total = Number((subtotal + propina).toFixed(2));
@@ -170,14 +201,11 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
   const imagenQR = qrData
     ? `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrData.urlPago)}`
     : null;
-
   const handleSeleccionarMetodo = async (metodo: MetodoPago) => {
     setMetodoPago(metodo);
     setError(null);
-
-    // El QR debe reflejar los importes ya persistidos en la cuenta.
+// El QR debe reflejar los importes ya persistidos en la cuenta.
     if (metodo === 'QR') setMontoPropina(String(cuenta.montoPropina ?? 0));
-
     if (metodo === 'QR' && !qrData && !generarQRLockRef.current) {
       generarQRLockRef.current = true;
       setIsLoadingQR(true);
@@ -194,25 +222,27 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       }
     }
   };
-
   const handleProcesarPago = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!cuenta._id || confirmarPagoLockRef.current || isSubmitting || metodoPago === 'QR') return;
-
     if (metodoPago === 'Efectivo' && montoInsuficiente) {
       setError(`El monto recibido debe ser igual o superior a Bs ${total.toFixed(2)}.`);
       return;
     }
+    const errorDatosCliente = validarDatosCliente(
+      clienteNombre,
+      clienteCI,
+      clienteNIT,
+      metodoPago === 'Tarjeta',
+    );
 
-    if (metodoPago === 'Tarjeta' && (!clienteNombre.trim() || !clienteCI.trim())) {
-      setError('Para pagar con tarjeta debes introducir el nombre del cliente y su CI.');
+    if (errorDatosCliente) {
+      setError(errorDatosCliente);
       return;
     }
-
     confirmarPagoLockRef.current = true;
     setIsSubmitting(true);
     setError(null);
-
     const tarjeta: DatosTarjetaSimuladaDTO | undefined = metodoPago === 'Tarjeta'
       ? {
           titular: tarjetaTitular.trim(),
@@ -221,7 +251,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
           cvv: tarjetaCVV.trim(),
         }
       : undefined;
-
     try {
       const respuesta = await pagoService.procesarPagoCuenta(cuenta._id, {
         metodoPago,
@@ -232,7 +261,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
         clienteNIT: clienteNIT.trim() || undefined,
         tarjeta,
       });
-
       const pago = respuesta.pago;
       const primerPedidoId = pago.pedidosIds[0] || cuenta.pedidos[0]?._id || '';
       const comprobante: ComprobantePago = {
@@ -259,7 +287,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
         cambio: pago.cambio,
         comprobantePdf: respuesta.comprobantePdf,
       };
-
       onSuccess(comprobante);
       onClose();
     } catch (err: unknown) {
@@ -271,7 +298,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       setIsSubmitting(false);
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -282,7 +308,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
     >
       <form onSubmit={handleProcesarPago} className="space-y-5">
         {error && <Alert variant="error">{error}</Alert>}
-
         <div className="rounded-xl border border-stone-200 dark:border-stone-800 p-3 bg-stone-50/60 dark:bg-stone-900/60 space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-stone-700 dark:text-stone-300 pb-1.5 border-b border-stone-200 dark:border-stone-800">
             <span>Detalle de todas las comandas</span>
@@ -308,7 +333,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             ))}
           </div>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Propina total (Bs)"
@@ -333,7 +357,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             </div>
           </div>
         </div>
-
         {metodoPago !== 'QR' && (
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
@@ -352,7 +375,14 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                 label="C.I."
                 placeholder="Ej. 6543210"
                 value={clienteCI}
-                onChange={(event) => setClienteCI(event.target.value)}
+                onChange={(event) =>
+                  setClienteCI(
+                    event.target.value
+                      .replace(/[^a-zA-Z0-9]/g, '')
+                      .toUpperCase()
+                      .slice(0, 12),
+                  )
+                }
                 leftIcon={<Hash className="w-4 h-4" />}
                 required={requiereDatosCliente}
               />
@@ -360,13 +390,14 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                 label="NIT (opcional)"
                 placeholder="Ej. 1023456023"
                 value={clienteNIT}
-                onChange={(event) => setClienteNIT(event.target.value)}
+                onChange={(event) =>
+                  setClienteNIT(event.target.value.replace(/\D/g, '').slice(0, 12))
+                }
                 leftIcon={<Hash className="w-4 h-4" />}
               />
             </div>
           </div>
         )}
-
         <div className="space-y-3 pt-1">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">Método de pago</h4>
           <div className="grid grid-cols-3 gap-2">
@@ -387,7 +418,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             })}
           </div>
         </div>
-
         {metodoPago === 'Efectivo' && (
           <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
@@ -415,7 +445,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             </div>
           </div>
         )}
-
         {metodoPago === 'Tarjeta' && (
           <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-3">
             <p className="text-xs text-stone-600 dark:text-stone-400">
@@ -433,7 +462,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             </div>
           </div>
         )}
-
         {metodoPago === 'QR' && (
           <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-4">
             <div className="text-center space-y-2">
@@ -458,14 +486,12 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                 </Button>
               )}
             </div>
-
             {qrConfirmado ? (
               <>
                 <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span><strong>Pago QR registrado.</strong> La cuenta fue pagada y la mesa se liberó.</span>
                 </div>
-
                 <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950/60 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
                     <Smartphone className="w-4 h-4 text-[#C84B26]" />
@@ -506,7 +532,6 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             )}
           </div>
         )}
-
         <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
           <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting || isSendingRecibo}>
             {metodoPago === 'QR' && qrConfirmado ? 'Cerrar' : 'Cancelar'}
@@ -525,4 +550,3 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
     </Modal>
   );
 }
-
