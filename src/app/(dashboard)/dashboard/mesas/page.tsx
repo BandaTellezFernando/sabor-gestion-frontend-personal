@@ -4,7 +4,12 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { mesaService, normalizeMesa, MesaBackendRaw } from '@/services/mesa.service';
+import {
+  mesaService,
+  normalizeMesa,
+  MesaBackendRaw,
+  UnirMesasDTO,
+} from '@/services/mesa.service';
 import { ubicacionService } from '@/services/ubicacion.service';
 import { useSocketEvent, useSocketStatus } from '@/hooks/use-socket';
 import { SOCKET_EVENTS } from '@/lib/socket';
@@ -13,6 +18,8 @@ import { MesaCard } from '@/components/mesas/mesa-card';
 import { MesaFormModal } from '@/components/mesas/mesa-form-modal';
 import { UbicacionManagerModal } from '@/components/mesas/ubicacion-manager-modal';
 import { MesaDeleteModal } from '@/components/mesas/mesa-delete-modal';
+import { UnirMesasModal } from '@/components/mesas/unir-mesas-modal';
+import { DesunirMesaModal } from '@/components/mesas/desunir-mesa-modal';
 import { ComandaModal } from '@/components/mesas/comanda-modal';
 import { PedidoDetailModal } from '@/components/pedidos/pedido-detail-modal';
 import { PedidoFormModal } from '@/components/pedidos/pedido-form-modal';
@@ -40,6 +47,7 @@ import {
   Radio,
   MapPin,
   Receipt,
+  Merge,
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
@@ -94,6 +102,9 @@ function MesasPageContent() {
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [mesaToDelete, setMesaToDelete] = useState<Mesa | null>(null);
   const [isUbicacionesOpen, setIsUbicacionesOpen] = useState<boolean>(false);
+  const [isUnirMesasOpen, setIsUnirMesasOpen] = useState<boolean>(false);
+  const [isDesunirOpen, setIsDesunirOpen] = useState<boolean>(false);
+  const [mesaToSplit, setMesaToSplit] = useState<Mesa | null>(null);
 
   // Estados para Ocupación Temporal y Apertura de Comanda
   const [comandaMesa, setComandaMesa] = useState<Mesa | null>(null);
@@ -289,6 +300,49 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
     setNotification({
       type: 'success',
       message: `Mesa ${mesaToDelete.numero} eliminada del sistema.`,
+    });
+  };
+
+  // Fusión de dos mesas libres de la misma zona en una sola mesa
+  const handleUnirMesas = async (data: UnirMesasDTO) => {
+    const resultado = await mesaService.unirMesas(data);
+    const mesasEliminadas = new Set(resultado.mesasEliminadas);
+
+    setMesas((prev) => [
+      ...prev.filter(
+        (m) => !mesasEliminadas.has(m._id) && m._id !== resultado.mesa._id
+      ),
+      resultado.mesa,
+    ]);
+
+    setNotification({
+      type: 'success',
+      message: `Mesa ${resultado.mesa.numero} creada al unir ${data.mesas
+        .map((mesa) => mesa.numero)
+        .join(' + ')}. Capacidad total: ${resultado.mesa.capacidad} personas.`,
+    });
+  };
+
+  // Separación de una mesa fusionada en sus dos mesas originales
+  const handleOpenDesunir = (mesa: Mesa) => {
+    setMesaToSplit(mesa);
+    setIsDesunirOpen(true);
+  };
+
+  const handleDesunirMesa = async (mesa: Mesa) => {
+    const resultado = await mesaService.desunirMesa(mesa);
+    const creadas = new Set(resultado.mesasCreadas.map((m) => m._id));
+
+    setMesas((prev) => [
+      ...prev.filter((m) => m._id !== mesa._id && !creadas.has(m._id)),
+      ...resultado.mesasCreadas,
+    ]);
+
+    setNotification({
+      type: 'success',
+      message: `Mesa ${mesa.numero} separada nuevamente en ${resultado.mesasCreadas
+        .map((creada) => creada.numero)
+        .join(' y ')}.`,
     });
   };
 
@@ -772,6 +826,14 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
                 Gestionar ubicaciones
               </Button>
               <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsUnirMesasOpen(true)}
+                leftIcon={<Merge className="w-4 h-4" />}
+              >
+                Unir mesas
+              </Button>
+              <Button
                 variant="primary"
                 size="sm"
                 onClick={handleOpenCreate}
@@ -968,9 +1030,11 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredMesas.map((mesa) => (
+          {filteredMesas.map((mesa, index) => (
             <MesaCard
               key={mesa._id}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${Math.min(index, 12) * 45}ms` }}
               mesa={mesa}
               userRole={user.rol}
               onEdit={handleOpenEdit}
@@ -978,6 +1042,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
               onStateChange={handleStateChange}
               onSelectMesa={handleSelectMesa}
               onRequestAccount={handleSolicitarCuentaDesdeMesa}
+              onSplit={handleOpenDesunir}
               canRequestAccount={mesasConCuentaDisponible.includes(mesa._id)}
               isProcessing={processingMesaId === mesa._id}
               isAccountProcessing={requestingAccountMesaId === mesa._id}
@@ -1248,6 +1313,23 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             onClose={() => setIsDeleteOpen(false)}
             onConfirm={handleDeleteMesa}
             mesa={mesaToDelete}
+          />
+
+          <UnirMesasModal
+            isOpen={isUnirMesasOpen}
+            onClose={() => setIsUnirMesasOpen(false)}
+            mesas={mesas}
+            onConfirm={handleUnirMesas}
+          />
+
+          <DesunirMesaModal
+            isOpen={isDesunirOpen}
+            onClose={() => {
+              setIsDesunirOpen(false);
+              setMesaToSplit(null);
+            }}
+            mesa={mesaToSplit}
+            onConfirm={handleDesunirMesa}
           />
 
           <UbicacionManagerModal

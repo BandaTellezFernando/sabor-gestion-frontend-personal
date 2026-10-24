@@ -59,6 +59,180 @@ export function normalizeMesa(data: MesaBackendRaw): Mesa {
 }
 
 /**
+ * Datos mínimos de una mesa original necesarios para unirla con otra.
+ * Se conservan para poder restaurar las mesas si la operación falla a medias.
+ */
+export interface MesaOrigenUnion {
+  _id: string;
+  numero: string;
+  capacidad: number;
+  ubicacion: string;
+  ubicacionId?: string;
+}
+
+/**
+ * Payload para fusionar dos mesas libres de la misma zona en una sola mesa.
+ */
+export interface UnirMesasDTO {
+  mesas: [MesaOrigenUnion, MesaOrigenUnion];
+  numero: string;
+  ubicacion: string;
+  ubicacionId?: string;
+}
+
+export interface ResultadoUnirMesas {
+  mesa: Mesa;
+  mesasEliminadas: string[];
+}
+
+export function getUbicacionId(mesa: Mesa): string | undefined {
+  if (typeof mesa.ubicacionId === 'object' && mesa.ubicacionId !== null) {
+    return mesa.ubicacionId._id;
+  }
+  return mesa.ubicacionId;
+}
+
+/**
+ * Datos de una mesa que se recreará al deshacer una fusión.
+ */
+export interface MesaSeparada {
+  numero: string;
+  capacidad: number;
+  ubicacion: string;
+  ubicacionId?: string;
+}
+
+export interface ResultadoDesunirMesa {
+  mesasCreadas: Mesa[];
+  mesaEliminada: string;
+}
+
+/**
+ * El backend no guarda metadatos de la fusión, así que las mesas originales
+ * se recuerdan en el navegador que hizo la unión. Si el registro no existe
+ * (otro dispositivo, caché limpia), se reconstruyen desde el nombre "A + B".
+ */
+const FUSIONES_STORAGE_KEY = 'sabor:mesas-fusionadas';
+
+function esMesaOrigenValida(valor: unknown): valor is MesaOrigenUnion {
+  if (!valor || typeof valor !== 'object') return false;
+  const origen = valor as Partial<MesaOrigenUnion>;
+  return (
+    typeof origen._id === 'string' &&
+    typeof origen.numero === 'string' &&
+    typeof origen.capacidad === 'number' &&
+    typeof origen.ubicacion === 'string'
+  );
+}
+
+function leerFusionesRegistradas(): Record<string, MesaOrigenUnion[]> {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const raw = window.localStorage.getItem(FUSIONES_STORAGE_KEY);
+    if (!raw) return {};
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+
+    const fusiones: Record<string, MesaOrigenUnion[]> = {};
+    for (const [mesaId, valor] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!Array.isArray(valor) || valor.length !== 2) continue;
+      const mesas = valor.filter(esMesaOrigenValida);
+      if (mesas.length === 2) fusiones[mesaId] = mesas;
+    }
+    return fusiones;
+  } catch {
+    return {};
+  }
+}
+
+function registrarFusion(mesaId: string, origen: MesaOrigenUnion[]): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const fusiones = leerFusionesRegistradas();
+    fusiones[mesaId] = origen;
+    window.localStorage.setItem(FUSIONES_STORAGE_KEY, JSON.stringify(fusiones));
+  } catch {
+    // Almacenamiento no disponible: la separación usará el nombre "A + B".
+  }
+}
+
+function olvidarFusion(mesaId: string): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const fusiones = leerFusionesRegistradas();
+    if (!(mesaId in fusiones)) return;
+    delete fusiones[mesaId];
+    window.localStorage.setItem(FUSIONES_STORAGE_KEY, JSON.stringify(fusiones));
+  } catch {
+    // Almacenamiento no disponible.
+  }
+}
+
+/**
+ * Calcula las dos mesas que se recrearán al desunir una mesa fusionada.
+ * Devuelve `null` si la mesa no proviene de una unión.
+ */
+export function calcularMesasSeparadas(
+  mesa: Mesa
+): [MesaSeparada, MesaSeparada] | null {
+  const registrada = leerFusionesRegistradas()[mesa._id];
+  if (registrada) {
+    const [primera, segunda] = registrada;
+    return [
+      {
+        numero: primera.numero,
+        capacidad: primera.capacidad,
+        ubicacion: primera.ubicacion,
+        ubicacionId: primera.ubicacionId,
+      },
+      {
+        numero: segunda.numero,
+        capacidad: segunda.capacidad,
+        ubicacion: segunda.ubicacion,
+        ubicacionId: segunda.ubicacionId,
+      },
+    ];
+  }
+
+  const nombres = mesa.numero
+    .split('+')
+    .map((nombre) => nombre.trim())
+    .filter((nombre) => nombre.length > 0);
+  if (nombres.length !== 2) return null;
+
+  const capacidadTotal = Number(mesa.capacidad) || 0;
+  if (capacidadTotal < 2) return null;
+
+  const capacidadPrimera = Math.max(1, Math.floor(capacidadTotal / 2));
+  const capacidadSegunda = Math.max(1, capacidadTotal - capacidadPrimera);
+  const ubicacionId = getUbicacionId(mesa);
+
+  return [
+    {
+      numero: nombres[0],
+      capacidad: capacidadPrimera,
+      ubicacion: mesa.ubicacion,
+      ubicacionId,
+    },
+    {
+      numero: nombres[1],
+      capacidad: capacidadSegunda,
+      ubicacion: mesa.ubicacion,
+      ubicacionId,
+    },
+  ];
+}
+
+/** Indica si la mesa es el resultado de una unión y puede desunirse. */
+export function esMesaFusionada(mesa: Mesa): boolean {
+  return calcularMesasSeparadas(mesa) !== null;
+}
+
+/**
  * Servicio cliente para el módulo de Mesas.
  * Consume los endpoints oficiales de /api/mesas.
  */
@@ -101,6 +275,7 @@ export const mesaService = {
 
   async eliminarMesa(id: string): Promise<{ mensaje: string; mesa?: Mesa }> {
     const res = await apiClient.delete<{ mensaje: string; mesa?: MesaBackendRaw }>(`/mesas/${id}`);
+    olvidarFusion(id);
     return {
       mensaje: res?.mensaje || 'Mesa eliminada correctamente',
       mesa: res?.mesa ? normalizeMesa(res.mesa) : undefined,
@@ -156,6 +331,145 @@ export const mesaService = {
       mesa: res.mesa ? normalizeMesa(res.mesa) : undefined,
       ocupacion: res.ocupacion,
     };
+  },
+
+  /**
+   * Fusiona dos mesas libres de la misma ubicación en una sola:
+   * crea la mesa nueva con la capacidad sumada y elimina las dos originales.
+   *
+   * NOTA: se compone con los endpoints existentes (POST /mesas y DELETE /mesas/:id)
+   * porque el backend aún no expone una operación atómica. Si más adelante se agrega
+   * un endpoint dedicado (por ejemplo POST /mesas/unir), basta con reemplazar el
+   * cuerpo de esta función por esa única llamada.
+   */
+  async unirMesas(data: UnirMesasDTO): Promise<ResultadoUnirMesas> {
+    if (data.mesas.length !== 2) {
+      throw new Error('Debes seleccionar exactamente 2 mesas para unirlas.');
+    }
+
+    const numero = data.numero.trim();
+    if (!numero) {
+      throw new Error('La nueva mesa necesita un nombre o número.');
+    }
+
+    const [mesaA, mesaB] = data.mesas;
+    if (mesaA._id === mesaB._id) {
+      throw new Error('No puedes unir una mesa consigo misma.');
+    }
+
+    const zonas = new Set(
+      [mesaA.ubicacion.trim().toLowerCase(), mesaB.ubicacion.trim().toLowerCase()]
+    );
+    if (zonas.size !== 1) {
+      throw new Error('Solo se pueden unir mesas que pertenecen a la misma ubicación.');
+    }
+
+    // La capacidad siempre se recalcula sumando las sillas de ambas mesas.
+    const capacidad = [mesaA, mesaB].reduce(
+      (acc, mesa) => acc + (Number(mesa.capacidad) || 0),
+      0
+    );
+    if (!Number.isInteger(capacidad) || capacidad < 1) {
+      throw new Error('La capacidad resultante de la unión no es válida.');
+    }
+
+    const mesaFusionada = await mesaService.crearMesa({
+      numero,
+      capacidad,
+      ubicacion: data.ubicacion,
+      ubicacionId: data.ubicacionId,
+    });
+
+    const mesasEliminadas: string[] = [];
+
+    try {
+      for (const mesa of data.mesas) {
+        await mesaService.eliminarMesa(mesa._id);
+        mesasEliminadas.push(mesa._id);
+      }
+    } catch (err: unknown) {
+      // Compensación: si no se pudieron borrar las dos mesas originales,
+      // se deshace la fusión para no dejar mesas duplicadas en el salón.
+      await mesaService.eliminarMesa(mesaFusionada._id).catch(() => undefined);
+
+      for (const mesa of data.mesas) {
+        if (!mesasEliminadas.includes(mesa._id)) continue;
+        await mesaService
+          .crearMesa({
+            numero: mesa.numero,
+            capacidad: mesa.capacidad,
+            ubicacion: mesa.ubicacion,
+            ubicacionId: mesa.ubicacionId,
+          })
+          .catch(() => undefined);
+      }
+
+      throw new Error(
+        `No se pudieron eliminar las mesas originales: ${
+          err instanceof Error ? err.message : 'error del servidor'
+        }. La unión fue cancelada.`
+      );
+    }
+
+    registrarFusion(mesaFusionada._id, data.mesas);
+
+    return { mesa: mesaFusionada, mesasEliminadas };
+  },
+
+  /**
+   * Deshace una fusión: elimina la mesa unida y recrea las dos mesas originales
+   * con su zona y su capacidad. Solo se permite mientras la mesa esté 'Libre'.
+   */
+  async desunirMesa(mesa: Mesa): Promise<ResultadoDesunirMesa> {
+    if (mesa.estado !== 'Libre') {
+      throw new Error('Solo se puede desunir una mesa en estado Libre.');
+    }
+
+    const separadas = calcularMesasSeparadas(mesa);
+    if (!separadas) {
+      throw new Error('Esta mesa no proviene de la unión de dos mesas.');
+    }
+
+    const mesasCreadas: Mesa[] = [];
+
+    try {
+      for (const separada of separadas) {
+        mesasCreadas.push(
+          await mesaService.crearMesa({
+            numero: separada.numero,
+            capacidad: separada.capacidad,
+            ubicacion: separada.ubicacion,
+            ubicacionId: separada.ubicacionId,
+          })
+        );
+      }
+    } catch (err: unknown) {
+      for (const creada of mesasCreadas) {
+        await mesaService.eliminarMesa(creada._id).catch(() => undefined);
+      }
+      throw new Error(
+        `No se pudieron recrear las mesas originales: ${
+          err instanceof Error ? err.message : 'error del servidor'
+        }. La unión se mantiene.`
+      );
+    }
+
+    try {
+      await mesaService.eliminarMesa(mesa._id);
+    } catch (err: unknown) {
+      // Compensación: si la mesa fusionada no se puede borrar, se deshacen
+      // las mesas recién creadas para no duplicar el salón.
+      for (const creada of mesasCreadas) {
+        await mesaService.eliminarMesa(creada._id).catch(() => undefined);
+      }
+      throw new Error(
+        `No se pudo eliminar la mesa fusionada: ${
+          err instanceof Error ? err.message : 'error del servidor'
+        }. La unión se mantiene.`
+      );
+    }
+
+    return { mesasCreadas, mesaEliminada: mesa._id };
   },
 
   /**
