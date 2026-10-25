@@ -15,6 +15,7 @@ import { useSocketEvent, useSocketStatus } from '@/hooks/use-socket';
 import { SOCKET_EVENTS } from '@/lib/socket';
 import { Mesa, EstadoMesa,CrearPedidoDTO, CrearMesaDTO, Ubicacion, Pedido, Plato, ActualizarPedidoDTO } from '@/types';
 import { MesaCard } from '@/components/mesas/mesa-card';
+import { MapaIsometrico } from '@/components/mesas/mapa-isometrico';
 import { MesaFormModal } from '@/components/mesas/mesa-form-modal';
 import { UbicacionManagerModal } from '@/components/mesas/ubicacion-manager-modal';
 import { MesaDeleteModal } from '@/components/mesas/mesa-delete-modal';
@@ -48,6 +49,7 @@ import {
   MapPin,
   Receipt,
   Merge,
+  Box,
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
@@ -89,6 +91,7 @@ function MesasPageContent() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
+  const [vista3D, setVista3D] = useState<boolean>(false);
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -775,6 +778,8 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
     });
   }, [mesas, searchTerm, selectedLocation, selectedEstado]);
 
+  const handleOpenMesa = handleSelectMesa;
+
   if (!user) return null;
 
   return (
@@ -804,6 +809,16 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          <Button
+            variant={vista3D ? 'primary' : 'outline'}
+            size="sm"
+            onClick={() => setVista3D((prev) => !prev)}
+            leftIcon={<Box className="w-4 h-4" />}
+            title={vista3D ? 'Cambiar a vista de cuadrícula 2D' : 'Cambiar a plano isométrico 3D'}
+          >
+            {vista3D ? 'Vista 2D' : 'Plano 3D'}
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -996,7 +1011,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         </div>
       </div>
 
-      {/* Grid Principal de Mesas */}
+      {/* Grid Principal de Mesas o Plano Isométrico 3D */}
       {isLoading && mesas.length === 0 ? (
         <div className="p-16 text-center">
           <Spinner size="lg" className="text-amber-600 mx-auto" />
@@ -1028,6 +1043,8 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
           }
           className="my-8"
         />
+      ) : vista3D ? (
+        <MapaIsometrico mesas={filteredMesas} onMesaClick={handleOpenMesa} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredMesas.map((mesa, index) => (
