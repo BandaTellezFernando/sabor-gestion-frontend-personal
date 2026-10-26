@@ -110,8 +110,7 @@ export default function PagarCuentaQRPage() {
   }, [token]);
   useEffect(() => {
     detenerConsultaRef.current = false;
-    setIsLoading(true);
-    void consultarEstado();
+    queueMicrotask(() => void consultarEstado());
     const identificador = window.setInterval(() => void consultarEstado(), 5000);
     return () => window.clearInterval(identificador);
   }, [consultarEstado]);

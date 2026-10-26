@@ -95,7 +95,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     [mesasSeleccionadas]
   );
 
-  const puedeUnir = mesasSeleccionadas.length === 2 && numero.trim().length > 0;
+  const puedeUnir = mesasSeleccionadas.length >= 2 && numero.trim().length > 0;
 
   const handleSelectZona = (nuevaZona: string) => {
     setUbicacion(nuevaZona);
@@ -116,7 +116,6 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     if (yaSeleccionada) {
       siguiente = seleccionadas.filter((id) => id !== mesa._id);
     } else {
-      if (seleccionadas.length >= 2) return;
       siguiente = [...seleccionadas, mesa._id];
     }
 
@@ -126,7 +125,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       const nombres = mesasZona
         .filter((candidata) => siguiente.includes(candidata._id))
         .map((candidata) => candidata.numero);
-      setNumero(nombres.length === 2 ? nombres.join(' + ') : '');
+      setNumero(nombres.length >= 2 ? nombres.join(' + ') : '');
     }
   };
 
@@ -134,27 +133,23 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     e.preventDefault();
     setFormError(null);
 
-    if (mesasSeleccionadas.length !== 2) {
-      setFormError('Selecciona exactamente 2 mesas libres para unirlas.');
+    if (mesasSeleccionadas.length < 2) {
+      setFormError('Selecciona al menos 2 mesas libres para unirlas.');
       return;
     }
 
-    const [mesaA, mesaB] = mesasSeleccionadas;
-
-    if (!mesaA || !mesaB) {
-      setFormError('Selecciona exactamente 2 mesas libres para unirlas.');
-      return;
-    }
-
-    if (mesaA.estado !== 'Libre' || mesaB.estado !== 'Libre') {
+    if (mesasSeleccionadas.some((m) => m.estado !== 'Libre')) {
       setFormError('Solo se pueden unir mesas en estado Libre.');
       return;
     }
 
+    const zonaBase = mesasSeleccionadas[0].ubicacion.trim().toLowerCase();
     if (
-      mesaA.ubicacion.trim().toLowerCase() !== mesaB.ubicacion.trim().toLowerCase()
+      mesasSeleccionadas.some(
+        (m) => m.ubicacion.trim().toLowerCase() !== zonaBase
+      )
     ) {
-      setFormError('Las dos mesas deben pertenecer a la misma ubicación.');
+      setFormError('Todas las mesas deben pertenecer a la misma ubicación.');
       return;
     }
 
@@ -172,10 +167,10 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     setIsSubmitting(true);
     try {
       await onConfirm({
-        mesas: [toMesaOrigen(mesaA), toMesaOrigen(mesaB)],
+        mesas: mesasSeleccionadas.map(toMesaOrigen),
         numero: nombreFinal,
-        ubicacion: mesaA.ubicacion.trim(),
-        ubicacionId: getUbicacionId(mesaA) ?? getUbicacionId(mesaB),
+        ubicacion: mesasSeleccionadas[0].ubicacion.trim(),
+        ubicacionId: getUbicacionId(mesasSeleccionadas[0]),
       });
       onClose();
     } catch (err: unknown) {
@@ -248,10 +243,10 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-            2. Selecciona 2 mesas
+            2. Selecciona las mesas a unir (mínimo 2)
           </p>
-          <Badge variant={seleccionadas.length === 2 ? 'success' : 'neutral'}>
-            {seleccionadas.length} / 2
+          <Badge variant={seleccionadas.length >= 2 ? 'success' : 'neutral'}>
+            {seleccionadas.length} seleccionada{seleccionadas.length === 1 ? '' : 's'}
           </Badge>
         </div>
 
@@ -263,20 +258,18 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
           <div className="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
             {mesasZona.map((mesa) => {
               const activa = seleccionadas.includes(mesa._id);
-              const bloqueada = !activa && seleccionadas.length >= 2;
 
               return (
                 <button
                   key={mesa._id}
                   type="button"
                   onClick={() => handleToggleMesa(mesa)}
-                  disabled={bloqueada}
                   aria-pressed={activa}
                   className={`flex items-center gap-2.5 rounded-xl border-2 p-2.5 text-left transition-all duration-200 ${
                     activa
                       ? 'border-[#C84B26] bg-[#C84B26]/5 dark:border-[#E05A36] dark:bg-[#C84B26]/15'
                       : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800/60'
-                  } disabled:cursor-not-allowed disabled:opacity-40`}
+                  }`}
                 >
                   <span
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border ${
@@ -308,22 +301,23 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       <div className="space-y-3 rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-stone-700 dark:bg-stone-800/40">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-stone-600 dark:text-stone-300">
           <Merge className="h-4 w-4 text-[#C84B26] dark:text-[#E05A36]" aria-hidden="true" />
-          {mesasSeleccionadas.length === 2 ? (
+          {mesasSeleccionadas.length >= 2 ? (
             <span className="flex flex-wrap items-center gap-1.5">
-              <span className="text-stone-900 dark:text-stone-100">
-                {mesasSeleccionadas[0].numero}
-              </span>
-              <span aria-hidden="true">+</span>
-              <span className="text-stone-900 dark:text-stone-100">
-                {mesasSeleccionadas[1].numero}
-              </span>
+              {mesasSeleccionadas.map((m, idx) => (
+                <React.Fragment key={m._id}>
+                  {idx > 0 && <span aria-hidden="true">+</span>}
+                  <span className="text-stone-900 dark:text-stone-100">
+                    {m.numero}
+                  </span>
+                </React.Fragment>
+              ))}
               <span className="text-stone-400">=</span>
               <span className="font-bold text-[#C84B26] dark:text-[#E05A36]">
                 {capacidadTotal} personas
               </span>
             </span>
           ) : (
-            <span>Selecciona 2 mesas para ver la capacidad resultante.</span>
+            <span>Selecciona al menos 2 mesas para ver la capacidad resultante.</span>
           )}
         </div>
 
@@ -331,7 +325,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
           id="union-mesa-numero"
           name="numero"
           label="Nombre de la nueva mesa"
-          placeholder="Ej: Mesa 4 + Mesa 5"
+          placeholder="Ej: Mesa 1 + Mesa 2 + Mesa 3"
           value={numero}
           onChange={(e) => {
             setNumero(e.target.value);
@@ -339,20 +333,20 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
           }}
           maxLength={80}
           required
-          helperText="Se genera automáticamente con los nombres de ambas mesas, pero puedes editarlo."
+          helperText="Se genera automáticamente con los nombres de las mesas seleccionadas, pero puedes editarlo."
         />
 
         <Input
           id="union-mesa-capacidad"
           name="capacidad"
           label="Capacidad resultante"
-          value={mesasSeleccionadas.length === 2 ? String(capacidadTotal) : ''}
+          value={mesasSeleccionadas.length >= 2 ? String(capacidadTotal) : ''}
           placeholder="—"
           readOnly
           tabIndex={-1}
           aria-readonly="true"
           className="cursor-not-allowed bg-stone-100 font-bold dark:bg-stone-800"
-          helperText="Suma automática de las sillas de las dos mesas seleccionadas."
+          helperText="Suma automática de las sillas de las mesas seleccionadas."
         />
       </div>
 
@@ -392,7 +386,7 @@ export function UnirMesasModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Unir mesas"
-      description="Fusiona dos mesas libres de la misma ubicación en una sola mesa con la capacidad sumada."
+      description="Fusiona dos o más mesas libres de la misma ubicación en una sola mesa con la capacidad sumada."
       maxWidth="xl"
     >
       {isOpen && (

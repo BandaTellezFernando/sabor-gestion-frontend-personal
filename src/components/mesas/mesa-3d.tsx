@@ -2,11 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { Mesa, EstadoMesa } from '@/types';
-import { Users, Move } from 'lucide-react';
+import { Users, Move, Unlink } from 'lucide-react';
 
 export interface Mesa3DProps {
   mesa: Mesa;
   onClick?: (mesa: Mesa) => void;
+  onDesunirMesa?: (mesa: Mesa) => void;
   className?: string;
   isProcessing?: boolean;
   isEditMode?: boolean;
@@ -22,91 +23,133 @@ interface SillaProps {
 }
 
 /**
- * Sub-componente Silla3D: Silla volumétrica con relieve tridimensional.
- * Asiento compuesto con grosor (translateZ) y respaldo inclinado de alto contraste.
+ * Sub-componente Silla3D: Silla volumétrica con relieve tridimensional y mobiliario realista.
+ * - Sombra de contacto direccional sobre el suelo (translateZ 0.5px).
+ * - 4 patas de soporte ancladas firmemente al suelo (translateZ 1px).
+ * - Asiento volumétrico con grosor visible (plataforma + tapizado acolchado con translateZ).
+ * - Respaldo curvado (rounded-t-lg, etc.) inclinado ergonómicamente hacia atrás (rotateX / rotateY).
  */
 function Silla3D({ orientation, style }: SillaProps) {
-  const getRespaldoStyle = (): React.CSSProperties => {
+  const getRespaldoConfig = (): { style: React.CSSProperties; className: string } => {
     switch (orientation) {
       case 'top':
         return {
-          top: '-2px',
-          left: 0,
-          right: 0,
-          height: '9px',
-          transformOrigin: 'bottom',
-          transform: 'rotateX(-80deg)',
+          style: {
+            top: '-5px',
+            left: '1px',
+            right: '1px',
+            height: '11px',
+            transformOrigin: 'bottom center',
+            transform: 'rotateX(-28deg)',
+          },
+          className:
+            'rounded-t-lg bg-gradient-to-b from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-t-white/70 shadow-sm',
         };
       case 'bottom':
         return {
-          bottom: '-2px',
-          left: 0,
-          right: 0,
-          height: '9px',
-          transformOrigin: 'top',
-          transform: 'rotateX(80deg)',
+          style: {
+            bottom: '-5px',
+            left: '1px',
+            right: '1px',
+            height: '11px',
+            transformOrigin: 'top center',
+            transform: 'rotateX(28deg)',
+          },
+          className:
+            'rounded-b-lg bg-gradient-to-t from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-b-white/70 shadow-sm',
         };
       case 'left':
         return {
-          left: '-2px',
-          top: 0,
-          bottom: 0,
-          width: '9px',
-          transformOrigin: 'right',
-          transform: 'rotateY(80deg)',
+          style: {
+            left: '-5px',
+            top: '1px',
+            bottom: '1px',
+            width: '11px',
+            transformOrigin: 'right center',
+            transform: 'rotateY(28deg)',
+          },
+          className:
+            'rounded-l-lg bg-gradient-to-r from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-l-white/70 shadow-sm',
         };
       case 'right':
         return {
-          right: '-2px',
-          top: 0,
-          bottom: 0,
-          width: '9px',
-          transformOrigin: 'left',
-          transform: 'rotateY(-80deg)',
+          style: {
+            right: '-5px',
+            top: '1px',
+            bottom: '1px',
+            width: '11px',
+            transformOrigin: 'left center',
+            transform: 'rotateY(-28deg)',
+          },
+          className:
+            'rounded-r-lg bg-gradient-to-l from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-r-white/70 shadow-sm',
         };
     }
   };
+
+  const respaldo = getRespaldoConfig();
 
   return (
     <div
       className="absolute pointer-events-none select-none"
       style={{
         ...style,
-        width: '14px',
-        height: '14px',
+        width: '16px',
+        height: '16px',
         transformStyle: 'preserve-3d',
       }}
     >
-      {/* Sombra de oclusión en el piso */}
+      {/* Sombra de oclusión proyectada directamente sobre la superficie del suelo */}
       <div
-        className="absolute inset-0 bg-black/45 rounded-xs blur-[1px]"
+        className="absolute inset-0 bg-black/55 rounded-sm blur-[1.5px]"
+        style={{ transform: 'translateZ(0.5px)' }}
+      />
+
+      {/* Patas de la silla ancladas al suelo para evitar efecto flotante */}
+      <div
+        className="absolute top-0.5 left-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        style={{ transform: 'translateZ(1px)' }}
+      />
+      <div
+        className="absolute top-0.5 right-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        style={{ transform: 'translateZ(1px)' }}
+      />
+      <div
+        className="absolute bottom-0.5 left-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        style={{ transform: 'translateZ(1px)' }}
+      />
+      <div
+        className="absolute bottom-0.5 right-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
         style={{ transform: 'translateZ(1px)' }}
       />
 
-      {/* Asiento volumétrico con grosor: base en translateZ(4px) y tapa acolchada en translateZ(7px) */}
+      {/* Base inferior del asiento con grosor volumétrico */}
       <div
-        className="absolute inset-0 bg-stone-400 rounded-xs border border-stone-500/80 shadow-xs"
+        className="absolute inset-0.5 bg-stone-500 rounded-xs border border-stone-600/90 shadow-xs"
         style={{
-          transform: 'translateZ(4px)',
+          transform: 'translateZ(3.5px)',
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Tapa del asiento con tono claro y borde luminoso */}
+        {/* Tapa acolchada del asiento con elevación y relieve luminoso */}
         <div
-          className="absolute inset-0 bg-stone-300 rounded-xs border-t border-white/60 shadow-xs"
+          className="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-300 to-stone-400 dark:from-stone-600 dark:via-stone-700 dark:to-stone-800 rounded-xs border-t border-white/60 shadow-inner"
           style={{
-            transform: 'translateZ(3px)',
+            transform: 'translateZ(2.5px)',
             transformStyle: 'preserve-3d',
           }}
         >
-          {/* Respaldo de la silla con volumen y definición */}
+          {/* Respaldo volumétrico ergonómicamente inclinado */}
           <div
-            className="absolute bg-stone-400 rounded-t-xs border border-stone-500 shadow-sm"
+            className={`absolute ${respaldo.className}`}
             style={{
-              ...getRespaldoStyle(),
+              ...respaldo.style,
               transformStyle: 'preserve-3d',
             }}
-          />
+          >
+            {/* Ranura sutil de tapicería */}
+            <div className="absolute inset-0.5 opacity-25 border-t border-black/30 pointer-events-none" />
+          </div>
         </div>
       </div>
     </div>
@@ -129,8 +172,8 @@ interface ColorScheme3D {
 const COLOR_SCHEMES: Record<EstadoMesa, ColorScheme3D> = {
   Libre: {
     top: 'bg-emerald-600 hover:bg-emerald-500',
-    sideRight: 'bg-emerald-800',
-    sideBottom: 'bg-emerald-950',
+    sideRight: 'from-emerald-700 via-emerald-800 to-emerald-950',
+    sideBottom: 'from-emerald-800 via-emerald-900 to-stone-950',
     glow: 'hover:shadow-[0_0_24px_rgba(16,185,129,0.7)]',
     pulsing: false,
     badgeBg: 'bg-emerald-950/95',
@@ -140,8 +183,8 @@ const COLOR_SCHEMES: Record<EstadoMesa, ColorScheme3D> = {
   },
   Ocupada: {
     top: 'bg-[#C84B26] hover:bg-[#db5229]',
-    sideRight: 'bg-[#9A3515]',
-    sideBottom: 'bg-[#712710]',
+    sideRight: 'from-[#A83C1A] via-[#8B3014] to-[#5C1F0C]',
+    sideBottom: 'from-[#8B3014] via-[#712710] to-stone-950',
     glow: 'hover:shadow-[0_0_24px_rgba(200,75,38,0.7)]',
     pulsing: false,
     badgeBg: 'bg-stone-950/95',
@@ -151,8 +194,8 @@ const COLOR_SCHEMES: Record<EstadoMesa, ColorScheme3D> = {
   },
   'Cuenta Solicitada': {
     top: 'bg-amber-500 hover:bg-amber-400',
-    sideRight: 'bg-amber-700',
-    sideBottom: 'bg-amber-900',
+    sideRight: 'from-amber-600 via-amber-700 to-amber-900',
+    sideBottom: 'from-amber-700 via-amber-800 to-stone-950',
     glow: 'shadow-[0_0_28px_rgba(245,158,11,0.9)]',
     pulsing: true,
     badgeBg: 'bg-amber-950/95',
@@ -162,9 +205,31 @@ const COLOR_SCHEMES: Record<EstadoMesa, ColorScheme3D> = {
   },
 };
 
+const BLOCK_SIZE = 58;
+const BLOCK_STEP = 60;
+
+interface SubBlock {
+  id: string;
+  col: number;
+  row: number;
+  x: number;
+  y: number;
+  nombre?: string;
+}
+
+interface ExternalEdge {
+  id: string;
+  blockCol: number;
+  blockRow: number;
+  x: number;
+  y: number;
+  orientation: 'top' | 'bottom' | 'left' | 'right';
+}
+
 export function Mesa3D({
   mesa,
   onClick,
+  onDesunirMesa,
   className = '',
   isProcessing = false,
   isEditMode = false,
@@ -173,219 +238,325 @@ export function Mesa3D({
 }: Mesa3DProps) {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  // Detectar si la mesa es una unión física (ej. "1+2", "Mesa 4 y 5")
+  // Detectar si la mesa es una unión física
   const esUnida = useMemo(() => {
-    return mesa.numero.includes('+') || /\by\b/i.test(mesa.numero);
+    return (
+      mesa.numero.includes('+') ||
+      mesa.numero.includes('&') ||
+      /\b(?:y|and)\b/i.test(mesa.numero) ||
+      /\[(?:cuadrad[ao]|lineal|bloque)\]/i.test(mesa.numero)
+    );
   }, [mesa.numero]);
 
+  // Extraer nombres reales de las sub-mesas fusionadas
+  const subNombres = useMemo(() => {
+    if (!esUnida) return [mesa.numero.replace(/\[.*?\]/g, '').trim()];
+    const clean = mesa.numero.replace(/\[.*?\]/g, '').trim();
+    const parts = clean
+      .split(/\+|\b(?:y|and)\b|&/i)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return parts.length > 0 ? parts : [clean];
+  }, [mesa.numero, esUnida]);
+
+  // Contar cantidad estricta de sub-mesas reales que conforman esta unión
+  const mesasCount = useMemo(() => {
+    if (!esUnida) return 1;
+    return Math.max(2, subNombres.length);
+  }, [esUnida, subNombres]);
+
+  // Determinar la forma geométrica: "cuadrada" (bloque/compacta) o "lineal"
+  const forma = useMemo<'normal' | 'lineal' | 'cuadrada'>(() => {
+    if (!esUnida) return 'normal';
+    if (/cuadrad[ao]|bloque/i.test(mesa.numero)) {
+      return 'cuadrada';
+    }
+    return 'lineal';
+  }, [esUnida, mesa.numero]);
+
+  // Generación exacta de sub-bloques reales (NUNCA agregar mesas fantasma)
+  const { blocks, widthPx, heightPx } = useMemo(() => {
+    if (forma === 'normal' || mesasCount <= 1) {
+      return {
+        blocks: [
+          {
+            id: 'block-0',
+            col: 0,
+            row: 0,
+            x: 3,
+            y: 3,
+            nombre: subNombres[0] || mesa.numero.replace(/\[.*?\]/g, '').trim(),
+          },
+        ],
+        widthPx: 64,
+        heightPx: 64,
+      };
+    }
+
+    if (forma === 'lineal') {
+      const bList: SubBlock[] = [];
+      for (let i = 0; i < mesasCount; i++) {
+        bList.push({
+          id: `block-${i}`,
+          col: i,
+          row: 0,
+          x: 2 + i * BLOCK_STEP,
+          y: 3,
+          nombre: subNombres[i] || `Mesa ${i + 1}`,
+        });
+      }
+      return {
+        blocks: bList,
+        widthPx: mesasCount * BLOCK_STEP + 4,
+        heightPx: 64,
+      };
+    }
+
+    // FORMA BLOQUE / CUADRADA:
+    // Renderizado estricto del número exacto de mesas fusionadas.
+    let colCount = 2;
+    let rowCount = 2;
+    const bPositions: Array<{ col: number; row: number }> = [];
+
+    if (mesasCount === 2) {
+      colCount = 2;
+      rowCount = 1;
+      bPositions.push({ col: 0, row: 0 }, { col: 1, row: 0 });
+    } else if (mesasCount === 3) {
+      // 3 mesas: figura orgánica en L (2x2 con la esquina (1,1) completamente vacía)
+      colCount = 2;
+      rowCount = 2;
+      bPositions.push(
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 0, row: 1 }
+      );
+    } else if (mesasCount === 4) {
+      // 4 mesas: bloque 2x2 completo
+      colCount = 2;
+      rowCount = 2;
+      bPositions.push(
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 0, row: 1 },
+        { col: 1, row: 1 }
+      );
+    } else if (mesasCount === 5) {
+      // 5 mesas: matriz 3x2 con 5 bloques exactos (3 arriba, 2 abajo; (2,1) vacía)
+      colCount = 3;
+      rowCount = 2;
+      bPositions.push(
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 2, row: 0 },
+        { col: 0, row: 1 },
+        { col: 1, row: 1 }
+      );
+    } else {
+      // Generalización para N >= 6: columnas calculadas con ceil(sqrt(N))
+      colCount = Math.ceil(Math.sqrt(mesasCount));
+      rowCount = Math.ceil(mesasCount / colCount);
+      for (let i = 0; i < mesasCount; i++) {
+        bPositions.push({
+          col: i % colCount,
+          row: Math.floor(i / colCount),
+        });
+      }
+    }
+
+    const bList: SubBlock[] = bPositions.map((pos, idx) => ({
+      id: `block-${idx}`,
+      col: pos.col,
+      row: pos.row,
+      x: 2 + pos.col * BLOCK_STEP,
+      y: 2 + pos.row * BLOCK_STEP,
+      nombre: subNombres[idx] || `M${idx + 1}`,
+    }));
+
+    return {
+      blocks: bList,
+      widthPx: colCount * BLOCK_STEP + 4,
+      heightPx: rowCount * BLOCK_STEP + 4,
+    };
+  }, [forma, mesasCount, subNombres, mesa.numero]);
+
+  // Centroide de los bloques reales para anclar el Billboard con precisión
+  const { centerX, centerY } = useMemo(() => {
+    if (blocks.length === 0) return { centerX: widthPx / 2, centerY: heightPx / 2 };
+    const sumX = blocks.reduce((acc, b) => acc + (b.x + BLOCK_SIZE / 2), 0);
+    const sumY = blocks.reduce((acc, b) => acc + (b.y + BLOCK_SIZE / 2), 0);
+    return {
+      centerX: sumX / blocks.length,
+      centerY: sumY / blocks.length,
+    };
+  }, [blocks, widthPx, heightPx]);
+
   const scheme = COLOR_SCHEMES[mesa.estado] || COLOR_SCHEMES.Libre;
-  const tableHeight = 22; // Altura tridimensional de elevación del prisma (translateZ)
+  const tableHeight = 22; // Altura tridimensional del prisma (translateZ)
 
-  // Separación ajustada de las sillas respecto al borde de la mesa
-  const CHAIR_OFFSET = '-12px';
-
-  // Distribución matemática de sillas alrededor del perímetro de la mesa
+  // Distribución de sillas únicamente en el perímetro exterior de los bloques reales
   const sillas = useMemo(() => {
     const capacidad = Math.max(1, mesa.capacidad || 2);
+    const externalEdges: ExternalEdge[] = [];
+
+    // Determinar qué bordes de cada bloque dan al exterior (sin vecino contiguo)
+    blocks.forEach((b) => {
+      const hasTop = blocks.some((o) => o.col === b.col && o.row === b.row - 1);
+      const hasBottom = blocks.some((o) => o.col === b.col && o.row === b.row + 1);
+      const hasLeft = blocks.some((o) => o.col === b.col - 1 && o.row === b.row);
+      const hasRight = blocks.some((o) => o.col === b.col + 1 && o.row === b.row);
+
+      if (!hasTop) {
+        externalEdges.push({
+          id: `edge-${b.id}-top`,
+          blockCol: b.col,
+          blockRow: b.row,
+          x: b.x,
+          y: b.y,
+          orientation: 'top',
+        });
+      }
+      if (!hasBottom) {
+        externalEdges.push({
+          id: `edge-${b.id}-bottom`,
+          blockCol: b.col,
+          blockRow: b.row,
+          x: b.x,
+          y: b.y,
+          orientation: 'bottom',
+        });
+      }
+      if (!hasLeft) {
+        externalEdges.push({
+          id: `edge-${b.id}-left`,
+          blockCol: b.col,
+          blockRow: b.row,
+          x: b.x,
+          y: b.y,
+          orientation: 'left',
+        });
+      }
+      if (!hasRight) {
+        externalEdges.push({
+          id: `edge-${b.id}-right`,
+          blockCol: b.col,
+          blockRow: b.row,
+          x: b.x,
+          y: b.y,
+          orientation: 'right',
+        });
+      }
+    });
+
     const result: Array<{
       id: string;
       orientation: 'top' | 'bottom' | 'left' | 'right';
       style: React.CSSProperties;
     }> = [];
 
-    if (esUnida) {
-      // Mesa Unida rectangular (w-[120px] h-16): Proporción 2:1 con más sillas en top y bottom
-      if (capacidad === 1) {
-        result.push({
-          id: 's-0',
-          orientation: 'bottom',
-          style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-        });
-      } else if (capacidad === 2) {
-        result.push(
-          {
-            id: 's-0',
-            orientation: 'top',
-            style: { left: '50%', top: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-1',
-            orientation: 'bottom',
-            style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          }
-        );
-      } else {
-        // Cabeceras izquierda y derecha (1 silla en cada extremo corto)
-        result.push({
-          id: 's-left',
-          orientation: 'left',
-          style: { left: CHAIR_OFFSET, top: '50%', transform: 'translateY(-50%)' },
-        });
-        result.push({
-          id: 's-right',
-          orientation: 'right',
-          style: { right: CHAIR_OFFSET, top: '50%', transform: 'translateY(-50%)' },
-        });
+    const topEdges = externalEdges.filter((e) => e.orientation === 'top');
+    const bottomEdges = externalEdges.filter((e) => e.orientation === 'bottom');
+    const leftEdges = externalEdges.filter((e) => e.orientation === 'left');
+    const rightEdges = externalEdges.filter((e) => e.orientation === 'right');
 
-        // Reparto equitativo del resto en los bordes largos (top y bottom)
-        const resto = capacidad - 2;
-        const topCount = Math.ceil(resto / 2);
-        const bottomCount = resto - topCount;
-
-        for (let i = 0; i < topCount; i++) {
-          const ratio = (i + 1) / (topCount + 1);
-          result.push({
-            id: `s-top-${i}`,
-            orientation: 'top',
-            style: {
-              left: `${ratio * 100}%`,
-              top: CHAIR_OFFSET,
-              transform: 'translateX(-50%)',
-            },
-          });
-        }
-
-        for (let i = 0; i < bottomCount; i++) {
-          const ratio = (i + 1) / (bottomCount + 1);
-          result.push({
-            id: `s-bottom-${i}`,
-            orientation: 'bottom',
-            style: {
-              left: `${ratio * 100}%`,
-              bottom: CHAIR_OFFSET,
-              transform: 'translateX(-50%)',
-            },
-          });
-        }
-      }
-    } else {
-      // Mesa Normal cuadrada 1x1 (w-16 h-16): Distribución equitativa en los 4 bordes
-      if (capacidad === 1) {
-        result.push({
-          id: 's-0',
-          orientation: 'bottom',
-          style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-        });
-      } else if (capacidad === 2) {
-        result.push(
-          {
-            id: 's-0',
-            orientation: 'top',
-            style: { left: '50%', top: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-1',
-            orientation: 'bottom',
-            style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          }
-        );
-      } else if (capacidad === 3) {
-        result.push(
-          {
-            id: 's-0',
-            orientation: 'top',
-            style: { left: '50%', top: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-1',
-            orientation: 'bottom',
-            style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-2',
-            orientation: 'right',
-            style: { right: CHAIR_OFFSET, top: '50%', transform: 'translateY(-50%)' },
-          }
-        );
-      } else if (capacidad === 4) {
-        result.push(
-          {
-            id: 's-0',
-            orientation: 'top',
-            style: { left: '50%', top: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-1',
-            orientation: 'bottom',
-            style: { left: '50%', bottom: CHAIR_OFFSET, transform: 'translateX(-50%)' },
-          },
-          {
-            id: 's-2',
-            orientation: 'left',
-            style: { left: CHAIR_OFFSET, top: '50%', transform: 'translateY(-50%)' },
-          },
-          {
-            id: 's-3',
-            orientation: 'right',
-            style: { right: CHAIR_OFFSET, top: '50%', transform: 'translateY(-50%)' },
-          }
-        );
-      } else {
-        // Más de 4 comensales en mesa cuadrada
-        const base = Math.floor(capacidad / 4);
-        const extra = capacidad % 4;
-        const counts = {
-          top: base + (extra > 0 ? 1 : 0),
-          bottom: base + (extra > 1 ? 1 : 0),
-          left: base + (extra > 2 ? 1 : 0),
-          right: base,
+    const createSillaStyle = (
+      edge: ExternalEdge,
+      ratio: number = 0.5
+    ): React.CSSProperties => {
+      if (edge.orientation === 'top') {
+        return {
+          left: `${edge.x + BLOCK_SIZE * ratio}px`,
+          top: `${edge.y - 14}px`,
+          transform: 'translate3d(-50%, 0, 0px)',
         };
-
-        (['top', 'bottom', 'left', 'right'] as const).forEach((side) => {
-          const count = counts[side];
-          for (let i = 0; i < count; i++) {
-            const ratio = (i + 1) / (count + 1);
-            if (side === 'top') {
-              result.push({
-                id: `s-${side}-${i}`,
-                orientation: side,
-                style: {
-                  left: `${ratio * 100}%`,
-                  top: CHAIR_OFFSET,
-                  transform: 'translateX(-50%)',
-                },
-              });
-            } else if (side === 'bottom') {
-              result.push({
-                id: `s-${side}-${i}`,
-                orientation: side,
-                style: {
-                  left: `${ratio * 100}%`,
-                  bottom: CHAIR_OFFSET,
-                  transform: 'translateX(-50%)',
-                },
-              });
-            } else if (side === 'left') {
-              result.push({
-                id: `s-${side}-${i}`,
-                orientation: side,
-                style: {
-                  left: CHAIR_OFFSET,
-                  top: `${ratio * 100}%`,
-                  transform: 'translateY(-50%)',
-                },
-              });
-            } else {
-              result.push({
-                id: `s-${side}-${i}`,
-                orientation: side,
-                style: {
-                  right: CHAIR_OFFSET,
-                  top: `${ratio * 100}%`,
-                  transform: 'translateY(-50%)',
-                },
-              });
-            }
-          }
-        });
       }
+      if (edge.orientation === 'bottom') {
+        return {
+          left: `${edge.x + BLOCK_SIZE * ratio}px`,
+          top: `${edge.y + BLOCK_SIZE + 2}px`,
+          transform: 'translate3d(-50%, 0, 0px)',
+        };
+      }
+      if (edge.orientation === 'left') {
+        return {
+          left: `${edge.x - 14}px`,
+          top: `${edge.y + BLOCK_SIZE * ratio}px`,
+          transform: 'translate3d(0, -50%, 0px)',
+        };
+      }
+      return {
+        left: `${edge.x + BLOCK_SIZE + 2}px`,
+        top: `${edge.y + BLOCK_SIZE * ratio}px`,
+        transform: 'translate3d(0, -50%, 0px)',
+      };
+    };
+
+    // Caso 1: Capacidad menor o igual a la cantidad de segmentos exteriores
+    if (capacidad <= externalEdges.length) {
+      const selectedEdges: ExternalEdge[] = [];
+      let tIdx = 0;
+      let bIdx = 0;
+      let lIdx = 0;
+      let rIdx = 0;
+
+      while (selectedEdges.length < capacidad) {
+        let added = false;
+        if (tIdx < topEdges.length && selectedEdges.length < capacidad) {
+          selectedEdges.push(topEdges[tIdx++]);
+          added = true;
+        }
+        if (bIdx < bottomEdges.length && selectedEdges.length < capacidad) {
+          selectedEdges.push(bottomEdges[bIdx++]);
+          added = true;
+        }
+        if (lIdx < leftEdges.length && selectedEdges.length < capacidad) {
+          selectedEdges.push(leftEdges[lIdx++]);
+          added = true;
+        }
+        if (rIdx < rightEdges.length && selectedEdges.length < capacidad) {
+          selectedEdges.push(rightEdges[rIdx++]);
+          added = true;
+        }
+        if (!added) break;
+      }
+
+      selectedEdges.forEach((edge, idx) => {
+        result.push({
+          id: `silla-${edge.id}-${idx}`,
+          orientation: edge.orientation,
+          style: createSillaStyle(edge, 0.5),
+        });
+      });
+
+      return result;
     }
 
+    // Caso 2: Capacidad mayor a la cantidad de segmentos exteriores
+    const basePerEdge = Math.floor(capacidad / externalEdges.length);
+    let extra = capacidad % externalEdges.length;
+
+    externalEdges.forEach((edge, idx) => {
+      const chairsForThisEdge = basePerEdge + (extra > 0 ? 1 : 0);
+      if (extra > 0) extra--;
+
+      for (let c = 0; c < chairsForThisEdge; c++) {
+        const ratio = (c + 1) / (chairsForThisEdge + 1);
+        result.push({
+          id: `silla-${edge.id}-${idx}-${c}`,
+          orientation: edge.orientation,
+          style: createSillaStyle(edge, ratio),
+        });
+      }
+    });
+
     return result;
-  }, [mesa.capacidad, esUnida]);
+  }, [blocks, mesa.capacidad]);
 
   // Elevación dinámica: Si está seleccionada en modo edición, flota más alto
   const hoverTranslateZ = isSelected ? 22 : isHovered ? 10 : 0;
+
+  // Altura compacta y no invasiva del billboard
+  const billboardTranslateY = forma === 'cuadrada' ? '-64px' : '-52px';
 
   return (
     <div
@@ -405,29 +576,36 @@ export function Mesa3D({
       aria-label={`Mesa ${mesa.numero}, ${mesa.estado}, capacidad ${mesa.capacidad} personas${
         isSelected ? ' (Seleccionada)' : ''
       }`}
-      className={`relative select-none cursor-pointer transition-transform duration-300 ease-out origin-center pointer-events-auto ${
-        esUnida ? 'w-[120px] h-16' : 'w-16 h-16'
-      } ${className}`}
+      className={`relative select-none cursor-pointer transition-transform duration-300 ease-out origin-top-left pointer-events-auto ${className}`}
       style={{
+        width: `${widthPx}px`,
+        height: `${heightPx}px`,
         transformStyle: 'preserve-3d',
         ...style,
       }}
     >
-      {/* SOMBRA PARALELA PROYECTADA EN EL SUELO (DIRECCIONAL) */}
-      <div
-        className={`absolute inset-0 bg-black/60 rounded-xl blur-md pointer-events-none transition-all duration-300 ${
-          isSelected
-            ? 'scale-125 bg-cyan-500/80 blur-lg opacity-90'
-            : isHovered
-            ? 'scale-115 opacity-75'
-            : 'scale-105 opacity-60'
-        }`}
-        style={{
-          transform: 'translate3d(6px, 8px, 1px)',
-        }}
-      />
+      {/* SOMBRA PARALELA PROYECTADA EN EL SUELO (DIRECCIONAL) PARA CADA BLOQUE REAL */}
+      {blocks.map((block) => (
+        <div
+          key={`shadow-${block.id}`}
+          className={`absolute bg-black/60 rounded-xl blur-md pointer-events-none transition-all duration-300 ${
+            isSelected
+              ? 'scale-125 bg-cyan-500/80 blur-lg opacity-90'
+              : isHovered
+              ? 'scale-115 opacity-75'
+              : 'scale-105 opacity-60'
+          }`}
+          style={{
+            left: `${block.x}px`,
+            top: `${block.y}px`,
+            width: `${BLOCK_SIZE}px`,
+            height: `${BLOCK_SIZE}px`,
+            transform: 'translate3d(6px, 8px, 1px)',
+          }}
+        />
+      ))}
 
-      {/* Sillas 3D volumétricas con grosor colocadas alrededor de la mesa */}
+      {/* Sillas 3D volumétricas ancladas al suelo alrededor del perímetro exterior */}
       {sillas.map((silla) => (
         <Silla3D
           key={silla.id}
@@ -444,7 +622,7 @@ export function Mesa3D({
           scheme.pulsing && !isSelected ? 'animate-pulse' : ''
         } ${
           isSelected
-            ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-stone-900 rounded-md shadow-[0_0_35px_rgba(34,211,238,0.95)] animate-bounce'
+            ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-stone-900 rounded-lg shadow-[0_0_35px_rgba(34,211,238,0.95)] animate-bounce'
             : ''
         }`}
         style={{
@@ -452,56 +630,75 @@ export function Mesa3D({
           transform: `translateZ(${hoverTranslateZ}px)`,
         }}
       >
-        {/* CARA SUPERIOR (Top Face) con borde brillante, reflejos y sombra interna */}
-        <div
-          className={`absolute inset-0 rounded-lg transition-all duration-300 flex items-center justify-center border border-white/30 border-t-white/60 shadow-inner ${
-            scheme.top
-          } ${scheme.glow}`}
-          style={{
-            transform: `translateZ(${tableHeight}px)`,
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {/* Reflejo simulado de la luz cenital del techo */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/40 rounded-lg pointer-events-none" />
+        {blocks.map((block) => {
+          const hasRight = blocks.some((o) => o.col === block.col + 1 && o.row === block.row);
+          const hasBottom = blocks.some((o) => o.col === block.col && o.row === block.row + 1);
 
-          {/* Ranura divisoria visual en mesas unidas centrada exactamente a la mitad */}
-          {esUnida && (
-            <div className="absolute top-0 bottom-0 left-1/2 w-[1.5px] bg-black/40 shadow-[1px_0_0_rgba(255,255,255,0.3)] pointer-events-none" />
-          )}
+          return (
+            <div
+              key={block.id}
+              className="absolute"
+              style={{
+                left: `${block.x}px`,
+                top: `${block.y}px`,
+                width: `${BLOCK_SIZE}px`,
+                height: `${BLOCK_SIZE}px`,
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              {/* CARA SUPERIOR (Top Face) con bisel simulado, brillo cenital y sombras internas */}
+              <div
+                className={`absolute inset-0 rounded-md transition-all duration-300 flex flex-col items-center justify-center border border-white/25 border-t-2 border-t-white/50 shadow-inner ${scheme.top} ${scheme.glow}`}
+                style={{
+                  transform: `translateZ(${tableHeight}px)`,
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                {/* Reflejo simulado de la luz cenital del techo */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/40 rounded-md pointer-events-none" />
+                <div className="absolute inset-x-0 top-0 h-[1.5px] bg-white/45 rounded-t-md pointer-events-none" />
 
-          {/* Número de la mesa impreso sobre el tablero */}
-          <span className="text-[13px] font-black tracking-wider text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] pointer-events-none">
-            {mesa.numero}
-          </span>
-        </div>
+                {/* Nombre o número del sub-bloque en el tablero */}
+                <span className="text-[11px] font-black tracking-wider text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] pointer-events-none truncate px-1 max-w-full text-center">
+                  {block.nombre || mesa.numero.replace(/\[.*?\]/g, '').trim()}
+                </span>
+              </div>
 
-        {/* CARA LATERAL DERECHA (Right Face) */}
-        <div
-          className={`absolute top-0 right-0 h-full rounded-r-xs transition-colors duration-300 ${scheme.sideRight} border-r border-black/40 shadow-xs`}
-          style={{
-            width: `${tableHeight}px`,
-            transformOrigin: 'right center',
-            transform: 'rotateY(90deg)',
-          }}
-        />
+              {/* CARA LATERAL DERECHA (Right Face) - Solo si no tiene bloque adyacente a la derecha */}
+              {!hasRight && (
+                <div
+                  className={`absolute top-0 right-0 h-full rounded-r-xs transition-colors duration-300 bg-gradient-to-b ${scheme.sideRight} border-r border-black/40 shadow-xs`}
+                  style={{
+                    width: `${tableHeight}px`,
+                    transformOrigin: 'right center',
+                    transform: 'rotateY(90deg)',
+                  }}
+                />
+              )}
 
-        {/* CARA LATERAL INFERIOR (Bottom / South Face) */}
-        <div
-          className={`absolute bottom-0 left-0 w-full rounded-b-xs transition-colors duration-300 ${scheme.sideBottom} border-b border-black/50 shadow-xs`}
-          style={{
-            height: `${tableHeight}px`,
-            transformOrigin: 'center bottom',
-            transform: 'rotateX(-90deg)',
-          }}
-        />
+              {/* CARA LATERAL INFERIOR (Bottom Face) - Solo si no tiene bloque adyacente abajo */}
+              {!hasBottom && (
+                <div
+                  className={`absolute bottom-0 left-0 w-full rounded-b-xs transition-colors duration-300 bg-gradient-to-b ${scheme.sideBottom} border-b border-black/50 shadow-xs`}
+                  style={{
+                    height: `${tableHeight}px`,
+                    transformOrigin: 'center bottom',
+                    transform: 'rotateX(-90deg)',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* INDICADOR FLOTANTE (BILLBOARD EFFECT): Centrado matemáticamente y con pointer-events-none estricto */}
+      {/* INDICADOR FLOTANTE (BILLBOARD EFFECT): Elevado en Z por encima del prisma para evitar oclusión 3D */}
       <div
-        className="absolute left-1/2 top-1/2 pointer-events-none select-none z-30"
+        className="absolute pointer-events-none select-none z-50 flex flex-col items-center"
         style={{
-          transform: 'rotateZ(45deg) rotateX(-60deg) translate(-50%, -75px)',
+          left: `${centerX}px`,
+          top: `${centerY}px`,
+          transform: `translate3d(0, 0, ${tableHeight + 42 + hoverTranslateZ}px) rotateZ(45deg) rotateX(-60deg) translate(-50%, ${billboardTranslateY})`,
           transformStyle: 'preserve-3d',
         }}
       >
@@ -517,7 +714,9 @@ export function Mesa3D({
           {isSelected ? (
             <>
               <Move className="w-3 h-3 text-cyan-300 animate-spin" />
-              <span className="font-bold tracking-tight text-cyan-200">Mover Mesa {mesa.numero}</span>
+              <span className="font-bold tracking-tight text-cyan-200">
+                Mover {mesa.numero.replace(/\[.*?\]/g, '').trim()}
+              </span>
             </>
           ) : (
             <>
@@ -526,12 +725,19 @@ export function Mesa3D({
                   mesa.estado === 'Cuenta Solicitada' ? 'animate-ping' : ''
                 }`}
               />
-              <span className="font-bold tracking-tight">Mesa {mesa.numero}</span>
+              <span className="font-bold tracking-tight">
+                {mesa.numero.replace(/\[.*?\]/g, '').trim()}
+              </span>
               <span className="opacity-30">|</span>
               <span className="inline-flex items-center gap-0.5 text-[9px] font-medium opacity-85">
                 <Users className="w-2.5 h-2.5 inline" />
                 {mesa.capacidad}
               </span>
+              {forma === 'cuadrada' && (
+                <span className="text-[8px] px-1 py-0.2 rounded bg-white/20 font-semibold tracking-tight">
+                  Bloque ({mesasCount})
+                </span>
+              )}
               {isEditMode && (
                 <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-white/20 font-mono">
                   EDIT
@@ -543,6 +749,35 @@ export function Mesa3D({
             </>
           )}
         </div>
+
+        {/* Botón condicional de Desunir Mesas (re-activa pointer-events con z-50 para click directo) */}
+        {esUnida && onDesunirMesa && !isSelected && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onDesunirMesa(mesa);
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+            }}
+            className="pointer-events-auto cursor-pointer relative z-50 bg-red-500/85 hover:bg-red-500 text-white text-[9px] font-semibold px-2.5 py-0.5 rounded-full mt-1 flex items-center gap-1 transition-all shadow-sm hover:scale-105 active:scale-95"
+            style={{
+              transform: 'translateZ(12px)',
+            }}
+            title={`Separar mesa ${mesa.numero}`}
+          >
+            <Unlink className="w-2.5 h-2.5 pointer-events-none" />
+            <span className="pointer-events-none">{mesasCount >= 3 ? `Desunir (${mesasCount})` : 'Desunir'}</span>
+          </button>
+        )}
       </div>
     </div>
   );

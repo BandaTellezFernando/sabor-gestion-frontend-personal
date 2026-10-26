@@ -48,7 +48,7 @@ function DesunirMesaContent({ mesa, onClose, onConfirm }: DesunirMesaContentProp
     return (
       <div className="space-y-4">
         <Alert variant="warning" title="La mesa no se puede desunir">
-          «{mesa.numero}» no tiene una unión registrada de dos mesas.
+          «{mesa.numero}» no contiene una unión de mesas válida.
         </Alert>
         <div className="flex justify-end">
           <Button type="button" variant="outline" onClick={onClose}>
