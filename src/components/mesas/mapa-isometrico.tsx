@@ -17,6 +17,8 @@ export interface MapaIsometricoProps {
   onDesunirMesa?: (mesa: Mesa) => void;
   className?: string;
   isEditMode?: boolean;
+  /** RBAC: solo un administrador puede activar el Modo Edición y mover/reubicar mesas. */
+  isAdmin?: boolean;
 }
 
 interface ZonaData {
@@ -910,10 +912,14 @@ export function MapaIsometrico({
   onDesunirMesa,
   className = '',
   isEditMode: isEditModeProp,
+  isAdmin = false,
 }: MapaIsometricoProps) {
   // Soporte de modo edición tanto controlado por prop como interno
   const [internalEditMode, setInternalEditMode] = useState<boolean>(false);
-  const isEditMode = isEditModeProp !== undefined ? isEditModeProp : internalEditMode;
+  // RBAC: el Modo Edición queda forzado a desactivado si el usuario no es administrador,
+  // ignorando cualquier bandera/estado interno o externo que intente activarlo.
+  const isEditMode =
+    isAdmin && (isEditModeProp !== undefined ? isEditModeProp : internalEditMode);
 
   // Agrupar mesas por ubicación física (ej. "Interior", "Terraza", "Salón Principal")
   const zonas: ZonaData[] = useMemo(() => {
@@ -1195,6 +1201,7 @@ export function MapaIsometrico({
   //   Si no hay Shift, no hacer absolutamente nada para evitar borrado accidental.
   const handleTileClick = useCallback(
     (e: React.MouseEvent, zona: string, x: number, y: number, isWall: boolean) => {
+      if (!isAdmin) return;
       if (!isEditMode) return;
 
       // 1. REUBICACIÓN INMEDIATA DE MESA SELECCIONADA EN MODO EDICIÓN
@@ -1263,12 +1270,13 @@ export function MapaIsometrico({
         [key]: nextType,
       }));
     },
-    [isEditMode, selectedTableId, effectiveTablePositions, tablePositions, mesas]
+    [isAdmin, isEditMode, selectedTableId, effectiveTablePositions, tablePositions, mesas]
   );
 
   // Arrastre continuo protegido: SOLO se activa si SHIFT está presionado
   const handleTilePointerDown = useCallback(
     (e: React.PointerEvent, zona: string, x: number, y: number, isWall: boolean) => {
+      if (!isAdmin) return;
       if (!isEditMode) return;
 
       if (e.shiftKey && e.button === 0) {
@@ -1289,11 +1297,12 @@ export function MapaIsometrico({
         });
       }
     },
-    [isEditMode]
+    [isAdmin, isEditMode]
   );
 
   const handleTilePointerEnter = useCallback(
     (e: React.PointerEvent, zona: string, x: number, y: number) => {
+      if (!isAdmin) return;
       if (!isEditMode) return;
 
       // El arrastre continuo requiere estrictamente isDrawingRef Y Shift
@@ -1309,25 +1318,26 @@ export function MapaIsometrico({
         });
       }
     },
-    [isEditMode]
+    [isAdmin, isEditMode]
   );
 
   // Clic en mesa
   const handleTableClick = useCallback(
     (mesa: Mesa) => {
-      if (isEditMode) {
-        // En modo edición: seleccionar o deseleccionar mesa
+      if (isAdmin && isEditMode) {
+        // En modo edición (solo administrador): seleccionar o deseleccionar mesa
         setSelectedTableId((prev) => (prev === mesa._id ? null : mesa._id));
       } else {
         // En modo vista: abrir comanda
         onMesaClick?.(mesa);
       }
     },
-    [isEditMode, onMesaClick]
+    [isAdmin, isEditMode, onMesaClick]
   );
 
   // Restablecer todas las baldosas de la zona a suelo completo
   const handleResetZoneLayout = useCallback((zonaNombre: string) => {
+    if (!isAdmin) return;
     if (!window.confirm(`¿Deseas restablecer todas las baldosas de "${zonaNombre}" a suelo completo?`)) {
       return;
     }
@@ -1343,7 +1353,7 @@ export function MapaIsometrico({
     });
 
     setSelectedTableId(null);
-  }, []);
+  }, [isAdmin]);
 
   const handleCancelSelection = useCallback(() => {
     setSelectedTableId(null);
@@ -1395,23 +1405,25 @@ export function MapaIsometrico({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Botón interactivo para alternar Modo Edición */}
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedTableId(null);
-              setInternalEditMode((prev) => !prev);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs ${
-              isEditMode
-                ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
-                : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300'
-            }`}
-            title={isEditMode ? 'Terminar edición y volver al modo operativo' : 'Activar modo edición del plano'}
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-            {isEditMode ? 'Terminar Edición' : 'Modo Edición'}
-          </button>
+          {/* Botón interactivo para alternar Modo Edición (exclusivo de administradores) */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedTableId(null);
+                setInternalEditMode((prev) => !prev);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs ${
+                isEditMode
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
+                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300'
+              }`}
+              title={isEditMode ? 'Terminar edición y volver al modo operativo' : 'Activar modo edición del plano'}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              {isEditMode ? 'Terminar Edición' : 'Modo Edición'}
+            </button>
+          )}
 
           {/* Selector de Zonas */}
           {zonas.length > 1 && (
