@@ -6,6 +6,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useSocketStatus, useSocketEvent } from '@/hooks/use-socket';
 import { dashboardService } from '@/services/dashboard.service';
 import { ReportesPdfSection } from '@/components/dashboard/reportes-pdf';
+import { DashboardMesero } from '@/components/dashboard/dashboard-mesero';
+import { DashboardCajero } from '@/components/dashboard/dashboard-cajero';
+import { DashboardCocinero } from '@/components/dashboard/dashboard-cocinero';
 import { ResumenDashboardDTO } from '@/types';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -440,10 +443,27 @@ function DashboardAdminContent() {
   );
 }
 
+function DashboardByRole() {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
+  switch (user.rol) {
+    case 'Mesero':
+      return <DashboardMesero />;
+    case 'Cajero':
+      return <DashboardCajero />;
+    case 'Cocinero':
+      return <DashboardCocinero />;
+    default:
+      return <DashboardAdminContent />;
+  }
+}
+
 export default function DashboardPage() {
   return (
-    <RoleGuard allowedRoles={['Administrador']}>
-      <DashboardAdminContent />
+    <RoleGuard allowedRoles={['Administrador', 'Mesero', 'Cajero', 'Cocinero']}>
+      <DashboardByRole />
     </RoleGuard>
   );
 }
