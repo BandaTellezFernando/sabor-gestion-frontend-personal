@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Mesa, Plato, CrearPedidoDTO, ComandaDraft, ComandaDraftItem, Pedido } from '@/types';
+import { Mesa, Plato, ComandaDraft, ComandaDraftItem, Pedido } from '@/types';
 import { platoService } from '@/services/plato.service';
 import { pedidoService } from '@/services/pedido.service';
 import { mesaService } from '@/services/mesa.service';
@@ -220,7 +220,7 @@ const isExpiredForCurrentMode =
       setDraftRestored(false);
     }
   });
-}, [isOpen, draftKey, pedidoAEditar]);
+}, [isOpen, draftKey, pedidoAEditar, platos]);
 // Persistir cambios en localStorage
   useEffect(() => {
     if (!isOpen || !draftKey || !mesa) return;

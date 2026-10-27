@@ -31,6 +31,14 @@ function obtenerNombrePlato(detalle: CuentaMesaDTO['pedidos'][number]['detalles'
     : detalle.plato?.nombre?.trim() || 'Producto';
 }
 
+const subscribeMinute = (callback: () => void) => {
+  const timer = setInterval(callback, 30000);
+  return () => clearInterval(timer);
+};
+
+const getMinuteSnapshot = () => Math.floor(Date.now() / 60000);
+const getServerMinuteSnapshot = () => 0;
+
 export function CuentaCard({ cuenta, onCobrar }: CuentaCardProps) {
   const pedidos = cuenta.pedidos ?? [];
   const totalItems = pedidos.reduce(
@@ -38,9 +46,11 @@ export function CuentaCard({ cuenta, onCobrar }: CuentaCardProps) {
     0,
   );
   const meseroNombre = pedidos.length ? obtenerNombreMesero(pedidos[0]) : 'Sin mesero';
+  const currentMinute = React.useSyncExternalStore(subscribeMinute, getMinuteSnapshot, getServerMinuteSnapshot);
   const fechaSolicitud = new Date(cuenta.fechaSolicitud).getTime();
-  const tiempoEspera = Number.isFinite(fechaSolicitud)
-    ? Math.max(0, Math.floor((Date.now() - fechaSolicitud) / 60000))
+  const solicitudMinute = Number.isFinite(fechaSolicitud) ? Math.floor(fechaSolicitud / 60000) : null;
+  const tiempoEspera = solicitudMinute !== null && currentMinute > 0
+    ? Math.max(0, currentMinute - solicitudMinute)
     : undefined;
 
   return (

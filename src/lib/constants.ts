@@ -59,7 +59,7 @@ export interface RouteNavItem {
  * Fuente única de verdad para sidebar, mobile-sidebar y control de acceso.
  */
 export const NAVIGATION_ROUTES: RouteNavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador'], isImplemented: true },
+  { label: 'Dashboard', href: '/dashboard', allowedRoles: ['Administrador', 'Mesero', 'Cajero', 'Cocinero'], isImplemented: true },
   { label: 'Usuarios', href: '/dashboard/usuarios', allowedRoles: ['Administrador'], isImplemented: true },
   { label: 'Mesas', href: '/dashboard/mesas', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
   { label: 'Pedidos', href: '/dashboard/pedidos', allowedRoles: ['Administrador', 'Mesero'], isImplemented: true },
@@ -76,7 +76,7 @@ export const NAVIGATION_ROUTES: RouteNavItem[] = [
  * Matriz estricta de permisos por ruta.
  */
 export const ROUTE_PERMISSIONS: Record<string, RolUsuario[]> = {
-  '/dashboard': ['Administrador'],
+  '/dashboard': ['Administrador', 'Mesero', 'Cajero', 'Cocinero'],
   '/dashboard/usuarios': ['Administrador'],
   '/dashboard/mesas': ['Administrador', 'Mesero'],
   '/dashboard/pedidos': ['Administrador', 'Mesero'],
