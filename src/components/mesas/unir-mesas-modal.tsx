@@ -1,3 +1,4 @@
+//src/components/mesas/unir-mesas-modal.tsx
 'use client';
 
 import React, { useMemo, useState } from 'react';
@@ -42,6 +43,8 @@ function toMesaOrigen(mesa: Mesa): MesaOrigenUnion {
     capacidad: mesa.capacidad,
     ubicacion: mesa.ubicacion,
     ubicacionId: getUbicacionId(mesa),
+    estadoFusion: mesa.estadoFusion,
+    cantidadOrigenes: mesa.estadoFusion === 'Fusionada' ? (mesa.mesasOrigen?.length ?? 1) : 1,
   };
 }
 
@@ -52,6 +55,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
 
     for (const mesa of mesas) {
       if (mesa.estado !== 'Libre') continue;
+      if (mesa.estadoFusion && !['Individual', 'Fusionada'].includes(mesa.estadoFusion)) continue;
       const zona = mesa.ubicacion?.trim() || SIN_ZONA;
       const grupo = agrupadas.get(zona) ?? [];
       grupo.push(mesa);
@@ -71,8 +75,6 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
 
   const [ubicacion, setUbicacion] = useState<string>(zonas[0]?.ubicacion ?? '');
   const [seleccionadas, setSeleccionadas] = useState<string[]>([]);
-  const [numero, setNumero] = useState<string>('');
-  const [nombreEditado, setNombreEditado] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -95,18 +97,24 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     [mesasSeleccionadas]
   );
 
-  const puedeUnir = mesasSeleccionadas.length >= 2 && numero.trim().length > 0;
+  const fusionesSeleccionadas = mesasSeleccionadas.filter((mesa) => mesa.estadoFusion === 'Fusionada').length;
+  const puedeUnir = mesasSeleccionadas.length >= 2 && fusionesSeleccionadas <= 1;
 
   const handleSelectZona = (nuevaZona: string) => {
     setUbicacion(nuevaZona);
     setSeleccionadas([]);
-    setNumero('');
-    setNombreEditado(false);
     setFormError(null);
   };
 
   const handleToggleMesa = (mesa: Mesa) => {
     if (mesa.estado !== 'Libre') return;
+    if (mesa.estadoFusion && !['Individual', 'Fusionada'].includes(mesa.estadoFusion)) return;
+
+    const yaHayFusionSeleccionada = mesasSeleccionadas.some((seleccionada) => seleccionada.estadoFusion === 'Fusionada');
+    if (!seleccionadas.includes(mesa._id) && mesa.estadoFusion === 'Fusionada' && yaHayFusionSeleccionada) {
+      setFormError('Solo puedes ampliar una fusión activa a la vez.');
+      return;
+    }
 
     setFormError(null);
 
@@ -121,12 +129,6 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
 
     setSeleccionadas(siguiente);
 
-    if (!nombreEditado) {
-      const nombres = mesasZona
-        .filter((candidata) => siguiente.includes(candidata._id))
-        .map((candidata) => candidata.numero);
-      setNumero(nombres.length >= 2 ? nombres.join(' + ') : '');
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,6 +145,16 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       return;
     }
 
+    if (mesasSeleccionadas.some((m) => m.estadoFusion && !['Individual', 'Fusionada'].includes(m.estadoFusion))) {
+      setFormError('La selección contiene mesas que no se pueden fusionar. Actualiza las mesas e inténtalo de nuevo.');
+      return;
+    }
+
+    if (mesasSeleccionadas.filter((m) => m.estadoFusion === 'Fusionada').length > 1) {
+      setFormError('Solo puedes ampliar una fusión activa a la vez.');
+      return;
+    }
+
     const zonaBase = mesasSeleccionadas[0].ubicacion.trim().toLowerCase();
     if (
       mesasSeleccionadas.some(
@@ -150,12 +162,6 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       )
     ) {
       setFormError('Todas las mesas deben pertenecer a la misma ubicación.');
-      return;
-    }
-
-    const nombreFinal = numero.trim();
-    if (!nombreFinal) {
-      setFormError('La nueva mesa necesita un nombre o número.');
       return;
     }
 
@@ -168,7 +174,8 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
     try {
       await onConfirm({
         mesas: mesasSeleccionadas.map(toMesaOrigen),
-        numero: nombreFinal,
+        // El backend genera el nombre y conserva los metadatos de las mesas de origen.
+        numero: mesasSeleccionadas.map((mesa) => mesa.numero).join(' + '),
         ubicacion: mesasSeleccionadas[0].ubicacion.trim(),
         ubicacionId: getUbicacionId(mesasSeleccionadas[0]),
       });
@@ -321,20 +328,13 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
           )}
         </div>
 
-        <Input
-          id="union-mesa-numero"
-          name="numero"
-          label="Nombre de la nueva mesa"
-          placeholder="Ej: Mesa 1 + Mesa 2 + Mesa 3"
-          value={numero}
-          onChange={(e) => {
-            setNumero(e.target.value);
-            setNombreEditado(true);
-          }}
-          maxLength={80}
-          required
-          helperText="Se genera automáticamente con los nombres de las mesas seleccionadas, pero puedes editarlo."
-        />
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-stone-700 dark:text-stone-200">Nombre generado por el servidor</p>
+          <div className="min-h-10 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200">
+            {mesasSeleccionadas.length >= 2 ? mesasSeleccionadas.map((mesa) => mesa.numero).join(' + ') : 'Selecciona al menos 2 mesas'}
+          </div>
+          <p className="text-xs text-stone-500 dark:text-stone-400">El backend genera el nombre definitivo y conserva la información de origen.</p>
+        </div>
 
         <Input
           id="union-mesa-capacidad"
@@ -386,7 +386,7 @@ export function UnirMesasModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Unir mesas"
-      description="Fusiona dos o más mesas libres de la misma ubicación en una sola mesa con la capacidad sumada."
+      description="Fusiona o amplía una mesa activa mediante el backend, conservando el historial de las mesas originales."
       maxWidth="xl"
     >
       {isOpen && (

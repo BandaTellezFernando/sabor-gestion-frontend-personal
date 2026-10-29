@@ -1,3 +1,4 @@
+//src/app/(dashboard)/dashboard/page.tsx
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -393,7 +394,7 @@ function DashboardAdminContent() {
                     <div className="divide-y divide-stone-100 dark:divide-stone-800/80">
                       {resumen.ordenesRecientes.map((orden) => (
                         <div
-                          key={orden.id}
+                          key={orden.uid}
                           className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 dark:hover:bg-stone-800/30 p-2 rounded-xl transition-colors"
                         >
                           <div className="flex items-center gap-3 min-w-0">

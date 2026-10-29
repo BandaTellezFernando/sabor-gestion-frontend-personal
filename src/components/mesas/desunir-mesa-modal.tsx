@@ -1,3 +1,4 @@
+//src/components/mesas/desunir-mesa-modal.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -71,22 +72,21 @@ function DesunirMesaContent({ mesa, onClose, onConfirm }: DesunirMesaContentProp
         <p className="flex items-start gap-2 font-medium">
           <Unlink2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>
-            La mesa <strong className="font-bold">{mesa.numero}</strong> se
-            eliminará y se volverán a crear las mesas originales en{' '}
-            <strong className="font-bold">{mesa.ubicacion || 'su zona'}</strong>.
+            Se restaurarán las mesas originales de <strong className="font-bold">{mesa.numero}</strong> en{' '}
+            <strong className="font-bold">{mesa.ubicacion || 'su zona'}</strong>, conservando sus identificadores e historial.
           </span>
         </p>
       </div>
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-          Mesas que se recrearán
+          Mesas originales que se restaurarán
         </p>
 
         <ul className="space-y-2">
           {separadas.map((separada) => (
             <li
-              key={separada.numero}
+              key={separada.mesaId}
               className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-700 dark:bg-stone-900"
             >
               <div className="min-w-0">
@@ -129,7 +129,7 @@ function DesunirMesaContent({ mesa, onClose, onConfirm }: DesunirMesaContentProp
           onClick={() => void handleConfirm()}
           leftIcon={<Unlink2 className="h-4 w-4" />}
         >
-          Sí, desunir mesa
+          Sí, restaurar mesas
         </Button>
       </div>
     </div>
@@ -147,7 +147,7 @@ export function DesunirMesaModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Desunir mesa"
-      description="Recrea las dos mesas originales con su zona y su capacidad."
+      description="Restaura todas las mesas originales registradas por el backend."
       maxWidth="md"
     >
       {isOpen && mesa && (

@@ -1,3 +1,4 @@
+//src/components/mesas/mesa-3d.tsx
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -238,41 +239,24 @@ export function Mesa3D({
 }: Mesa3DProps) {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  // Detectar si la mesa es una unión física
-  const esUnida = useMemo(() => {
-    return (
-      mesa.numero.includes('+') ||
-      mesa.numero.includes('&') ||
-      /\b(?:y|and)\b/i.test(mesa.numero) ||
-      /\[(?:cuadrad[ao]|lineal|bloque)\]/i.test(mesa.numero)
-    );
-  }, [mesa.numero]);
+  // La existencia y el tamaño de una fusión provienen de los metadatos del backend.
+  const esUnida = useMemo(
+    () => mesa.estadoFusion === 'Fusionada' && (mesa.mesasOrigen?.length ?? 0) >= 2,
+    [mesa.estadoFusion, mesa.mesasOrigen]
+  );
 
-  // Extraer nombres reales de las sub-mesas fusionadas
   const subNombres = useMemo(() => {
-    if (!esUnida) return [mesa.numero.replace(/\[.*?\]/g, '').trim()];
-    const clean = mesa.numero.replace(/\[.*?\]/g, '').trim();
-    const parts = clean
-      .split(/\+|\b(?:y|and)\b|&/i)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    return parts.length > 0 ? parts : [clean];
-  }, [mesa.numero, esUnida]);
+    if (!esUnida) return [mesa.numero];
+    return mesa.mesasOrigen?.map((origen) => origen.numero) ?? [mesa.numero];
+  }, [mesa.numero, mesa.mesasOrigen, esUnida]);
 
-  // Contar cantidad estricta de sub-mesas reales que conforman esta unión
-  const mesasCount = useMemo(() => {
-    if (!esUnida) return 1;
-    return Math.max(2, subNombres.length);
-  }, [esUnida, subNombres]);
+  const mesasCount = useMemo(() => (esUnida ? subNombres.length : 1), [esUnida, subNombres]);
 
-  // Determinar la forma geométrica: "cuadrada" (bloque/compacta) o "lineal"
+  // Como la forma física no es persistida en el contrato del backend, se aplica una forma predeterminada.
   const forma = useMemo<'normal' | 'lineal' | 'cuadrada'>(() => {
     if (!esUnida) return 'normal';
-    if (/cuadrad[ao]|bloque/i.test(mesa.numero)) {
-      return 'cuadrada';
-    }
-    return 'lineal';
-  }, [esUnida, mesa.numero]);
+    return mesa.formaFusion === 'Cuadrada' || (!mesa.formaFusion && mesasCount >= 3) ? 'cuadrada' : 'lineal';
+  }, [esUnida, mesasCount, mesa.formaFusion]);
 
   // Generación exacta de sub-bloques reales (NUNCA agregar mesas fantasma)
   const { blocks, widthPx, heightPx } = useMemo(() => {

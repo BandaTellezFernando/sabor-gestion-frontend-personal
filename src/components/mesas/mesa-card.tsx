@@ -1,3 +1,4 @@
+//src/components/mesas/mesa-card.tsx
 'use client';
 
 import React from 'react';

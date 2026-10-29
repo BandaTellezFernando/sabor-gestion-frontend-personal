@@ -1,3 +1,4 @@
+//src/types/dashboard.ts
 export interface KPIsDashboard {
   ventasHoy: number;
   ordenesHoy: number;
@@ -19,6 +20,7 @@ export interface CategoriaPopularDTO {
 }
 
 export interface OrdenRecienteDTO {
+  uid: string;
   id: string;
   mesa: string;
   hora: string;

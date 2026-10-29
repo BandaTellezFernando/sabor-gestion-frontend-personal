@@ -1,3 +1,4 @@
+//src/types/mesa.ts
 export type EstadoMesa = 'Libre' | 'Ocupada' | 'Cuenta Solicitada';
 
 export interface Ubicacion {
@@ -15,6 +16,28 @@ export interface Mesa {
   estado: EstadoMesa;
   createdAt?: string;
   updatedAt?: string;
+  estadoFusion?: EstadoFusionMesa;
+  fusionadaEn?: string | null;
+  mesasOrigen?: MesaOrigenFusion[];
+  fusionDisueltaAt?: string | null;
+  fusionCanceladaAt?: string | null;
+  /** Preferencia visual local del mapa; no es un campo de negocio del backend. */
+  formaFusion?: 'Lineal' | 'Cuadrada';
+}
+
+export type EstadoFusionMesa =
+  | 'Individual'
+  | 'Fusionada'
+  | 'Integrada'
+  | 'Disuelta'
+  | 'Cancelada';
+
+export interface MesaOrigenFusion {
+  mesaId: string;
+  numero: string;
+  capacidad: number;
+  ubicacion: string;
+  ubicacionId?: string | null;
 }
 
 export interface CrearMesaDTO {

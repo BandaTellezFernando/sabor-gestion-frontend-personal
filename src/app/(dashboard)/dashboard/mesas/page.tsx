@@ -9,7 +9,6 @@ import {
   normalizeMesa,
   MesaBackendRaw,
   UnirMesasDTO,
-  calcularMesasSeparadas,
 } from '@/services/mesa.service';
 import { ubicacionService } from '@/services/ubicacion.service';
 import { useSocketEvent, useSocketStatus } from '@/hooks/use-socket';
@@ -40,8 +39,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert } from '@/components/ui/alert';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Modal } from '@/components/ui/modal';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   Grid,
   Users,
@@ -60,7 +59,6 @@ import {
   Columns,
   LayoutGrid,
   Unlink2,
-  MinusCircle,
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
@@ -132,14 +130,8 @@ function MesasPageContent() {
   const [isFormaModalOpen, setIsFormaModalOpen] = useState<boolean>(false);
   const [pendingUnionData, setPendingUnionData] = useState<UnirMesasDTO | null>(null);
   const [formaSeleccionada, setFormaSeleccionada] = useState<'Lineal' | 'Cuadrada'>('Lineal');
-  const [isDesunirGranularOpen, setIsDesunirGranularOpen] = useState<boolean>(false);
   const [isUnionProcessing, setIsUnionProcessing] = useState<boolean>(false);
 
-  const pendingPartsCount = useMemo(() => {
-    if (!pendingUnionData) return 0;
-    const clean = pendingUnionData.numero.replace(/\[.*?\]/g, '').trim();
-    return clean.split(/\+|\b(?:y|and)\b|&/i).map((s) => s.trim()).filter(Boolean).length;
-  }, [pendingUnionData]);
 
   // Estados para Ocupación Temporal y Apertura de Comanda
   const [comandaMesa, setComandaMesa] = useState<Mesa | null>(null);
@@ -148,6 +140,11 @@ function MesasPageContent() {
   const [modoPedidoAdicional, setModoPedidoAdicional] = useState<boolean>(false);
   const [processingMesaId, setProcessingMesaId] = useState<string | null>(null);
   const [requestingAccountMesaId, setRequestingAccountMesaId] = useState<string | null>(null);
+
+  const pendingPartsCount = useMemo(
+    () => pendingUnionData?.mesas.reduce((total, mesa) => total + (mesa.cantidadOrigenes ?? 1), 0) ?? 0,
+    [pendingUnionData]
+  );
   const [mesasConCuentaDisponible, setMesasConCuentaDisponible] = useState<string[]>([]);
 
   // Estados para visualización y edición de Pedido Activo en mesa (Caso D)
@@ -337,274 +334,94 @@ const [modoCreacionAdicionalForm, setModoCreacionAdicionalForm] =
     });
   };
 
-  // Fusión de mesas libres de la misma zona en una sola mesa
+  // La operación de fusión y su ciclo de vida son administrados por el backend.
   const handleUnirMesas = async (data: UnirMesasDTO) => {
-    // Detectar si la unión involucra 3 o más mesas originales
-    const cleanName = data.numero.replace(/\[.*?\]/g, '').trim();
-    const partsCount = cleanName.split(/\+|\b(?:y|and)\b|&/i).map((s) => s.trim()).filter(Boolean).length;
-    const hasMultiple =
-      data.mesas.length >= 3 ||
-      partsCount >= 3 ||
-      data.mesas.some(
-        (m) =>
-          m.numero.includes('+') ||
-          m.numero.includes('&') ||
-          /\b(?:y|and)\b/i.test(m.numero)
-      );
-
-    if (hasMultiple) {
+    const cantidadOrigenes = data.mesas.reduce(
+      (total, mesa) => total + (mesa.cantidadOrigenes ?? 1),
+      0
+    );
+    if (cantidadOrigenes >= 3) {
       setPendingUnionData(data);
+      setFormaSeleccionada('Lineal');
       setIsFormaModalOpen(true);
       return;
     }
-
-    await ejecutarUnirMesas(data);
+    await ejecutarUnirMesas({ ...data, forma: 'Lineal' });
   };
 
   const ejecutarUnirMesas = async (data: UnirMesasDTO) => {
     setIsUnionProcessing(true);
     try {
       const resultado = await mesaService.unirMesas(data);
-      const mesasEliminadas = new Set(resultado.mesasEliminadas);
 
-      // Actualizar posición de la nueva mesa unida y purgar las mesas de origen guardando al menos 1 baldosa libre
       actualizarPosicionesAlUnir(
-        data.mesas.map((m) => m._id),
+        resultado.mesasAfectadasIds,
         resultado.mesa,
         mesas
       );
 
       setMesas((prev) => {
-        const sinEliminadas = prev.filter(
-          (m) => !mesasEliminadas.has(m._id) && m._id !== resultado.mesa._id
-        );
-        return deduplicateMesas([...sinEliminadas, resultado.mesa]);
+        const ocultas = new Set(resultado.mesasAfectadasIds);
+        return deduplicateMesas([
+          ...prev.filter((m) => !ocultas.has(m._id) && m._id !== resultado.mesa._id),
+          resultado.mesa,
+        ]);
       });
 
       setNotification({
         type: 'success',
-        message: `Mesa ${resultado.mesa.numero} creada exitosamente. Capacidad total: ${resultado.mesa.capacidad} personas.`,
+        message: `${resultado.accion === 'ampliada' ? 'Fusión ampliada' : 'Fusión creada'}: ${resultado.mesa.numero}. Capacidad total: ${resultado.mesa.capacidad} personas.`,
       });
     } catch (err: unknown) {
       setNotification({
         type: 'error',
         message: err instanceof Error ? err.message : 'Error al unir las mesas.',
       });
+      throw err;
     } finally {
       setIsUnionProcessing(false);
-      setPendingUnionData(null);
-      setIsFormaModalOpen(false);
     }
   };
 
   const handleConfirmarFormaUnion = async () => {
     if (!pendingUnionData) return;
-    const cleanName = pendingUnionData.numero.replace(/\[.*?\]/g, '').trim();
-    const nombreConForma = `${cleanName} [${formaSeleccionada}]`;
-
-    await ejecutarUnirMesas({
-      ...pendingUnionData,
-      numero: nombreConForma,
-    });
+    try {
+      await ejecutarUnirMesas({ ...pendingUnionData, forma: formaSeleccionada });
+    } catch {
+      // La notificación de error ya se presenta desde ejecutarUnirMesas.
+    } finally {
+      setIsFormaModalOpen(false);
+      setPendingUnionData(null);
+    }
   };
 
-  // Separación de una mesa fusionada (detecta uniones múltiples para desunión granular)
   const handleOpenDesunir = (mesa: Mesa) => {
     setMesaToSplit(mesa);
-    const clean = mesa.numero.replace(/\[.*?\]/g, '').trim();
-    const parts = clean.split(/\+|\b(?:y|and)\b|&/i).map((s) => s.trim()).filter(Boolean);
-    const count = Math.max((mesa.numero.match(/\+/g) || []).length + 1, parts.length);
-    if (count >= 3) {
-      setIsDesunirGranularOpen(true);
-    } else {
-      setIsDesunirOpen(true);
-    }
+    setIsDesunirOpen(true);
   };
 
   const handleDesunirMesa = async (mesa: Mesa) => {
     try {
       const resultado = await mesaService.desunirMesa(mesa);
-      const creadas = new Set(resultado.mesasCreadas.map((m) => m._id));
+      distribuirPosicionesDesunir(mesa, resultado.mesasRestauradas, mesas);
 
-      // Reasignación automática de posiciones adyacentes y purga de la mesa unida
-      distribuirPosicionesDesunir(mesa, resultado.mesasCreadas, mesas);
-
-      setMesas((prev) => {
-        const sinMadreNiCreadas = prev.filter(
-          (m) => m._id !== mesa._id && !creadas.has(m._id)
-        );
-        return deduplicateMesas([...sinMadreNiCreadas, ...resultado.mesasCreadas]);
-      });
+      setMesas((prev) => deduplicateMesas([
+        ...prev.filter((m) => m._id !== resultado.mesaFusionadaId),
+        ...resultado.mesasRestauradas,
+      ]));
 
       setNotification({
         type: 'success',
-        message: `Mesa ${mesa.numero} separada nuevamente en ${resultado.mesasCreadas
-          .map((creada) => creada.numero)
-          .join(' y ')}.`,
+        message: `Se restauraron ${resultado.mesasRestauradas.length} mesas originales de ${mesa.numero}.`,
       });
-    } catch (err: unknown) {
-      setNotification({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'Error al desunir la mesa.',
-      });
-    }
-  };
-
-  // Desunir solo la última mesa añadida a una mesa de múltiples uniones
-  const handleDesunirUltima = async (mesa: Mesa) => {
-    setIsUnionProcessing(true);
-    try {
-      // 1. Probar si el registro en localStorage de fusiones tiene el par previo
-      const separadas = calcularMesasSeparadas(mesa);
-      if (separadas) {
-        const resultado = await mesaService.desunirMesa(mesa);
-        const creadas = new Set(resultado.mesasCreadas.map((m) => m._id));
-
-        // Reasignación automática de posiciones adyacentes y purga de la mesa unida
-        distribuirPosicionesDesunir(mesa, resultado.mesasCreadas, mesas);
-
-        setMesas((prev) => {
-          const sinMadreNiCreadas = prev.filter(
-            (m) => m._id !== mesa._id && !creadas.has(m._id)
-          );
-          return deduplicateMesas([...sinMadreNiCreadas, ...resultado.mesasCreadas]);
-        });
-
-        setNotification({
-          type: 'success',
-          message: `Se desunió la última mesa de ${mesa.numero}.`,
-        });
-        setIsDesunirGranularOpen(false);
-        setMesaToSplit(null);
-        return;
-      }
-
-      // 2. Si no hay registro directo, separar por parsing del nombre
-      const cleanName = mesa.numero.replace(/\[.*?\]/g, '').trim();
-      const formaTag = mesa.numero.match(/\[(.*?)\]/)?.[0] || '';
-      const parts = cleanName.split(/\+|\b(?:y|and)\b|&/i).map((p) => p.trim()).filter(Boolean);
-
-      if (parts.length < 2) {
-        throw new Error('La mesa no contiene múltiples uniones.');
-      }
-
-      const lastPart = parts[parts.length - 1].trim();
-      const remainingParts = parts.slice(0, parts.length - 1);
-      const remainingName = `${remainingParts.join(' + ')}${
-        remainingParts.length >= 3 && formaTag ? ` ${formaTag}` : ''
-      }`.trim();
-
-      const totalCap = Number(mesa.capacidad) || parts.length * 2;
-      const lastCap = Math.max(1, Math.round(totalCap / parts.length));
-      const remainingCap = Math.max(1, totalCap - lastCap);
-      const ubicacionId =
-        typeof mesa.ubicacionId === 'object' && mesa.ubicacionId !== null
-          ? (mesa.ubicacionId as { _id: string })._id
-          : mesa.ubicacionId;
-
-      // 1. Eliminar primero la mesa madre de MongoDB para liberar claves únicas
-      await mesaService.eliminarMesa(mesa._id);
-
-      const mesaRestante = await mesaService.crearMesa({
-        numero: remainingName,
-        capacidad: remainingCap,
-        ubicacion: mesa.ubicacion,
-        ubicacionId,
-      });
-
-      const mesaUltima = await mesaService.crearMesa({
-        numero: lastPart,
-        capacidad: lastCap,
-        ubicacion: mesa.ubicacion,
-        ubicacionId,
-      });
-
-      // Reasignación automática de posiciones adyacentes y purga de la mesa unida
-      distribuirPosicionesDesunir(mesa, [mesaRestante, mesaUltima], mesas);
-
-      const nuevasIds = new Set([mesaRestante._id, mesaUltima._id]);
-      setMesas((prev) => {
-        const sinMadreNiNuevas = prev.filter(
-          (m) => m._id !== mesa._id && !nuevasIds.has(m._id)
-        );
-        return deduplicateMesas([...sinMadreNiNuevas, mesaRestante, mesaUltima]);
-      });
-
-      setNotification({
-        type: 'success',
-        message: `Se separó ${lastPart} de ${remainingName}.`,
-      });
-    } catch (err: unknown) {
-      setNotification({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'Error al desunir la última mesa.',
-      });
-    } finally {
-      setIsUnionProcessing(false);
-      setIsDesunirGranularOpen(false);
+      setIsDesunirOpen(false);
       setMesaToSplit(null);
-    }
-  };
-
-  // Desunir y separar todas las mesas originales
-  const handleDesunirTodo = async (mesa: Mesa) => {
-    setIsUnionProcessing(true);
-    try {
-      const cleanName = mesa.numero.replace(/\[.*?\]/g, '').trim();
-      const parts = cleanName.split(/\+|\b(?:y|and)\b|&/i).map((p) => p.trim()).filter(Boolean);
-
-      if (parts.length < 2) {
-        throw new Error('La mesa no contiene múltiples uniones.');
-      }
-
-      const totalCap = Number(mesa.capacidad) || parts.length * 2;
-      const baseCap = Math.max(1, Math.floor(totalCap / parts.length));
-      let remainder = totalCap - baseCap * parts.length;
-      const ubicacionId =
-        typeof mesa.ubicacionId === 'object' && mesa.ubicacionId !== null
-          ? (mesa.ubicacionId as { _id: string })._id
-          : mesa.ubicacionId;
-
-      // 1. Eliminar primero la mesa madre de MongoDB para liberar claves únicas
-      await mesaService.eliminarMesa(mesa._id);
-
-      const creadas: Mesa[] = [];
-      for (const part of parts) {
-        const cap = baseCap + (remainder > 0 ? 1 : 0);
-        if (remainder > 0) remainder--;
-        const nueva = await mesaService.crearMesa({
-          numero: part.replace(/\[.*?\]/g, '').trim(),
-          capacidad: cap,
-          ubicacion: mesa.ubicacion,
-          ubicacionId,
-        });
-        creadas.push(nueva);
-      }
-
-      // Reasignación automática de posiciones adyacentes y purga de la mesa unida
-      distribuirPosicionesDesunir(mesa, creadas, mesas);
-
-      const creadasIds = new Set(creadas.map((m) => m._id));
-      setMesas((prev) => {
-        const sinMadreNiCreadas = prev.filter(
-          (m) => m._id !== mesa._id && !creadasIds.has(m._id)
-        );
-        return deduplicateMesas([...sinMadreNiCreadas, ...creadas]);
-      });
-
-      setNotification({
-        type: 'success',
-        message: `Mesa ${mesa.numero} separada completamente en ${parts.length} mesas individuales.`,
-      });
     } catch (err: unknown) {
       setNotification({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Error al separar todas las mesas.',
+        message: err instanceof Error ? err.message : 'Error al restaurar las mesas.',
       });
-    } finally {
-      setIsUnionProcessing(false);
-      setIsDesunirGranularOpen(false);
-      setMesaToSplit(null);
+      throw err;
     }
   };
 
@@ -1739,97 +1556,6 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             </div>
           </Modal>
 
-          {/* Modal de Desunión Granular para Mesas Múltiples */}
-          <Modal
-            isOpen={isDesunirGranularOpen && !!mesaToSplit}
-            onClose={() => {
-              setIsDesunirGranularOpen(false);
-              setMesaToSplit(null);
-            }}
-            title="Desunir mesa múltiple"
-            description={`La mesa ${mesaToSplit?.numero} tiene múltiples uniones. ¿Qué deseas hacer?`}
-            maxWidth="md"
-          >
-            {mesaToSplit && (
-              <div className="space-y-4 pt-1">
-                <div className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 p-3 text-xs text-amber-900 dark:text-amber-200">
-                  <p className="flex items-start gap-2 font-medium">
-                    <Unlink2 className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                    <span>
-                      Esta mesa está compuesta por la unión de varias mesas en{' '}
-                      <strong>{mesaToSplit.ubicacion || 'su zona'}</strong>. Puedes separar solo el último grupo añadido o restaurar todas las mesas originales.
-                    </span>
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  {/* Opción 1: Desunir último grupo */}
-                  <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <MinusCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span className="font-bold text-sm text-stone-900 dark:text-white">
-                          Desunir solo la última mesa añadida
-                        </span>
-                      </div>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">
-                        Separa la última mesa incorporada y conserva el grupo restante unido.
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      isLoading={isUnionProcessing}
-                      onClick={() => void handleDesunirUltima(mesaToSplit)}
-                      className="shrink-0 text-amber-600 border-amber-300 dark:border-amber-700/80 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-                    >
-                      Desunir última
-                    </Button>
-                  </div>
-
-                  {/* Opción 2: Desunir todo */}
-                  <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Unlink2 className="w-4 h-4 text-rose-500 shrink-0" />
-                        <span className="font-bold text-sm text-stone-900 dark:text-white">
-                          Desunir y separar todas las mesas originales
-                        </span>
-                      </div>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">
-                        Deshace todas las fusiones y recrea cada una de las mesas individuales.
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="primary"
-                      size="sm"
-                      isLoading={isUnionProcessing}
-                      onClick={() => void handleDesunirTodo(mesaToSplit)}
-                      className="shrink-0 bg-rose-600 hover:bg-rose-700 text-white"
-                    >
-                      Separar todo
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-3 border-t border-stone-200 dark:border-stone-800">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setIsDesunirGranularOpen(false);
-                      setMesaToSplit(null);
-                    }}
-                    disabled={isUnionProcessing}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Modal>
 
           <UbicacionManagerModal
             isOpen={isUbicacionesOpen}

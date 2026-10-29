@@ -157,8 +157,7 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
       }
     },
   );
-  const handleEnviarReciboEmail = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleEnviarReciboEmail = async () => {
     if (
       !cuenta?._id ||
       !qrConfirmado ||
@@ -502,19 +501,26 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                   </p>
                   {reciboEmailSuccess && <Alert variant="success">{reciboEmailSuccess}</Alert>}
                   {reciboEmailError && <Alert variant="error">{reciboEmailError}</Alert>}
-                  <form onSubmit={handleEnviarReciboEmail} className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       type="email"
                       label="Correo electrónico"
                       placeholder="correo@ejemplo.com"
                       value={emailRecibo}
                       onChange={(event) => setEmailRecibo(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          void handleEnviarReciboEmail();
+                        }
+                      }}
                       autoComplete="email"
                       required
                       disabled={isSendingRecibo}
                     />
                     <Button
-                      type="submit"
+                      type="button"
+                      onClick={() => void handleEnviarReciboEmail()}
                       variant="outline"
                       className="shrink-0 self-end"
                       isLoading={isSendingRecibo}
@@ -522,7 +528,7 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                     >
                       {isSendingRecibo ? 'Enviando...' : 'Enviar recibo'}
                     </Button>
-                  </form>
+                  </div>
                 </div>
               </>
             ) : (

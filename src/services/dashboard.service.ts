@@ -1,3 +1,4 @@
+//src/services/dashboard.service.ts
 import { apiClient } from '@/lib/api-client';
 import { ResumenDashboardDTO } from '@/types';
 

@@ -1,3 +1,4 @@
+//src/components/mesas/mapa-isometrico.tsx
 'use client';
 
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
@@ -70,30 +71,17 @@ function getInitialStorage<T>(key: string, defaultValue: T): T {
  *   - N mesas: ceil(sqrt(N)) x ceil(N / cols)
  */
 export function getMesaGridUnits(mesa: Mesa): { unitsX: number; unitsY: number } {
-  const isUnida =
-    mesa.numero.includes('+') ||
-    mesa.numero.includes('&') ||
-    /\b(?:y|and)\b/i.test(mesa.numero) ||
-    /\[(?:cuadrad[ao]|lineal|bloque)\]/i.test(mesa.numero);
-  if (!isUnida) return { unitsX: 1, unitsY: 1 };
+  const count = mesa.estadoFusion === 'Fusionada' && Array.isArray(mesa.mesasOrigen)
+    ? mesa.mesasOrigen.length
+    : 1;
+  if (count < 2) return { unitsX: 1, unitsY: 1 };
 
-  const clean = mesa.numero.replace(/\[.*?\]/g, '').trim();
-  const parts = clean
-    .split(/\+|\b(?:y|and)\b|&/i)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const count = Math.max(2, parts.length);
-
-  const isCuadrada = /cuadrad[ao]|bloque/i.test(mesa.numero);
-  if (isCuadrada) {
-    if (count <= 2) return { unitsX: 2, unitsY: 1 };
-    if (count <= 4) return { unitsX: 2, unitsY: 2 };
-    const cols = Math.ceil(Math.sqrt(count));
-    const rows = Math.ceil(count / cols);
-    return { unitsX: cols, unitsY: rows };
-  }
-
-  return { unitsX: count, unitsY: 1 };
+  const formaCuadrada = mesa.formaFusion ? mesa.formaFusion === 'Cuadrada' : count >= 3;
+  if (!formaCuadrada || count === 2) return { unitsX: count, unitsY: 1 };
+  if (count <= 4) return { unitsX: 2, unitsY: 2 };
+  const cols = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / cols);
+  return { unitsX: cols, unitsY: rows };
 }
 
 /**
