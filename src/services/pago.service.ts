@@ -37,6 +37,29 @@ export const pagoService = {
     return apiClient.post<ProcesarPagoCuentaResponse>(`/pagos/cuentas/${encodeURIComponent(cuentaId)}/procesar`, data);
   },
 
+    /** Configura la propina elegida en Caja antes de generar el QR. */
+  async configurarPropinaQRCuenta(
+    cuentaId: string,
+    montoPropina: number,
+  ): Promise<{
+    mensaje: string;
+    codigoCuenta: string;
+    subtotal: number;
+    propina: number;
+    total: number;
+  }> {
+    return apiClient.patch<{
+      mensaje: string;
+      codigoCuenta: string;
+      subtotal: number;
+      propina: number;
+      total: number;
+    }>(
+      `/pagos/cuentas/${encodeURIComponent(cuentaId)}/qr/propina`,
+      { montoPropina },
+    );
+  },
+
   /** Devuelve el enlace público del cliente para crear el QR visual. */
   async generarQRCuenta(cuentaId: string): Promise<DatosQRCuentaResponse> {
     return apiClient.get<DatosQRCuentaResponse>(`/pagos/cuentas/${encodeURIComponent(cuentaId)}/qr`);

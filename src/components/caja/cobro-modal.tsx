@@ -1,3 +1,4 @@
+//src/components/caja/cobro-modal.tsx
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -26,7 +27,6 @@ import {
   AlertCircle,
   User,
   Hash,
-  Percent,
   Smartphone,
 } from 'lucide-react';
 interface CobroModalProps {
@@ -200,30 +200,82 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
   const imagenQR = qrData
     ? `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qrData.urlPago)}`
     : null;
-  const handleSeleccionarMetodo = async (metodo: MetodoPago) => {
-    setMetodoPago(metodo);
-    setError(null);
-// El QR debe reflejar los importes ya persistidos en la cuenta.
-    if (metodo === 'QR') setMontoPropina(String(cuenta.montoPropina ?? 0));
-    if (metodo === 'QR' && !qrData && !generarQRLockRef.current) {
-      generarQRLockRef.current = true;
-      setIsLoadingQR(true);
-      try {
-        const respuesta = await pagoService.generarQRCuenta(cuenta._id);
-        setQrData(respuesta);
-      } catch (err: unknown) {
-        if (err instanceof ApiError) setError(err.getUserMessage());
-        else if (err instanceof Error) setError(err.message);
-        else setError('No se pudo generar el QR para esta cuenta.');
-      } finally {
-        generarQRLockRef.current = false;
-        setIsLoadingQR(false);
-      }
+ const handleSeleccionarMetodo = (metodo: MetodoPago) => {
+  setMetodoPago(metodo);
+  setError(null);
+
+  // Si se cambia el método, se descarta el QR anterior
+  // de la interfaz para evitar mostrar un importe desactualizado.
+  if (metodo !== metodoPago) {
+    setQrData(null);
+  }
+};
+
+const handleGenerarQR = async () => {
+  if (
+    !cuenta._id ||
+    generarQRLockRef.current ||
+    isLoadingQR ||
+    qrConfirmado
+  ) {
+    return;
+  }
+
+  const propinaIngresada =
+    montoPropina.trim() === '' ? 0 : Number(montoPropina);
+
+  if (
+  !Number.isInteger(propinaIngresada) ||
+  propinaIngresada < 0
+) {
+    setError('La propina debe ser un número entero mayor o igual a cero.');
+    return;
+  }
+
+  const propinaConfirmada = Number(
+    propinaIngresada.toFixed(2)
+  );
+
+  generarQRLockRef.current = true;
+  setIsLoadingQR(true);
+  setError(null);
+
+  try {
+    // 1. Guardar la propina en el backend y renovar el token.
+    await pagoService.configurarPropinaQRCuenta(
+      cuenta._id,
+      propinaConfirmada
+    );
+
+    // 2. Obtener el enlace QR con el nuevo token y total.
+    const respuesta = await pagoService.generarQRCuenta(
+      cuenta._id
+    );
+
+    setMontoPropina(propinaConfirmada.toFixed(2));
+    setQrData(respuesta);
+  } catch (err: unknown) {
+    if (err instanceof ApiError) {
+      setError(err.getUserMessage());
+    } else if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError('No se pudo generar el QR para esta cuenta.');
     }
-  };
+  } finally {
+    generarQRLockRef.current = false;
+    setIsLoadingQR(false);
+  }
+};
+
   const handleProcesarPago = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!cuenta._id || confirmarPagoLockRef.current || isSubmitting || metodoPago === 'QR') return;
+if (!Number.isInteger(propina) || propina < 0) {
+  setError('La propina debe ser un número entero mayor o igual a cero.');
+  return;
+}
+
     if (metodoPago === 'Efectivo' && montoInsuficiente) {
       setError(`El monto recibido debe ser igual o superior a Bs ${total.toFixed(2)}.`);
       return;
@@ -334,16 +386,22 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Propina total (Bs)"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            value={montoPropina}
-            onChange={(event) => setMontoPropina(event.target.value)}
-            leftIcon={<Percent className="w-4 h-4" />}
-            disabled={metodoPago === 'QR' || isSubmitting || qrConfirmado}
-          />
+  label="Propina total (Bs)"
+  type="number"
+  step="1"
+  min="0"
+  placeholder="0"
+  value={montoPropina}
+  onChange={(event) => {
+    const valor = event.target.value;
+
+    // Solo permite números enteros positivos o el campo vacío.
+    if (valor === '' || /^\d+$/.test(valor)) {
+      setMontoPropina(valor);
+    }
+  }}
+  disabled={(metodoPago === 'QR' && Boolean(qrData)) || isSubmitting || qrConfirmado}
+/>
           <div className="rounded-xl border border-stone-200 dark:border-stone-800 p-3 bg-white dark:bg-stone-900 space-y-1 text-xs">
             <div className="flex justify-between text-stone-500 dark:text-stone-400">
               <span>Subtotal</span><span>Bs {subtotal.toFixed(2)}</span>
@@ -480,9 +538,15 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
                   <p className="text-[11px] font-mono text-stone-500">{qrData.codigoCuenta} · Bs {Number(qrData.total).toFixed(2)}</p>
                 </div>
               ) : (
-                <Button type="button" variant="outline" size="sm" onClick={() => void handleSeleccionarMetodo('QR')}>
-                  Generar QR de la cuenta
-                </Button>
+                  <Button
+                   type="button"
+                   variant="outline"
+                   size="sm"
+                   onClick={() => void handleGenerarQR()}
+                   disabled={isLoadingQR}
+                 >
+                   Generar QR de la cuenta
+                 </Button>
               )}
             </div>
             {qrConfirmado ? (
@@ -538,20 +602,46 @@ export function CobroModal({ isOpen, onClose, cuenta, onSuccess }: CobroModalPro
             )}
           </div>
         )}
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
-          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting || isSendingRecibo}>
-            {metodoPago === 'QR' && qrConfirmado ? 'Cerrar' : 'Cancelar'}
-          </Button>
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={isSubmitting || isSendingRecibo}
+        >
+          {metodoPago === 'QR' && qrConfirmado ? 'Cerrar' : 'Cancelar'}
+        </Button>
+
+        {metodoPago === 'QR' && qrConfirmado ? (
+          <div
+            role="status"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Pago QR registrado
+          </div>
+        ) : (
           <Button
             type="submit"
             variant="primary"
             isLoading={isSubmitting}
-            disabled={isSubmitting || (metodoPago === 'Efectivo' && montoInsuficiente) || metodoPago === 'QR' || qrConfirmado}
+            disabled={
+              isSubmitting ||
+              (metodoPago === 'Efectivo' && montoInsuficiente) ||
+              metodoPago === 'QR' ||
+              qrConfirmado
+            }
             leftIcon={<CheckCircle2 className="w-4 h-4" />}
           >
-            {isSubmitting ? 'Procesando pago...' : metodoPago === 'QR' ? (qrConfirmado ? 'Pago QR registrado' : 'Esperando pago del cliente') : 'Confirmar pago de la cuenta'}
+            {isSubmitting
+              ? 'Procesando pago...'
+              : metodoPago === 'QR'
+                ? 'Esperando pago del cliente'
+                : 'Confirmar pago de la cuenta'}
           </Button>
-        </div>
+        )}
+      </div>
       </form>
     </Modal>
   );
