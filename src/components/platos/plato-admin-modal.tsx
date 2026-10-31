@@ -717,7 +717,7 @@ function PlatoAdminFormContent({
               setCategoria(e.target.value)
             }
             required
-            className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             {categorias.length === 0 && (
               <option value="">
@@ -772,7 +772,7 @@ function PlatoAdminFormContent({
             )
           }
           placeholder="Detalle de preparación, ingredientes principales o notas para el comensal..."
-          className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none"
+          className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none"
           required
         />
       </div>
@@ -784,7 +784,7 @@ function PlatoAdminFormContent({
         </label>
 
         <div className="flex items-start gap-4">
-          <div className="w-20 h-20 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 relative flex items-center justify-center">
+          <div className="w-20 h-20 rounded-sm border border-amber-700/30 overflow-hidden bg-zinc-950 shrink-0 relative flex items-center justify-center">
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -846,7 +846,7 @@ function PlatoAdminFormContent({
       </div>
 
       {/* Receta */}
-      <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/50 p-4">
+      <section className="rounded-sm border border-amber-700/25 bg-zinc-950/60 p-4">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div>
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
@@ -899,7 +899,7 @@ function PlatoAdminFormContent({
             </span>
           </div>
         ) : ingredientes.length === 0 ? (
-          <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
+          <div className="rounded-sm border border-amber-700/30 bg-amber-950/20 p-4">
             <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
               No hay ingredientes registrados.
             </p>
@@ -910,7 +910,7 @@ function PlatoAdminFormContent({
             </p>
           </div>
         ) : lineas.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-stone-300 dark:border-stone-700 p-5 text-center">
+          <div className="rounded-sm border border-dashed border-amber-900/40 p-5 text-center">
             <p className="text-sm text-stone-500 dark:text-stone-400">
               Esta receta todavía no tiene
               ingredientes.
@@ -954,7 +954,7 @@ function PlatoAdminFormContent({
                 return (
                   <div
                     key={`${index}-${linea.ingredienteId}`}
-                    className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900"
+                    className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-sm border border-amber-700/25 bg-zinc-900"
                   >
                     <div className="flex-1 min-w-0">
                       <label
@@ -976,7 +976,7 @@ function PlatoAdminFormContent({
                             e.target.value
                           )
                         }
-                        className="w-full py-2 px-2.5 text-sm rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="w-full py-2 px-2.5 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         {ingredientes.map(
                           (ingrediente) => (
@@ -1038,7 +1038,7 @@ function PlatoAdminFormContent({
                         onChange={(e) =>
                           actualizarLineaIngrediente(index, 'unidadMedida', e.target.value)
                         }
-                        className="w-full h-10 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-2 text-sm"
+                        className="w-full h-10 rounded-sm border border-amber-700/30 bg-zinc-950 px-2 text-sm text-stone-100"
                       >
                         {obtenerUnidadesCompatibles(unidad).map((opcion) => (
                           <option key={opcion} value={opcion}>{opcion}</option>
@@ -1097,7 +1097,7 @@ function PlatoAdminFormContent({
               e.target.checked
             )
           }
-          className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 cursor-pointer"
+          className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300 dark:border-zinc-700 bg-zinc-950 cursor-pointer"
         />
 
         <label

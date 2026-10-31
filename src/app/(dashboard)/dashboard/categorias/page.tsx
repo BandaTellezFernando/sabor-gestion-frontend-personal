@@ -105,7 +105,7 @@ function CategoriasPageContent() {
               Categorías del Menú
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Administra las clasificaciones de la carta para organizar platos y agilizar comandas.
           </p>
         </div>
@@ -117,7 +117,7 @@ function CategoriasPageContent() {
             onClick={loadCategorias}
             disabled={isLoading}
             title="Recargar categorías"
-            className="rounded-xl"
+            className="rounded-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
@@ -125,7 +125,7 @@ function CategoriasPageContent() {
             variant="primary"
             size="md"
             onClick={handleOpenCreate}
-            className="flex items-center gap-2 rounded-xl"
+            className="flex items-center gap-2 rounded-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Nueva Categoría</span>
@@ -148,7 +148,7 @@ function CategoriasPageContent() {
           <div className="flex flex-col gap-2">
             <span>{error}</span>
             <div>
-              <Button variant="outline" size="sm" onClick={loadCategorias} className="rounded-xl">
+              <Button variant="outline" size="sm" onClick={loadCategorias} className="rounded-sm">
                 Reintentar
               </Button>
             </div>
@@ -157,7 +157,7 @@ function CategoriasPageContent() {
       )}
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900 p-4 rounded-sm border border-amber-700/25 shadow-md">
         <div className="flex-1 max-w-md">
           <Input
             id="buscar-categoria"
@@ -174,7 +174,7 @@ function CategoriasPageContent() {
 
       {/* Estado de Carga */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-col items-center justify-center p-12 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <Spinner size="lg" />
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
             Cargando catálogo de categorías...
@@ -205,7 +205,7 @@ function CategoriasPageContent() {
       )}
 
       {!isLoading && filteredCategorias.length > 0 && (
-        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-xs">
+        <div className="bg-zinc-900 rounded-sm border border-amber-700/25 overflow-hidden shadow-md">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm" role="table">
               <thead className="bg-stone-50 dark:bg-stone-800/60 border-b border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
@@ -232,7 +232,7 @@ function CategoriasPageContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenEdit(cat)}
-                          className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 rounded-xl"
+                          className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 rounded-sm"
                           title={`Editar categoría ${cat.nombre}`}
                         >
                           <Pencil className="w-4 h-4 mr-1.5" />
@@ -242,7 +242,7 @@ function CategoriasPageContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenDelete(cat)}
-                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 rounded-xl"
+                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 rounded-sm"
                           title={`Eliminar categoría ${cat.nombre}`}
                         >
                           <Trash2 className="w-4 h-4 mr-1.5" />

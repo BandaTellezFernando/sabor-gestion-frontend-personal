@@ -275,7 +275,7 @@ case 'LISTO':
     >
       <div className="space-y-5">
         {/* Cabecera y Resumen Operativo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-sm bg-zinc-950/60 border border-amber-700/25 text-xs">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="text-stone-500">Estado:</span>
@@ -341,7 +341,7 @@ case 'LISTO':
             Platos y Bebidas
           </h4>
 
-          <div className="border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden">
+          <div className="border border-amber-700/25 rounded-sm overflow-hidden">
             <table className="w-full text-xs text-left">
               <thead className="bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-b border-stone-200 dark:border-stone-800">
                 <tr>
@@ -351,7 +351,7 @@ case 'LISTO':
                   <th className="py-2.5 px-3.5 font-semibold text-right w-24">Subtotal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100 dark:divide-stone-800 bg-white dark:bg-stone-900">
+              <tbody className="divide-y divide-amber-900/20 bg-zinc-900">
                 {(pedido.detalles || []).map((d, index) => {
                   const nombrePlato =
                     d.nombrePlato ||
@@ -386,7 +386,7 @@ case 'LISTO':
         </div>
 
         {/* Desglose Financiero */}
-        <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 space-y-1.5 text-xs">
+        <div className="p-4 rounded-sm bg-zinc-950/60 border border-amber-700/25 space-y-1.5 text-xs">
           <div className="flex justify-between text-stone-600 dark:text-stone-400">
             <span>Subtotal de Comanda:</span>
             <span className="font-mono">Bs. {subtotalCalculado.toFixed(2)}</span>

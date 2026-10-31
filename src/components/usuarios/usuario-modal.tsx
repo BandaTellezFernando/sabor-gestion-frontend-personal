@@ -134,7 +134,7 @@ function UsuarioFormContent({
             name="rol"
             value={rol}
             onChange={(e) => setRol(e.target.value as RolUsuario)}
-            className="w-full h-10 px-3 py-2 bg-stone-50 border border-stone-200 text-stone-900 text-sm rounded-xl focus:ring-2 focus:ring-[#E05A36] focus:border-[#E05A36] dark:bg-[#1A1816] dark:border-stone-800 dark:text-stone-100"
+            className="w-full h-10 px-3 py-2 bg-zinc-950 border border-amber-700/30 text-stone-100 text-sm rounded-sm focus:outline-none focus:border-amber-500"
             required
           >
             {ROLES.map((r) => (

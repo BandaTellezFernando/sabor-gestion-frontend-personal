@@ -68,7 +68,7 @@ function DesunirMesaContent({ mesa, onClose, onConfirm }: DesunirMesaContentProp
         </Alert>
       )}
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+      <div className="rounded-sm border border-amber-700/30 bg-amber-950/30 p-3 text-xs text-amber-300">
         <p className="flex items-start gap-2 font-medium">
           <Unlink2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>
@@ -87,7 +87,7 @@ function DesunirMesaContent({ mesa, onClose, onConfirm }: DesunirMesaContentProp
           {separadas.map((separada) => (
             <li
               key={separada.mesaId}
-              className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-700 dark:bg-stone-900"
+              className="flex items-center justify-between gap-3 rounded-sm border border-amber-700/25 bg-zinc-950/60 p-3"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-stone-900 dark:text-stone-100">

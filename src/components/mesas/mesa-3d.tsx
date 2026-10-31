@@ -24,11 +24,8 @@ interface SillaProps {
 }
 
 /**
- * Sub-componente Silla3D: Silla volumétrica con relieve tridimensional y mobiliario realista.
- * - Sombra de contacto direccional sobre el suelo (translateZ 0.5px).
- * - 4 patas de soporte ancladas firmemente al suelo (translateZ 1px).
- * - Asiento volumétrico con grosor visible (plataforma + tapizado acolchado con translateZ).
- * - Respaldo curvado (rounded-t-lg, etc.) inclinado ergonómicamente hacia atrás (rotateX / rotateY).
+ * Sub-componente Silla3D: Silla de alta gastronomía en madera de nogal oscuro
+ * con tapizado en cuero negro/bronce y costuras o ribetes dorados.
  */
 function Silla3D({ orientation, style }: SillaProps) {
   const getRespaldoConfig = (): { style: React.CSSProperties; className: string } => {
@@ -44,7 +41,7 @@ function Silla3D({ orientation, style }: SillaProps) {
             transform: 'rotateX(-28deg)',
           },
           className:
-            'rounded-t-lg bg-gradient-to-b from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-t-white/70 shadow-sm',
+            'rounded-t-xs bg-gradient-to-b from-stone-800 via-stone-900 to-zinc-950 border border-amber-900/60 border-t-amber-500/40 shadow-xs',
         };
       case 'bottom':
         return {
@@ -57,7 +54,7 @@ function Silla3D({ orientation, style }: SillaProps) {
             transform: 'rotateX(28deg)',
           },
           className:
-            'rounded-b-lg bg-gradient-to-t from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-b-white/70 shadow-sm',
+            'rounded-b-xs bg-gradient-to-t from-stone-800 via-stone-900 to-zinc-950 border border-amber-900/60 border-b-amber-500/40 shadow-xs',
         };
       case 'left':
         return {
@@ -70,7 +67,7 @@ function Silla3D({ orientation, style }: SillaProps) {
             transform: 'rotateY(28deg)',
           },
           className:
-            'rounded-l-lg bg-gradient-to-r from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-l-white/70 shadow-sm',
+            'rounded-l-xs bg-gradient-to-r from-stone-800 via-stone-900 to-zinc-950 border border-amber-900/60 border-l-amber-500/40 shadow-xs',
         };
       case 'right':
         return {
@@ -83,7 +80,7 @@ function Silla3D({ orientation, style }: SillaProps) {
             transform: 'rotateY(-28deg)',
           },
           className:
-            'rounded-r-lg bg-gradient-to-l from-stone-300 via-stone-400 to-stone-500 border border-stone-500/90 border-r-white/70 shadow-sm',
+            'rounded-r-xs bg-gradient-to-l from-stone-800 via-stone-900 to-zinc-950 border border-amber-900/60 border-r-amber-500/40 shadow-xs',
         };
     }
   };
@@ -100,47 +97,47 @@ function Silla3D({ orientation, style }: SillaProps) {
         transformStyle: 'preserve-3d',
       }}
     >
-      {/* Sombra de oclusión proyectada directamente sobre la superficie del suelo */}
+      {/* Sombra de oclusión proyectada sobre el suelo */}
       <div
-        className="absolute inset-0 bg-black/55 rounded-sm blur-[1.5px]"
+        className="absolute inset-0 bg-black/75 rounded-xs blur-[1px]"
         style={{ transform: 'translateZ(0.5px)' }}
       />
 
-      {/* Patas de la silla ancladas al suelo para evitar efecto flotante */}
+      {/* Patas de nogal macizo y herrajes bronce */}
       <div
-        className="absolute top-0.5 left-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        className="absolute top-0.5 left-0.5 w-[2px] h-[2px] bg-stone-950 rounded-full"
         style={{ transform: 'translateZ(1px)' }}
       />
       <div
-        className="absolute top-0.5 right-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        className="absolute top-0.5 right-0.5 w-[2px] h-[2px] bg-stone-950 rounded-full"
         style={{ transform: 'translateZ(1px)' }}
       />
       <div
-        className="absolute bottom-0.5 left-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        className="absolute bottom-0.5 left-0.5 w-[2px] h-[2px] bg-stone-950 rounded-full"
         style={{ transform: 'translateZ(1px)' }}
       />
       <div
-        className="absolute bottom-0.5 right-0.5 w-[2px] h-[2px] bg-stone-800 rounded-full"
+        className="absolute bottom-0.5 right-0.5 w-[2px] h-[2px] bg-stone-950 rounded-full"
         style={{ transform: 'translateZ(1px)' }}
       />
 
-      {/* Base inferior del asiento con grosor volumétrico */}
+      {/* Base inferior del asiento en madera oscura */}
       <div
-        className="absolute inset-0.5 bg-stone-500 rounded-xs border border-stone-600/90 shadow-xs"
+        className="absolute inset-0.5 bg-stone-900 rounded-xs border border-amber-950/60 shadow-xs"
         style={{
           transform: 'translateZ(3.5px)',
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Tapa acolchada del asiento con elevación y relieve luminoso */}
+        {/* Asiento acolchado en cuero refinado con relieve cenital */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-300 to-stone-400 dark:from-stone-600 dark:via-stone-700 dark:to-stone-800 rounded-xs border-t border-white/60 shadow-inner"
+          className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-zinc-950 rounded-xs border-t border-amber-500/30 shadow-inner"
           style={{
             transform: 'translateZ(2.5px)',
             transformStyle: 'preserve-3d',
           }}
         >
-          {/* Respaldo volumétrico ergonómicamente inclinado */}
+          {/* Respaldo volumétrico */}
           <div
             className={`absolute ${respaldo.className}`}
             style={{
@@ -148,8 +145,8 @@ function Silla3D({ orientation, style }: SillaProps) {
               transformStyle: 'preserve-3d',
             }}
           >
-            {/* Ranura sutil de tapicería */}
-            <div className="absolute inset-0.5 opacity-25 border-t border-black/30 pointer-events-none" />
+            {/* Ribete de lujo */}
+            <div className="absolute inset-0.5 opacity-20 border-t border-amber-400/40 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -157,7 +154,7 @@ function Silla3D({ orientation, style }: SillaProps) {
   );
 }
 
-/** Configuración de colores tridimensionales según el estado de la mesa */
+/** Configuración de materiales y acabados de lujo para cada estado de la mesa */
 interface ColorScheme3D {
   top: string;
   sideRight: string;
@@ -172,37 +169,40 @@ interface ColorScheme3D {
 
 const COLOR_SCHEMES: Record<EstadoMesa, ColorScheme3D> = {
   Libre: {
-    top: 'bg-emerald-600 hover:bg-emerald-500',
-    sideRight: 'from-emerald-700 via-emerald-800 to-emerald-950',
-    sideBottom: 'from-emerald-800 via-emerald-900 to-stone-950',
-    glow: 'hover:shadow-[0_0_24px_rgba(16,185,129,0.7)]',
+    // Mármol negro / Nogal oscuro con reflejo esmeralda sutil y herraje bronce
+    top: 'bg-gradient-to-br from-zinc-900 via-stone-900 to-zinc-950 hover:from-stone-800 hover:to-zinc-900',
+    sideRight: 'from-stone-900 via-zinc-950 to-black',
+    sideBottom: 'from-stone-950 via-zinc-950 to-black',
+    glow: 'hover:shadow-[0_0_15px_rgba(217,119,6,0.18)]',
     pulsing: false,
-    badgeBg: 'bg-emerald-950/95',
-    badgeBorder: 'border-emerald-400/60',
-    badgeText: 'text-emerald-100',
+    badgeBg: 'bg-zinc-950/95',
+    badgeBorder: 'border-emerald-700/50',
+    badgeText: 'text-emerald-300',
     dotColor: 'bg-emerald-400',
   },
   Ocupada: {
-    top: 'bg-[#C84B26] hover:bg-[#db5229]',
-    sideRight: 'from-[#A83C1A] via-[#8B3014] to-[#5C1F0C]',
-    sideBottom: 'from-[#8B3014] via-[#712710] to-stone-950',
-    glow: 'hover:shadow-[0_0_24px_rgba(200,75,38,0.7)]',
+    // Nogal tostado de lujo con bisel en oro viejo y brillo ámbar difuso
+    top: 'bg-gradient-to-br from-amber-950/85 via-stone-900 to-zinc-950 hover:from-amber-900/90 hover:to-stone-850',
+    sideRight: 'from-amber-950 via-stone-950 to-black',
+    sideBottom: 'from-stone-950 via-zinc-950 to-black',
+    glow: 'shadow-[0_0_15px_rgba(217,119,6,0.18)] hover:shadow-[0_0_20px_rgba(217,119,6,0.28)]',
     pulsing: false,
-    badgeBg: 'bg-stone-950/95',
-    badgeBorder: 'border-[#C84B26]/70',
-    badgeText: 'text-amber-100',
-    dotColor: 'bg-[#C84B26]',
+    badgeBg: 'bg-zinc-950/95',
+    badgeBorder: 'border-amber-600/60',
+    badgeText: 'text-amber-200',
+    dotColor: 'bg-amber-400',
   },
   'Cuenta Solicitada': {
-    top: 'bg-amber-500 hover:bg-amber-400',
-    sideRight: 'from-amber-600 via-amber-700 to-amber-900',
-    sideBottom: 'from-amber-700 via-amber-800 to-stone-950',
-    glow: 'shadow-[0_0_28px_rgba(245,158,11,0.9)]',
+    // Ónix pulido con ribetes de oro champaña y pulso dorado sutil
+    top: 'bg-gradient-to-br from-stone-900 via-zinc-950 to-amber-950 hover:from-stone-850 hover:to-amber-900',
+    sideRight: 'from-amber-900 via-stone-950 to-black',
+    sideBottom: 'from-stone-900 via-zinc-950 to-black',
+    glow: 'shadow-[0_0_20px_rgba(245,158,11,0.3)]',
     pulsing: true,
     badgeBg: 'bg-amber-950/95',
     badgeBorder: 'border-amber-400/80',
     badgeText: 'text-amber-100',
-    dotColor: 'bg-amber-400',
+    dotColor: 'bg-amber-300',
   },
 };
 
@@ -239,7 +239,7 @@ export function Mesa3D({
 }: Mesa3DProps) {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  // La existencia y el tamaño de una fusión provienen de los metadatos del backend.
+  // La existencia y el tamaño de una fusión provienen de los metadatos del backend
   const esUnida = useMemo(
     () => mesa.estadoFusion === 'Fusionada' && (mesa.mesasOrigen?.length ?? 0) >= 2,
     [mesa.estadoFusion, mesa.mesasOrigen]
@@ -252,13 +252,12 @@ export function Mesa3D({
 
   const mesasCount = useMemo(() => (esUnida ? subNombres.length : 1), [esUnida, subNombres]);
 
-  // Como la forma física no es persistida en el contrato del backend, se aplica una forma predeterminada.
   const forma = useMemo<'normal' | 'lineal' | 'cuadrada'>(() => {
     if (!esUnida) return 'normal';
     return mesa.formaFusion === 'Cuadrada' || (!mesa.formaFusion && mesasCount >= 3) ? 'cuadrada' : 'lineal';
   }, [esUnida, mesasCount, mesa.formaFusion]);
 
-  // Generación exacta de sub-bloques reales (NUNCA agregar mesas fantasma)
+  // Generación exacta de sub-bloques reales
   const { blocks, widthPx, heightPx } = useMemo(() => {
     if (forma === 'normal' || mesasCount <= 1) {
       return {
@@ -296,8 +295,7 @@ export function Mesa3D({
       };
     }
 
-    // FORMA BLOQUE / CUADRADA:
-    // Renderizado estricto del número exacto de mesas fusionadas.
+    // FORMA BLOQUE / CUADRADA
     let colCount = 2;
     let rowCount = 2;
     const bPositions: Array<{ col: number; row: number }> = [];
@@ -307,7 +305,6 @@ export function Mesa3D({
       rowCount = 1;
       bPositions.push({ col: 0, row: 0 }, { col: 1, row: 0 });
     } else if (mesasCount === 3) {
-      // 3 mesas: figura orgánica en L (2x2 con la esquina (1,1) completamente vacía)
       colCount = 2;
       rowCount = 2;
       bPositions.push(
@@ -316,7 +313,6 @@ export function Mesa3D({
         { col: 0, row: 1 }
       );
     } else if (mesasCount === 4) {
-      // 4 mesas: bloque 2x2 completo
       colCount = 2;
       rowCount = 2;
       bPositions.push(
@@ -326,7 +322,6 @@ export function Mesa3D({
         { col: 1, row: 1 }
       );
     } else if (mesasCount === 5) {
-      // 5 mesas: matriz 3x2 con 5 bloques exactos (3 arriba, 2 abajo; (2,1) vacía)
       colCount = 3;
       rowCount = 2;
       bPositions.push(
@@ -337,7 +332,6 @@ export function Mesa3D({
         { col: 1, row: 1 }
       );
     } else {
-      // Generalización para N >= 6: columnas calculadas con ceil(sqrt(N))
       colCount = Math.ceil(Math.sqrt(mesasCount));
       rowCount = Math.ceil(mesasCount / colCount);
       for (let i = 0; i < mesasCount; i++) {
@@ -364,7 +358,7 @@ export function Mesa3D({
     };
   }, [forma, mesasCount, subNombres, mesa.numero]);
 
-  // Centroide de los bloques reales para anclar el Billboard con precisión
+  // Centroide de los bloques reales
   const { centerX, centerY } = useMemo(() => {
     if (blocks.length === 0) return { centerX: widthPx / 2, centerY: heightPx / 2 };
     const sumX = blocks.reduce((acc, b) => acc + (b.x + BLOCK_SIZE / 2), 0);
@@ -376,14 +370,13 @@ export function Mesa3D({
   }, [blocks, widthPx, heightPx]);
 
   const scheme = COLOR_SCHEMES[mesa.estado] || COLOR_SCHEMES.Libre;
-  const tableHeight = 22; // Altura tridimensional del prisma (translateZ)
+  const tableHeight = 22; // Altura tridimensional del prisma
 
-  // Distribución de sillas únicamente en el perímetro exterior de los bloques reales
+  // Distribución de sillas en el perímetro exterior
   const sillas = useMemo(() => {
     const capacidad = Math.max(1, mesa.capacidad || 2);
     const externalEdges: ExternalEdge[] = [];
 
-    // Determinar qué bordes de cada bloque dan al exterior (sin vecino contiguo)
     blocks.forEach((b) => {
       const hasTop = blocks.some((o) => o.col === b.col && o.row === b.row - 1);
       const hasBottom = blocks.some((o) => o.col === b.col && o.row === b.row + 1);
@@ -475,7 +468,6 @@ export function Mesa3D({
       };
     };
 
-    // Caso 1: Capacidad menor o igual a la cantidad de segmentos exteriores
     if (capacidad <= externalEdges.length) {
       const selectedEdges: ExternalEdge[] = [];
       let tIdx = 0;
@@ -515,7 +507,6 @@ export function Mesa3D({
       return result;
     }
 
-    // Caso 2: Capacidad mayor a la cantidad de segmentos exteriores
     const basePerEdge = Math.floor(capacidad / externalEdges.length);
     let extra = capacidad % externalEdges.length;
 
@@ -536,10 +527,8 @@ export function Mesa3D({
     return result;
   }, [blocks, mesa.capacidad]);
 
-  // Elevación dinámica: Si está seleccionada en modo edición, flota más alto
+  // Elevación dinámica
   const hoverTranslateZ = isSelected ? 22 : isHovered ? 10 : 0;
-
-  // Altura compacta y no invasiva del billboard
   const billboardTranslateY = forma === 'cuadrada' ? '-64px' : '-52px';
 
   return (
@@ -568,28 +557,28 @@ export function Mesa3D({
         ...style,
       }}
     >
-      {/* SOMBRA PARALELA PROYECTADA EN EL SUELO (DIRECCIONAL) PARA CADA BLOQUE REAL */}
+      {/* SOMBRA SUAVE PROYECTADA EN EL SUELO */}
       {blocks.map((block) => (
         <div
           key={`shadow-${block.id}`}
-          className={`absolute bg-black/60 rounded-xl blur-md pointer-events-none transition-all duration-300 ${
+          className={`absolute rounded-xs blur-[4px] pointer-events-none transition-all duration-300 ${
             isSelected
-              ? 'scale-125 bg-cyan-500/80 blur-lg opacity-90'
+              ? 'scale-125 bg-amber-500/30 blur-md opacity-90'
               : isHovered
-              ? 'scale-115 opacity-75'
-              : 'scale-105 opacity-60'
+              ? 'scale-110 bg-black/80 opacity-80'
+              : 'scale-100 bg-black/70 opacity-60'
           }`}
           style={{
             left: `${block.x}px`,
             top: `${block.y}px`,
             width: `${BLOCK_SIZE}px`,
             height: `${BLOCK_SIZE}px`,
-            transform: 'translate3d(6px, 8px, 1px)',
+            transform: 'translate3d(4px, 6px, 1px)',
           }}
         />
       ))}
 
-      {/* Sillas 3D volumétricas ancladas al suelo alrededor del perímetro exterior */}
+      {/* Sillas 3D de alta gama */}
       {sillas.map((silla) => (
         <Silla3D
           key={silla.id}
@@ -598,7 +587,7 @@ export function Mesa3D({
         />
       ))}
 
-      {/* VOLUMEN DEL PRISMA DE LA MESA */}
+      {/* VOLUMEN DEL PRISMA DE LA MESA (Fine Dining) */}
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -606,7 +595,7 @@ export function Mesa3D({
           scheme.pulsing && !isSelected ? 'animate-pulse' : ''
         } ${
           isSelected
-            ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-stone-900 rounded-lg shadow-[0_0_35px_rgba(34,211,238,0.95)] animate-bounce'
+            ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-zinc-950 rounded-xs shadow-[0_0_25px_rgba(245,158,11,0.5)]'
             : ''
         }`}
         style={{
@@ -630,28 +619,28 @@ export function Mesa3D({
                 transformStyle: 'preserve-3d',
               }}
             >
-              {/* CARA SUPERIOR (Top Face) con bisel simulado, brillo cenital y sombras internas */}
+              {/* CARA SUPERIOR: Tablero en madera de nogal o mármol con bisel de latón */}
               <div
-                className={`absolute inset-0 rounded-md transition-all duration-300 flex flex-col items-center justify-center border border-white/25 border-t-2 border-t-white/50 shadow-inner ${scheme.top} ${scheme.glow}`}
+                className={`absolute inset-0 rounded-xs transition-all duration-300 flex flex-col items-center justify-center border border-amber-700/40 border-t border-t-amber-400/60 shadow-inner ${scheme.top} ${scheme.glow}`}
                 style={{
                   transform: `translateZ(${tableHeight}px)`,
                   transformStyle: 'preserve-3d',
                 }}
               >
-                {/* Reflejo simulado de la luz cenital del techo */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/40 rounded-md pointer-events-none" />
-                <div className="absolute inset-x-0 top-0 h-[1.5px] bg-white/45 rounded-t-md pointer-events-none" />
+                {/* Veta sutil de lujo y reflejo superior */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-amber-950/20 via-transparent to-amber-400/15 rounded-xs pointer-events-none" />
+                <div className="absolute inset-x-0 top-0 h-[1px] bg-amber-300/40 rounded-t-xs pointer-events-none" />
 
-                {/* Nombre o número del sub-bloque en el tablero */}
-                <span className="text-[11px] font-black tracking-wider text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] pointer-events-none truncate px-1 max-w-full text-center">
+                {/* Número de la mesa con tipografía Serif */}
+                <span className="font-serif text-[11px] font-semibold tracking-wider text-stone-100 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pointer-events-none truncate px-1 max-w-full text-center">
                   {block.nombre || mesa.numero.replace(/\[.*?\]/g, '').trim()}
                 </span>
               </div>
 
-              {/* CARA LATERAL DERECHA (Right Face) - Solo si no tiene bloque adyacente a la derecha */}
+              {/* CARA LATERAL DERECHA (Madera de nogal en penumbra) */}
               {!hasRight && (
                 <div
-                  className={`absolute top-0 right-0 h-full rounded-r-xs transition-colors duration-300 bg-gradient-to-b ${scheme.sideRight} border-r border-black/40 shadow-xs`}
+                  className={`absolute top-0 right-0 h-full rounded-r-none transition-colors duration-300 bg-gradient-to-b ${scheme.sideRight} border-r border-black/60 shadow-xs`}
                   style={{
                     width: `${tableHeight}px`,
                     transformOrigin: 'right center',
@@ -660,10 +649,10 @@ export function Mesa3D({
                 />
               )}
 
-              {/* CARA LATERAL INFERIOR (Bottom Face) - Solo si no tiene bloque adyacente abajo */}
+              {/* CARA LATERAL INFERIOR */}
               {!hasBottom && (
                 <div
-                  className={`absolute bottom-0 left-0 w-full rounded-b-xs transition-colors duration-300 bg-gradient-to-b ${scheme.sideBottom} border-b border-black/50 shadow-xs`}
+                  className={`absolute bottom-0 left-0 w-full rounded-b-none transition-colors duration-300 bg-gradient-to-b ${scheme.sideBottom} border-b border-black/70 shadow-xs`}
                   style={{
                     height: `${tableHeight}px`,
                     transformOrigin: 'center bottom',
@@ -676,7 +665,7 @@ export function Mesa3D({
         })}
       </div>
 
-      {/* INDICADOR FLOTANTE (BILLBOARD EFFECT): Elevado en Z por encima del prisma para evitar oclusión 3D */}
+      {/* INDICADOR FLOTANTE (BILLBOARD EFFECT): Estética Haute Cuisine */}
       <div
         className="absolute pointer-events-none select-none z-50 flex flex-col items-center"
         style={{
@@ -687,9 +676,9 @@ export function Mesa3D({
         }}
       >
         <div
-          className={`pointer-events-none flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shadow-xl backdrop-blur-md border whitespace-nowrap transition-transform duration-300 ${
+          className={`pointer-events-none flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-[11px] font-medium shadow-xl backdrop-blur-md border whitespace-nowrap transition-transform duration-300 ${
             isSelected
-              ? 'bg-cyan-950/95 border-cyan-400 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.7)] scale-110'
+              ? 'bg-amber-950/95 border-amber-400 text-amber-200 shadow-[0_0_20px_rgba(245,158,11,0.5)] scale-110'
               : `${scheme.badgeBg} ${scheme.badgeBorder} ${scheme.badgeText} ${
                   isHovered ? 'scale-105' : 'scale-100'
                 }`
@@ -697,8 +686,8 @@ export function Mesa3D({
         >
           {isSelected ? (
             <>
-              <Move className="w-3 h-3 text-cyan-300 animate-spin" />
-              <span className="font-bold tracking-tight text-cyan-200">
+              <Move className="w-3 h-3 text-amber-300 animate-spin" />
+              <span className="font-serif font-semibold tracking-wide text-amber-200">
                 Mover {mesa.numero.replace(/\[.*?\]/g, '').trim()}
               </span>
             </>
@@ -709,21 +698,21 @@ export function Mesa3D({
                   mesa.estado === 'Cuenta Solicitada' ? 'animate-ping' : ''
                 }`}
               />
-              <span className="font-bold tracking-tight">
+              <span className="font-serif font-semibold tracking-wide">
                 {mesa.numero.replace(/\[.*?\]/g, '').trim()}
               </span>
               <span className="opacity-30">|</span>
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-medium opacity-85">
-                <Users className="w-2.5 h-2.5 inline" />
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-light opacity-90">
+                <Users className="w-2.5 h-2.5 inline text-amber-500/80" />
                 {mesa.capacidad}
               </span>
               {forma === 'cuadrada' && (
-                <span className="text-[8px] px-1 py-0.2 rounded bg-white/20 font-semibold tracking-tight">
+                <span className="text-[8px] px-1 py-0.2 rounded-xs bg-amber-950/80 border border-amber-700/40 text-amber-300 font-medium tracking-wide">
                   Bloque ({mesasCount})
                 </span>
               )}
               {isEditMode && (
-                <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-white/20 font-mono">
+                <span className="ml-1 text-[9px] px-1 py-0.2 rounded-xs bg-stone-800 text-amber-400 font-mono border border-amber-700/30">
                   EDIT
                 </span>
               )}
@@ -734,7 +723,7 @@ export function Mesa3D({
           )}
         </div>
 
-        {/* Botón condicional de Desunir Mesas (re-activa pointer-events con z-50 para click directo) */}
+        {/* Botón condicional de Desunir Mesas */}
         {esUnida && onDesunirMesa && !isSelected && (
           <button
             type="button"
@@ -752,7 +741,7 @@ export function Mesa3D({
             onTouchStart={(e) => {
               e.stopPropagation();
             }}
-            className="pointer-events-auto cursor-pointer relative z-50 bg-red-500/85 hover:bg-red-500 text-white text-[9px] font-semibold px-2.5 py-0.5 rounded-full mt-1 flex items-center gap-1 transition-all shadow-sm hover:scale-105 active:scale-95"
+            className="pointer-events-auto cursor-pointer relative z-50 bg-rose-950/90 hover:bg-rose-900 text-rose-200 text-[9px] font-medium px-2.5 py-0.5 rounded-sm mt-1 flex items-center gap-1 transition-all border border-rose-800/60 shadow-xs hover:scale-105 active:scale-95"
             style={{
               transform: 'translateZ(12px)',
             }}

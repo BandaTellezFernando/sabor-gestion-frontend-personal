@@ -1,0 +1,45 @@
+name: CI & Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - gustavoFront
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    name: Build & Verification (Node.js 20)
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.saborygestion.com/api' }}
+      NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL || 'https://api.saborygestion.com' }}
+
+    steps:
+      - name: 1. Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 2. Setup de Node.js (versión 20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Instalación limpia de dependencias (incluyendo devDependencies)
+        run: npm ci --include=dev
+
+      - name: 4. Validación de ESLint
+        run: npm run lint
+
+      - name: 5. Ejecución del build de producción
+        run: npm run build

@@ -359,8 +359,8 @@ if (!Number.isInteger(propina) || propina < 0) {
     >
       <form onSubmit={handleProcesarPago} className="space-y-5">
         {error && <Alert variant="error">{error}</Alert>}
-        <div className="rounded-xl border border-stone-200 dark:border-stone-800 p-3 bg-stone-50/60 dark:bg-stone-900/60 space-y-3">
-          <div className="flex items-center justify-between text-xs font-semibold text-stone-700 dark:text-stone-300 pb-1.5 border-b border-stone-200 dark:border-stone-800">
+        <div className="rounded-sm border border-amber-700/25 p-3 bg-zinc-950/70 space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold text-stone-700 dark:text-stone-300 pb-1.5 border-b border-amber-700/25">
             <span>Detalle de todas las comandas</span>
             <span>Importe</span>
           </div>
@@ -402,7 +402,7 @@ if (!Number.isInteger(propina) || propina < 0) {
   }}
   disabled={(metodoPago === 'QR' && Boolean(qrData)) || isSubmitting || qrConfirmado}
 />
-          <div className="rounded-xl border border-stone-200 dark:border-stone-800 p-3 bg-white dark:bg-stone-900 space-y-1 text-xs">
+          <div className="rounded-sm border border-amber-700/25 p-3 bg-zinc-900 space-y-1 text-xs">
             <div className="flex justify-between text-stone-500 dark:text-stone-400">
               <span>Subtotal</span><span>Bs {subtotal.toFixed(2)}</span>
             </div>
@@ -410,7 +410,7 @@ if (!Number.isInteger(propina) || propina < 0) {
               <span>Propina</span><span>{propina > 0 ? `Bs ${propina.toFixed(2)}` : 'No añadida'}</span>
             </div>
             <div className="flex justify-between items-center pt-2 mt-1 border-t border-stone-100 dark:border-stone-800 font-bold text-stone-900 dark:text-stone-100">
-              <span>Total</span><span className="text-base text-[#C84B26] dark:text-[#E05A36]">Bs {total.toFixed(2)}</span>
+              <span>Total</span><span className="text-base font-serif text-lg font-bold text-amber-400">Bs {total.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -466,7 +466,7 @@ if (!Number.isInteger(propina) || propina < 0) {
                   type="button"
                   disabled={qrConfirmado || isSubmitting}
                   onClick={() => void handleSeleccionarMetodo(metodo)}
-                  className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${metodoPago === metodo ? 'border-[#C84B26] bg-[#C84B26]/5 text-[#C84B26] font-semibold dark:bg-[#C84B26]/10' : 'border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'}`}
+                  className={`p-3 rounded-sm border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${metodoPago === metodo ? 'border-amber-500 bg-amber-950/40 text-amber-300 font-semibold shadow-[0_0_12px_rgba(217,119,6,0.2)]' : 'border-amber-700/25 text-stone-700 dark:text-stone-300 hover:bg-zinc-800'}`}
                 >
                   <Icono className="w-5 h-5" />
                   <span className="text-xs">{metodo === 'Tarjeta' ? 'Tarjeta POS' : metodo === 'QR' ? 'Pago QR' : metodo}</span>
@@ -476,7 +476,7 @@ if (!Number.isInteger(propina) || propina < 0) {
           </div>
         </div>
         {metodoPago === 'Efectivo' && (
-          <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-3">
+          <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
               <Input
                 label="Monto recibido (Bs)"
@@ -489,7 +489,7 @@ if (!Number.isInteger(propina) || propina < 0) {
                 leftIcon={<Banknote className="w-4 h-4" />}
                 required
               />
-              <div className="p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 flex flex-col justify-center">
+              <div className="p-3 rounded-sm border border-amber-700/25 bg-zinc-950 flex flex-col justify-center">
                 <span className="text-[11px] text-stone-500 dark:text-stone-400 block">Cambio / vuelto</span>
                 {vuelto !== null && Number.isFinite(vuelto) ? vuelto >= 0 ? (
                   <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-mono">Bs {vuelto.toFixed(2)}</span>
@@ -503,7 +503,7 @@ if (!Number.isInteger(propina) || propina < 0) {
           </div>
         )}
         {metodoPago === 'Tarjeta' && (
-          <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-3">
+          <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-3">
             <p className="text-xs text-stone-600 dark:text-stone-400">
               Simulación local de POS. Usa datos ficticios; no introduzcas datos de una tarjeta real. El sistema no guarda estos campos.
             </p>
@@ -520,19 +520,19 @@ if (!Number.isInteger(propina) || propina < 0) {
           </div>
         )}
         {metodoPago === 'QR' && (
-          <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-4">
+          <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-4">
             <div className="text-center space-y-2">
               {isLoadingQR ? (
                 <div className="py-8 flex flex-col items-center gap-2"><Spinner size="md" /><span className="text-xs text-stone-500">Preparando enlace de pago...</span></div>
               ) : qrData && imagenQR ? (
                 <div className="space-y-3 flex flex-col items-center">
-                  <div className="p-3 bg-white rounded-xl shadow-xs border border-stone-200">
+                  <div className="p-3 bg-white rounded-sm shadow-xs border border-stone-200">
                     {/* QR visual del enlace público. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imagenQR} alt="Código QR para abrir la cuenta de pago" className="w-52 h-52 object-contain" />
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400">El cliente debe escanearlo y confirmar la simulación desde su teléfono.</p>
-                  <a className="text-xs text-[#C84B26] underline inline-flex items-center gap-1" href={qrData.urlPago} target="_blank" rel="noreferrer">
+                  <a className="text-xs text-amber-400 underline inline-flex items-center gap-1" href={qrData.urlPago} target="_blank" rel="noreferrer">
                     <Smartphone className="w-3.5 h-3.5" /> Abrir enlace de pago para probar
                   </a>
                   <p className="text-[11px] font-mono text-stone-500">{qrData.codigoCuenta} · Bs {Number(qrData.total).toFixed(2)}</p>
@@ -551,13 +551,13 @@ if (!Number.isInteger(propina) || propina < 0) {
             </div>
             {qrConfirmado ? (
               <>
-                <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs">
+                <div className="p-3 rounded-sm bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span><strong>Pago QR registrado.</strong> La cuenta fue pagada y la mesa se liberó.</span>
                 </div>
-                <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950/60 p-4 space-y-3">
+                <div className="rounded-sm border border-amber-700/25 bg-zinc-950/60 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
-                    <Smartphone className="w-4 h-4 text-[#C84B26]" />
+                    <Smartphone className="w-4 h-4 text-amber-400" />
                     Enviar recibo por correo
                   </div>
                   <p className="text-xs text-stone-500 dark:text-stone-400">
@@ -596,13 +596,13 @@ if (!Number.isInteger(propina) || propina < 0) {
                 </div>
               </>
             ) : (
-              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs">
+              <div className="p-3 rounded-sm bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs">
                 El cobro se confirma desde la página pública abierta al escanear el QR. No se debe confirmar aquí desde Caja.
               </div>
             )}
           </div>
         )}
-              <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-amber-700/25">
         <Button
           type="button"
           variant="outline"
@@ -616,7 +616,7 @@ if (!Number.isInteger(propina) || propina < 0) {
         {metodoPago === 'QR' && qrConfirmado ? (
           <div
             role="status"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+            className="flex flex-1 items-center justify-center gap-2 rounded-sm border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
           >
             <CheckCircle2 className="h-4 w-4" />
             Pago QR registrado

@@ -58,7 +58,7 @@ import {
   Box,
   Columns,
   LayoutGrid,
-  Unlink2,
+
 } from 'lucide-react';
 import { RoleGuard } from '@/components/auth/role-guard';
 
@@ -868,7 +868,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-wide text-stone-100">
               Gestión de Mesas y Salón
             </h1>
             <div
@@ -883,7 +883,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
               <span className="hidden sm:inline">{isConnected ? 'En Vivo' : 'Desconectado'}</span>
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Supervisión operativa en tiempo real del estado de atención y capacidad física del salón.
           </p>
         </div>
@@ -1013,7 +1013,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 shadow-md flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Búsqueda por número */}
         <div className="w-full md:w-72">
           <Input
@@ -1036,7 +1036,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
               id="filtro-ubicacion"
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="py-1.5 px-2.5 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="py-1.5 px-2.5 text-xs rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-200 focus:outline-none focus:border-amber-500"
             >
               <option value="Todas">Todas las Zonas</option>
               {locationOptions.map((loc) => (
@@ -1048,14 +1048,12 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
           </div>
 
           {/* Selector de Estado */}
-          <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800/80 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-zinc-950/80 p-1 rounded-sm border border-amber-900/30">
             <button
               type="button"
               onClick={() => setSelectedEstado('Todos')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedEstado === 'Todos'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-all ${
+                selectedEstado === 'Todos' ? 'bg-amber-600 text-stone-950 shadow-[0_0_12px_rgba(217,119,6,0.2)] font-semibold' : 'text-stone-400 hover:text-stone-100'
               }`}
             >
               Todos ({mesas.length})
@@ -1063,10 +1061,8 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             <button
               type="button"
               onClick={() => setSelectedEstado('Libre')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedEstado === 'Libre'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-emerald-700 dark:hover:text-emerald-400'
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-all ${
+                selectedEstado === 'Libre' ? 'bg-emerald-700 text-stone-100 shadow-[0_0_12px_rgba(16,185,129,0.2)] font-semibold' : 'text-stone-400 hover:text-emerald-400'
               }`}
             >
               Libres ({stats.libres})
@@ -1074,10 +1070,8 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             <button
               type="button"
               onClick={() => setSelectedEstado('Ocupada')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedEstado === 'Ocupada'
-                  ? 'bg-primary text-white shadow-xs'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-primary dark:hover:text-primary-light'
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-all ${
+                selectedEstado === 'Ocupada' ? 'bg-amber-600 text-stone-950 shadow-[0_0_12px_rgba(217,119,6,0.2)] font-semibold' : 'text-stone-400 hover:text-amber-400'
               }`}
             >
               Ocupadas ({stats.ocupadas})
@@ -1085,10 +1079,8 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             <button
               type="button"
               onClick={() => setSelectedEstado('Cuenta Solicitada')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedEstado === 'Cuenta Solicitada'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-amber-700 dark:hover:text-amber-400'
+              className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-all ${
+                selectedEstado === 'Cuenta Solicitada' ? 'bg-amber-500 text-stone-950 shadow-[0_0_12px_rgba(245,158,11,0.25)] font-semibold' : 'text-stone-400 hover:text-amber-300'
               }`}
             >
               Cuenta ({stats.cuenta})
@@ -1169,10 +1161,10 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
     onClick={() => setIsListaPedidosMesaOpen(false)}
   >
     <div
-      className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-2xl dark:border-stone-800 dark:bg-stone-900"
+      className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-sm border border-amber-700/30 bg-zinc-900 shadow-2xl"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="border-b border-stone-200 p-5 dark:border-stone-800">
+      <div className="border-b border-amber-900/30 p-5">
         <h2
           id="lista-comandas-title"
           className="text-lg font-bold text-stone-900 dark:text-stone-100"
@@ -1212,7 +1204,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         {pedidosMesaSeleccionada.map((pedido) => (
           <div
             key={pedido._id}
-            className="flex flex-col gap-3 rounded-xl border border-stone-200 p-4 dark:border-stone-700 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-sm border border-amber-700/25 bg-zinc-950/60 p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
               <p className="font-bold text-stone-900 dark:text-stone-100">
@@ -1245,7 +1237,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
         ))}
       </div>
 
-      <div className="flex flex-wrap justify-end gap-2 border-t border-stone-200 p-4 dark:border-stone-800">
+      <div className="flex flex-wrap justify-end gap-2 border-t border-amber-900/30 p-4">
         <Button
           type="button"
           variant="outline"
@@ -1452,7 +1444,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
             maxWidth="md"
           >
             <div className="space-y-4 pt-1">
-              <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/60 p-3 text-xs text-stone-600 dark:text-stone-300">
+              <div className="rounded-sm border border-amber-700/25 bg-zinc-950/60 p-3 text-xs text-stone-300">
                 <p>
                   Uniendo mesas para crear{' '}
                   <strong className="text-stone-900 dark:text-white font-bold">
@@ -1475,15 +1467,15 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
                 <button
                   type="button"
                   onClick={() => setFormaSeleccionada('Lineal')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
+                  className={`p-4 rounded-sm border text-left transition-all ${
                     formaSeleccionada === 'Lineal'
-                      ? 'border-primary ring-2 ring-primary/30 bg-primary/5 dark:bg-primary/10'
-                      : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 dark:hover:border-stone-700'
+                      ? 'border-amber-500 ring-1 ring-amber-500/40 bg-amber-950/30 shadow-[0_0_15px_rgba(217,119,6,0.15)]'
+                      : 'border-amber-700/25 bg-zinc-900 hover:border-amber-500/50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-sm bg-amber-500/10 text-amber-400 flex items-center justify-center">
                         <Columns className="w-4 h-4" />
                       </div>
                       <span className="font-bold text-sm text-stone-900 dark:text-white">
@@ -1503,15 +1495,15 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
                 <button
                   type="button"
                   onClick={() => setFormaSeleccionada('Cuadrada')}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
+                  className={`p-4 rounded-sm border text-left transition-all ${
                     formaSeleccionada === 'Cuadrada'
-                      ? 'border-primary ring-2 ring-primary/30 bg-primary/5 dark:bg-primary/10'
-                      : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 dark:hover:border-stone-700'
+                      ? 'border-amber-500 ring-1 ring-amber-500/40 bg-amber-950/30 shadow-[0_0_15px_rgba(217,119,6,0.15)]'
+                      : 'border-amber-700/25 bg-zinc-900 hover:border-amber-500/50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-sm bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
                         <LayoutGrid className="w-4 h-4" />
                       </div>
                       <span className="font-bold text-sm text-stone-900 dark:text-white">
@@ -1532,7 +1524,7 @@ const handleEnviarPedidoCocina = async (pedido: Pedido) => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-200 dark:border-stone-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-amber-900/30">
                 <Button
                   type="button"
                   variant="outline"

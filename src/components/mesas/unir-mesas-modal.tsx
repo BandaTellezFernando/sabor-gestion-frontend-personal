@@ -229,10 +229,10 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
                 type="button"
                 onClick={() => handleSelectZona(zona.ubicacion)}
                 aria-pressed={activa}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                   activa
-                    ? 'border-[#C84B26] bg-[#C84B26]/10 text-[#C84B26] dark:bg-[#C84B26]/20 dark:text-[#E05A36]'
-                    : 'border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800'
+                    ? 'border-[amber-600] bg-[amber-600]/10 text-[amber-600] dark:bg-[amber-600]/20 dark:text-[amber-400]'
+                    : 'border-amber-700/30 text-stone-300 hover:border-amber-500/50 hover:bg-zinc-800 bg-zinc-900'
                 }`}
               >
                 <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
@@ -272,16 +272,16 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
                   type="button"
                   onClick={() => handleToggleMesa(mesa)}
                   aria-pressed={activa}
-                  className={`flex items-center gap-2.5 rounded-xl border-2 p-2.5 text-left transition-all duration-200 ${
+                  className={`flex items-center gap-2.5 rounded-sm border-2 p-2.5 text-left transition-all duration-200 ${
                     activa
-                      ? 'border-[#C84B26] bg-[#C84B26]/5 dark:border-[#E05A36] dark:bg-[#C84B26]/15'
-                      : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800/60'
+                      ? 'border-[amber-600] bg-[amber-600]/5 dark:border-[amber-400] dark:bg-[amber-600]/15'
+                      : 'border-amber-700/25 bg-zinc-950/60 hover:border-amber-500/40 hover:bg-zinc-900'
                   }`}
                 >
                   <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border ${
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border ${
                       activa
-                        ? 'border-[#C84B26] bg-[#C84B26] text-white'
+                        ? 'border-[amber-600] bg-[amber-600] text-white'
                         : 'border-stone-300 text-transparent dark:border-stone-600'
                     }`}
                     aria-hidden="true"
@@ -305,9 +305,9 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
       </div>
 
       {/* Paso 3: resumen y nombre de la mesa fusionada */}
-      <div className="space-y-3 rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-stone-700 dark:bg-stone-800/40">
+      <div className="space-y-3 rounded-sm border border-amber-700/25 bg-zinc-950/80 p-3">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-stone-600 dark:text-stone-300">
-          <Merge className="h-4 w-4 text-[#C84B26] dark:text-[#E05A36]" aria-hidden="true" />
+          <Merge className="h-4 w-4 text-[amber-600] dark:text-[amber-400]" aria-hidden="true" />
           {mesasSeleccionadas.length >= 2 ? (
             <span className="flex flex-wrap items-center gap-1.5">
               {mesasSeleccionadas.map((m, idx) => (
@@ -319,7 +319,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
                 </React.Fragment>
               ))}
               <span className="text-stone-400">=</span>
-              <span className="font-bold text-[#C84B26] dark:text-[#E05A36]">
+              <span className="font-bold text-[amber-600] dark:text-[amber-400]">
                 {capacidadTotal} personas
               </span>
             </span>
@@ -330,7 +330,7 @@ function UnirMesasContent({ mesas, onClose, onConfirm }: UnirMesasContentProps) 
 
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-stone-700 dark:text-stone-200">Nombre generado por el servidor</p>
-          <div className="min-h-10 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200">
+          <div className="min-h-10 rounded-sm border border-amber-700/30 bg-zinc-950 px-3 py-2 text-sm text-stone-200">
             {mesasSeleccionadas.length >= 2 ? mesasSeleccionadas.map((mesa) => mesa.numero).join(' + ') : 'Selecciona al menos 2 mesas'}
           </div>
           <p className="text-xs text-stone-500 dark:text-stone-400">El backend genera el nombre definitivo y conserva la información de origen.</p>

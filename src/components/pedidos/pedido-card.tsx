@@ -181,27 +181,27 @@ export function PedidoCard({
   const getCardBorder = () => {
     switch (pedido.estado) {
       case 'ABIERTO':
-        return 'border-sky-200 dark:border-sky-900/60 bg-white dark:bg-stone-900';
+        return 'border-amber-700/30 bg-zinc-900';
       case 'EN_PREPARACION':
-        return 'border-amber-200 dark:border-amber-900/60 bg-gradient-to-br from-amber-50/20 to-white dark:from-amber-950/10 dark:to-stone-900';
+        return 'border-amber-600/50 bg-gradient-to-br from-amber-950/20 via-zinc-900 to-zinc-900 shadow-[0_0_15px_rgba(217,119,6,0.12)]';
       case 'ENTREGADO':
         if (!pedido.recogido) {
-          return 'border-amber-400 dark:border-amber-600/80 bg-gradient-to-br from-amber-50/40 via-amber-50/20 to-white dark:from-amber-950/20 dark:to-stone-900 shadow-sm ring-2 ring-amber-400/40';
+          return 'border-amber-500 bg-gradient-to-br from-amber-950/35 via-zinc-900 to-zinc-900 shadow-[0_0_15px_rgba(217,119,6,0.2)] ring-1 ring-amber-500/40';
         }
-        return 'border-emerald-200 dark:border-emerald-900/60 bg-gradient-to-br from-emerald-50/20 to-white dark:from-emerald-950/10 dark:to-stone-900';
+        return 'border-emerald-700/40 bg-zinc-900';
       case 'CANCELADO':
-        return 'border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/40 opacity-75';
+        return 'border-zinc-800 bg-zinc-950/60 opacity-60';
       case 'CERRADO':
-        return 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900';
+        return 'border-amber-700/25 bg-zinc-900';
       default:
-        return 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900';
+        return 'border-amber-700/25 bg-zinc-900';
     }
   };
 
   return (
     <div
       onClick={() => onViewDetail(pedido)}
-      className={`rounded-2xl border p-4 sm:p-5 shadow-xs transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col justify-between ${getCardBorder()}`}
+      className={`rounded-sm border p-4 sm:p-5 shadow-md transition-all duration-200 hover:border-amber-500/50 cursor-pointer flex flex-col justify-between ${getCardBorder()}`}
       data-pedido-id={pedido._id}
       tabIndex={0}
       role="region"
@@ -218,11 +218,11 @@ export function PedidoCard({
         <div className="flex items-start justify-between gap-2 mb-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+              <span className="font-serif text-base sm:text-lg font-bold text-stone-100 tracking-wide">
                 {pedido.codigo}
               </span>
             </div>
-            <p className="text-sm font-bold text-stone-800 dark:text-stone-200 mt-0.5">
+            <p className="text-sm font-serif font-bold text-amber-400 mt-0.5">
               {getMesaNombre(pedido.mesa)}
             </p>
           </div>
@@ -255,7 +255,7 @@ export function PedidoCard({
 
         {/* Resumen de Platos de la Comanda */}
         {pedido.detalles && pedido.detalles.length > 0 && (
-          <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800/80 mb-3 space-y-1">
+          <div className="p-2.5 rounded-sm bg-zinc-950/60 border border-amber-900/25 mb-3 space-y-1">
             {pedido.detalles.slice(0, 3).map((d, i) => (
               <div key={i} className="flex items-center justify-between text-xs">
                 <span className="truncate text-stone-700 dark:text-stone-300">
@@ -279,7 +279,7 @@ export function PedidoCard({
           <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">
             {totalProductos} {totalProductos === 1 ? 'producto' : 'productos'} · Total:
           </span>
-          <span className="text-base sm:text-lg font-extrabold text-primary dark:text-primary-light tracking-tight">
+          <span className="text-base sm:text-lg font-serif font-bold text-amber-400 tracking-tight">
             Bs. {Number(pedido.total || 0).toFixed(2)}
           </span>
         </div>
@@ -293,7 +293,7 @@ export function PedidoCard({
               size="sm"
               onClick={handleRecogerPedido}
               disabled={isActionLoading}
-              className="flex-1 min-h-[40px] px-3.5 text-xs font-bold shadow-xs"
+              className="flex-1 min-h-[40px] px-3.5 text-xs font-semibold rounded-sm bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-[0_0_15px_rgba(217,119,6,0.2)]"
               title="Confirmar recogida del pedido de cocina"
             >
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
@@ -304,7 +304,7 @@ export function PedidoCard({
               variant="outline"
               size="sm"
               onClick={() => onViewDetail(pedido)}
-              className="flex-1 min-h-[38px] text-xs font-semibold rounded-xl text-stone-700 dark:text-stone-300"
+              className="flex-1 min-h-[38px] text-xs font-semibold rounded-sm text-stone-700 dark:text-stone-300"
               title="Ver detalles completos de la comanda"
             >
               <Eye className="w-3.5 h-3.5 mr-1" />
@@ -319,7 +319,7 @@ export function PedidoCard({
                 variant="outline"
                 size="sm"
                 disabled
-                className="min-h-[38px] px-3 text-xs font-semibold rounded-xl border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed bg-stone-50 dark:bg-stone-900"
+                className="min-h-[38px] px-3 text-xs font-semibold rounded-sm border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed bg-stone-50 dark:bg-stone-900"
                 title="La cuenta ya ha sido solicitada para esta mesa"
               >
                 <Check className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
@@ -332,7 +332,7 @@ export function PedidoCard({
                 onClick={handleSolicitarCuenta}
                 disabled={isActionLoading}
                 isLoading={isActionLoading}
-                className="min-h-[38px] px-3 text-xs font-semibold rounded-xl border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                className="min-h-[38px] px-3 text-xs font-semibold rounded-sm border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
                 title="Solicitar cuenta y notificar a Caja"
               >
                 <Receipt className="w-3.5 h-3.5 mr-1" />
@@ -348,7 +348,7 @@ export function PedidoCard({
               size="sm"
               onClick={() => onEdit(pedido)}
               disabled={isActionLoading}
-              className="min-h-[38px] px-2 text-xs text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded-xl"
+              className="min-h-[38px] px-2 text-xs text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded-sm"
               title="Modificar platos o comanda"
               aria-label={`Editar comanda ${pedido.codigo}`}
             >
@@ -363,7 +363,7 @@ export function PedidoCard({
               size="sm"
               onClick={() => onCancel(pedido)}
               disabled={isActionLoading}
-              className="min-h-[38px] px-2 text-xs text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl"
+              className="min-h-[38px] px-2 text-xs text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-sm"
               title="Cancelar comanda y liberar mesa"
               aria-label={`Cancelar comanda ${pedido.codigo}`}
             >
