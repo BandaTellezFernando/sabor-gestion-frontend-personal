@@ -131,7 +131,7 @@ function UsuariosPageContent() {
               Gestión de Usuarios
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Administra el personal del sistema, asigna roles y controla su acceso.
           </p>
         </div>
@@ -143,7 +143,7 @@ function UsuariosPageContent() {
             onClick={loadUsuarios}
             disabled={isLoading}
             title="Recargar usuarios"
-            className="rounded-xl"
+            className="rounded-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
@@ -151,7 +151,7 @@ function UsuariosPageContent() {
             variant="primary"
             size="md"
             onClick={handleOpenCreate}
-            className="flex items-center gap-2 rounded-xl"
+            className="flex items-center gap-2 rounded-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Nuevo Usuario</span>
@@ -174,7 +174,7 @@ function UsuariosPageContent() {
           <div className="flex flex-col gap-2">
             <span>{error}</span>
             <div>
-              <Button variant="outline" size="sm" onClick={loadUsuarios} className="rounded-xl">
+              <Button variant="outline" size="sm" onClick={loadUsuarios} className="rounded-sm">
                 Reintentar
               </Button>
             </div>
@@ -183,7 +183,7 @@ function UsuariosPageContent() {
       )}
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900 p-4 rounded-sm border border-amber-700/25 shadow-md">
         <div className="flex-1 max-w-md">
           <Input
             id="buscar-usuario"
@@ -200,7 +200,7 @@ function UsuariosPageContent() {
 
       {/* Estado de Carga */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-col items-center justify-center p-12 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <Spinner size="lg" />
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
             Cargando usuarios del sistema...
@@ -231,7 +231,7 @@ function UsuariosPageContent() {
       )}
 
       {!isLoading && filteredUsuarios.length > 0 && (
-        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-xs">
+        <div className="bg-zinc-900 rounded-sm border border-amber-700/25 overflow-hidden shadow-md">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm" role="table">
               <thead className="bg-stone-50 dark:bg-stone-800/60 border-b border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
@@ -288,7 +288,7 @@ function UsuariosPageContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenEstado(u)}
-                          className={u.estado ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30 rounded-xl' : 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30 rounded-xl'}
+                          className={u.estado ? 'text-amber-500 hover:text-amber-400 hover:bg-amber-950/30 rounded-sm' : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-950/30 rounded-sm'}
                           title={u.estado ? 'Desactivar usuario' : 'Activar usuario'}
                         >
                           <Power className="w-4 h-4" />
@@ -297,7 +297,7 @@ function UsuariosPageContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenEdit(u)}
-                          className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 rounded-xl"
+                          className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 rounded-sm"
                           title="Editar usuario"
                         >
                           <Pencil className="w-4 h-4" />
@@ -306,7 +306,7 @@ function UsuariosPageContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenDelete(u)}
-                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 rounded-xl"
+                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 rounded-sm"
                           title="Eliminar usuario"
                         >
                           <Trash2 className="w-4 h-4" />

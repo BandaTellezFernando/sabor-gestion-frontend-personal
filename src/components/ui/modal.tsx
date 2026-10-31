@@ -125,26 +125,26 @@ export function Modal({
       aria-labelledby={titleId}
       aria-describedby={description ? descId : undefined}
     >
-      {/* Backdrop con blur */}
+      {/* Backdrop con blur profundo */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Caja del Modal */}
+      {/* Caja del Modal de Lujo */}
       <div
         ref={modalRef}
-        className={`relative w-full ${MAX_WIDTH_MAP[maxWidth]} bg-white dark:bg-stone-900 rounded-2xl shadow-xl border border-stone-200 dark:border-stone-800 z-10 transition-all duration-200 overflow-hidden my-auto`}
+        className={`relative w-full ${MAX_WIDTH_MAP[maxWidth]} bg-zinc-900 rounded-sm shadow-[0_15px_50px_rgba(0,0,0,0.85)] border border-amber-700/30 z-10 transition-all duration-200 overflow-hidden my-auto`}
       >
         {/* Cabecera */}
-        <div className="flex items-start justify-between p-5 border-b border-stone-100 dark:border-stone-800/80">
+        <div className="flex items-start justify-between p-5 border-b border-amber-900/30 bg-zinc-950/60">
           <div>
-            <h2 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-50 leading-tight">
+            <h2 id={titleId} className="font-serif text-lg font-semibold tracking-wide text-stone-100 leading-tight">
               {title}
             </h2>
             {description && (
-              <p id={descId} className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+              <p id={descId} className="text-xs text-stone-400 font-light mt-1">
                 {description}
               </p>
             )}
@@ -155,7 +155,7 @@ export function Modal({
             onClick={onClose}
             aria-label="Cerrar ventana modal"
             title="Cerrar ventana"
-            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+            className="text-stone-400 hover:text-amber-400"
           >
             <X className="w-4 h-4" />
           </IconButton>

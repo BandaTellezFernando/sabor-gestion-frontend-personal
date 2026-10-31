@@ -231,7 +231,7 @@ function IngredienteFormContent({
           onChange={(e) =>
             setDisponible(e.target.checked)
           }
-          className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 cursor-pointer"
+          className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300 dark:border-zinc-700 bg-zinc-950 cursor-pointer"
         />
 
         <label

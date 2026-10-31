@@ -60,15 +60,12 @@ function CajaPageContent() {
     queueMicrotask(() => void cargarCuentasPendientes());
   }, [cargarCuentasPendientes]);
 
-  // La creación de una cuenta agrupada emite estos eventos sin enviar el token QR.
   useSocketEvent<Record<string, unknown>>(SOCKET_EVENTS.CAJA_NUEVA_CUENTA, () => {
     void cargarCuentasPendientes();
   });
   useSocketEvent<Record<string, unknown>>(SOCKET_EVENTS.CAJA_SOLICITUD_PAGO, () => {
     void cargarCuentasPendientes();
   });
-
-  // La mesa cambia a Libre al pagarse la cuenta. Recargar evita depender de IDs de pedido.
   useSocketEvent(SOCKET_EVENTS.MESAS_UPDATED, () => {
     void cargarCuentasPendientes();
   });
@@ -92,16 +89,16 @@ function CajaPageContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-amber-900/30">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-              Estación de Caja y Facturación
+          <div className="flex items-center gap-2.5">
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold tracking-wide text-stone-100">
+              Estación de Facturación & Cobro
             </h1>
-            <Badge variant="cajero" className="text-xs">{ROL_LABELS[user.rol]}</Badge>
+            <Badge variant="cajero" className="text-[10px]">{ROL_LABELS[user.rol]}</Badge>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
-            Cobro consolidado de comandas por mesa, pago en efectivo, tarjeta o QR y emisión de comprobantes detallados.
+          <p className="text-xs sm:text-sm text-stone-400 font-light mt-1">
+            Cobro consolidado por mesa, transacciones con tarjeta, efectivo o QR y emisión de comprobantes de alta gastronomía.
           </p>
         </div>
 
@@ -115,46 +112,46 @@ function CajaPageContent() {
           >
             Actualizar
           </Button>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            Caja Operativa
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-medium bg-emerald-950/50 text-emerald-300 border border-emerald-800/40">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            Caja Activa
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between shadow-xs">
+        <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
           <div className="space-y-0.5">
-            <span className="text-xs text-stone-500 dark:text-stone-400">Cajero en turno</span>
-            <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{user.nombre} {user.apellido}</p>
-            <span className="text-[11px] font-mono text-stone-400">Canal: room:caja</span>
+            <span className="text-[11px] uppercase tracking-wider text-stone-400 font-light">Responsable en turno</span>
+            <p className="text-sm font-serif font-medium text-stone-100">{user.nombre} {user.apellido}</p>
+            <span className="text-[11px] font-mono text-amber-500/70">Socket.IO: room:caja</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
-            <CreditCard className="w-5 h-5" />
+          <div className="p-2 rounded-sm bg-amber-950/60 text-amber-400 border border-amber-800/30">
+            <CreditCard className="w-4.5 h-4.5" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between shadow-xs">
+        <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
           <div className="space-y-0.5">
-            <span className="text-xs text-stone-500 dark:text-stone-400">Cuentas por cobrar</span>
-            <p className="text-xl font-bold text-stone-900 dark:text-stone-100">{cuentas.length}</p>
-            <span className="text-[11px] text-stone-400">
+            <span className="text-[11px] uppercase tracking-wider text-stone-400 font-light">Cuentas por cobrar</span>
+            <p className="font-serif text-xl sm:text-2xl font-semibold text-stone-100">{cuentas.length}</p>
+            <span className="text-[11px] text-stone-400 font-light">
               {cuentas.length === 1 ? 'Mesa esperando pago' : 'Mesas esperando pago'}
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-            <Receipt className="w-5 h-5" />
+          <div className="p-2 rounded-sm bg-amber-950/60 text-amber-400 border border-amber-800/30">
+            <Receipt className="w-4.5 h-4.5" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between shadow-xs">
+        <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
           <div className="space-y-0.5">
-            <span className="text-xs text-stone-500 dark:text-stone-400">Total pendiente</span>
-            <p className="text-xl font-bold text-[#C84B26] dark:text-[#E05A36]">Bs {totalPorCobrar.toFixed(2)}</p>
-            <span className="text-[11px] text-stone-400">Subtotal más propina de las cuentas</span>
+            <span className="text-[11px] uppercase tracking-wider text-stone-400 font-light">Total pendiente</span>
+            <p className="font-serif text-xl sm:text-2xl font-bold text-amber-400">Bs {totalPorCobrar.toFixed(2)}</p>
+            <span className="text-[11px] text-stone-400 font-light">Subtotal más propina de sala</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
-            <DollarSign className="w-5 h-5" />
+          <div className="p-2 rounded-sm bg-amber-950/60 text-amber-400 border border-amber-800/30">
+            <DollarSign className="w-4.5 h-4.5" />
           </div>
         </div>
       </div>
@@ -171,21 +168,21 @@ function CajaPageContent() {
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">Cuentas pendientes de cobro</h2>
-            <Badge variant="warning" className="text-xs">{cuentas.length}</Badge>
+            <h2 className="font-serif text-base font-semibold text-stone-100 tracking-wide">Cuentas Pendientes de Cobro</h2>
+            <Badge variant="warning" className="text-[10px]">{cuentas.length}</Badge>
           </div>
-          <span className="text-xs text-stone-500 dark:text-stone-400">Sincronizado en tiempo real</span>
+          <span className="text-xs text-amber-500/70 font-mono">Sincronizado en tiempo real</span>
         </div>
 
         {isLoading ? (
-          <div className="p-12 flex flex-col items-center justify-center gap-3 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
-            <Spinner size="lg" />
-            <p className="text-xs text-stone-500 dark:text-stone-400">Consultando cuentas agrupadas pendientes...</p>
+          <div className="p-12 flex flex-col items-center justify-center gap-3 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-xs">
+            <Spinner size="lg" className="text-amber-500" />
+            <p className="text-xs text-stone-400 font-light">Consultando comandas pendientes en sala...</p>
           </div>
         ) : cuentas.length === 0 ? (
           <EmptyState
             title="No hay cuentas pendientes de cobro"
-            description="Cuando un mesero solicite la cuenta de una mesa, sus comandas elegibles se agruparán aquí."
+            description="Cuando el sommelier o mesero solicite la cuenta de una mesa, se consolidará aquí inmediatamente."
             icon={Receipt}
           />
         ) : (
@@ -197,25 +194,25 @@ function CajaPageContent() {
         )}
       </div>
 
-      <div className="p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 space-y-3">
+      <div className="p-5 rounded-sm border border-amber-700/25 bg-zinc-900 shadow-xs space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
+            <div className="p-2 rounded-sm bg-zinc-950 text-amber-500/80 border border-amber-900/30">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">Arqueo y cierre de turno</h3>
-              <p className="text-xs text-stone-500 dark:text-stone-400">Resumen por método de pago, propinas y pagos procesados.</p>
+              <h3 className="font-serif text-sm font-medium text-stone-200">Arqueo y Cierre de Turno</h3>
+              <p className="text-xs text-stone-400 font-light">Auditoría consolidada por métodos de pago, propinas y recaudación.</p>
             </div>
           </div>
-          <Badge variant="neutral">Siguiente fase</Badge>
+          <Badge variant="neutral">Alta Gastronomía</Badge>
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 flex items-start gap-3 text-xs text-stone-600 dark:text-stone-400">
-        <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+      <div className="p-4 rounded-sm border border-amber-800/30 bg-zinc-950/80 flex items-start gap-3 text-xs text-stone-400 font-light">
+        <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
         <p>
-          El pago se registra para la cuenta completa. Al confirmarlo, las comandas se cierran y la mesa vuelve al estado Libre. Los pagos QR de esta versión son simulados y no constituyen confirmación bancaria real.
+          El pago se confirma para la totalidad de la cuenta agrupada. Al completarse, la mesa regresa automáticamente a estado Disponible en el mapa 3D y en sala.
         </p>
       </div>
 

@@ -323,7 +323,7 @@ function PedidoFormContent({
           value={selectedMesaId}
           disabled={isEditing || modoPedidoAdicional}
           onChange={(e) => setSelectedMesaId(e.target.value)}
-          className="w-full py-2.5 px-3 min-h-[42px] text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full py-2.5 px-3 min-h-[42px] text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
           required
         >
           <option value="">-- Selecciona una mesa disponible --</option>
@@ -369,12 +369,12 @@ function PedidoFormContent({
             placeholder="Buscar plato en el catálogo..."
             value={platoSearch}
             onChange={(e) => setPlatoSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[38px]"
+            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500 min-h-[38px]"
           />
         </div>
 
         {/* Lista compacta de Platos Disponibles */}
-        <div className="max-h-44 overflow-y-auto border border-zinc-200 dark:border-zinc-800 rounded-lg p-2 divide-y divide-zinc-100 dark:divide-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40">
+        <div className="max-h-44 overflow-y-auto border border-zinc-200 dark:border-zinc-800 rounded-sm p-2 divide-y divide-zinc-100 dark:divide-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40">
           {availablePlatos.length === 0 ? (
             <p className="text-xs text-zinc-400 text-center py-3">No hay platos que coincidan.</p>
           ) : (
@@ -383,7 +383,7 @@ function PedidoFormContent({
               return (
                 <div
                   key={p._id}
-                  className="py-2 px-2.5 flex items-center justify-between text-xs hover:bg-white dark:hover:bg-zinc-800/60 rounded-md transition-colors"
+                  className="py-2 px-2.5 flex items-center justify-between text-xs hover:bg-zinc-800 rounded-sm transition-colors"
                 >
                   <div className="min-w-0 pr-2">
                     <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block text-xs sm:text-sm">
@@ -424,7 +424,7 @@ function PedidoFormContent({
         </label>
 
         {items.length === 0 ? (
-          <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg p-4 text-center text-xs text-zinc-400">
+          <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-sm p-4 text-center text-xs text-zinc-400">
             No has agregado ningún plato. Selecciona uno del catálogo superior.
           </div>
         ) : (
@@ -432,7 +432,7 @@ function PedidoFormContent({
             {items.map((it) => (
               <div
                 key={it.platoId}
-                className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs space-y-2.5"
+                className="p-3 rounded-sm border border-amber-700/25 bg-zinc-900 text-xs space-y-2.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate text-xs sm:text-sm">
@@ -442,11 +442,11 @@ function PedidoFormContent({
                     <span className="text-zinc-600 dark:text-zinc-400 font-mono font-medium text-xs sm:text-sm">
                       Bs. {(it.precio * it.cantidad).toFixed(2)}
                     </span>
-                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-md p-1">
+                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-sm p-1">
                       <button
                         type="button"
                         onClick={() => handleUpdateCantidad(it.platoId, -1)}
-                        className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-700 rounded transition-colors active:scale-95 cursor-pointer"
+                        className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-700 rounded transition-colors active:scale-95 cursor-pointer"
                         aria-label="Disminuir cantidad"
                       >
                         <Minus className="w-3.5 h-3.5" />
@@ -457,7 +457,7 @@ function PedidoFormContent({
                       <button
                         type="button"
                         onClick={() => handleUpdateCantidad(it.platoId, 1)}
-                        className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-700 rounded transition-colors active:scale-95 cursor-pointer"
+                        className="w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-700 rounded transition-colors active:scale-95 cursor-pointer"
                         aria-label="Aumentar cantidad"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -480,7 +480,7 @@ function PedidoFormContent({
                   placeholder="Observación de cocina (ej. sin cebolla, término medio)..."
                   value={it.observacion}
                   onChange={(e) => handleUpdateObservacion(it.platoId, e.target.value)}
-                  className="w-full py-2 px-3 text-xs sm:text-sm rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-amber-500 min-h-[36px]"
+                  className="w-full py-2 px-3 text-xs sm:text-sm rounded-sm border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-amber-500 min-h-[36px]"
                 />
               </div>
             ))}
@@ -542,7 +542,7 @@ function PedidoFormContent({
               value={montoDescuento}
               onChange={(e) => setMontoDescuento(Math.max(0, Number(e.target.value) || 0))}
               disabled={isSubmitting}
-              className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[38px]"
+              className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500 min-h-[38px]"
             />
           </div>
 
@@ -561,13 +561,13 @@ function PedidoFormContent({
               value={montoPropina}
               onChange={(e) => setMontoPropina(Math.max(0, Number(e.target.value) || 0))}
               disabled={isSubmitting}
-              className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[38px]"
+              className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500 min-h-[38px]"
             />
           </div>
         </div>
 
         {/* Resumen Visual */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/60 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div className="bg-zinc-950/80 p-3 rounded-sm border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <div className="text-xs text-zinc-500 space-y-0.5">
             <div>Subtotal comanda: Bs. {subtotalVisual.toFixed(2)}</div>
             <div className="text-[11px] text-zinc-400">

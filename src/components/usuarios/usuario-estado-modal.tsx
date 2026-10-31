@@ -48,7 +48,7 @@ export function UsuarioEstadoModal({
       maxWidth="sm"
     >
       <div className="space-y-4">
-        <div className={`p-3 border rounded-xl flex items-start gap-3 ${nuevoEstado ? 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-900/50' : 'bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-900/50'}`}>
+        <div className={`p-3 border rounded-sm flex items-start gap-3 ${nuevoEstado ? 'bg-emerald-950/30 border-emerald-800/40' : 'bg-amber-950/30 border-amber-800/40'}`}>
           <Power className={`w-5 h-5 shrink-0 mt-0.5 ${nuevoEstado ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`} />
           <div className={`text-xs space-y-1 ${nuevoEstado ? 'text-green-800 dark:text-green-300' : 'text-orange-800 dark:text-orange-300'}`}>
             <p className="font-semibold">{nuevoEstado ? 'El usuario tendrá acceso al sistema.' : 'El usuario perderá el acceso al sistema.'}</p>

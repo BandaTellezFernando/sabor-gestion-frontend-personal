@@ -111,15 +111,15 @@ function DashboardAdminContent() {
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Banner de Bienvenida y Encabezado Gastronómico */}
-      <div className="rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-gradient-to-r from-[#FFF5EF] via-white to-stone-50 dark:from-[#2A1E18] dark:via-[#201E1B] dark:to-[#171614] p-5 sm:p-6 shadow-xs">
+      <div className="rounded-sm border border-amber-700/25 bg-gradient-to-r from-amber-950/30 via-zinc-900 to-zinc-950 p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-[#C84B26]/10 text-[#C84B26] dark:text-[#E05A36] border border-[#C84B26]/20">
+              <span className="p-2 rounded-sm bg-amber-950/60 text-amber-400 border border-amber-700/40">
                 <ChefHat className="w-5 h-5" />
               </span>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-stone-50">
-                Panel de Control — Mishi-Food
+              <h1 className="font-serif text-xl sm:text-2xl font-semibold tracking-wide text-stone-100">
+                Panel de Control — Sabor & Gestión
               </h1>
               <Badge variant="admin" className="text-xs ml-1">
                 {ROL_LABELS[user.rol]}
@@ -133,7 +133,7 @@ function DashboardAdminContent() {
           {/* Estado de Red y Botón Actualizar */}
           <div className="flex items-center gap-2.5 shrink-0">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs font-semibold ${
                 isConnected
                   ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
                   : 'bg-stone-100 text-stone-600 border-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-700'
@@ -168,7 +168,7 @@ function DashboardAdminContent() {
       {/* Spinner de Carga Inicial */}
       {isLoadingDashboard && !resumen && (
         <div className="py-20 text-center">
-          <Spinner size="lg" className="text-[#C84B26] mx-auto" />
+          <Spinner size="lg" className="text-amber-500 mx-auto" />
           <p className="mt-3 text-sm font-medium text-stone-500 dark:text-stone-400">
             Cargando métricas consolidadas del restaurante...
           </p>
@@ -197,8 +197,8 @@ function DashboardAdminContent() {
               label="Comandas del Día"
               value={resumen.kpis.ordenesHoy}
               description="Órdenes culinarias procesadas"
-              iconColor="text-[#C84B26] dark:text-[#E05A36]"
-              iconBgColor="bg-[#C84B26]/10 dark:bg-[#C84B26]/20"
+              iconColor="text-amber-500"
+              iconBgColor="bg-amber-950/40 border border-amber-800/30"
             />
 
             {/* 3. Afluencia Estimada (con aclaración visual obligatoria) */}
@@ -217,8 +217,8 @@ function DashboardAdminContent() {
               label="Ocupación de Salón"
               value={`${resumen.kpis.ocupacionPorcentaje}%`}
               description={`${resumen.kpis.mesasActivas} mesas activas en servicio`}
-              iconColor="text-sky-700 dark:text-sky-300"
-              iconBgColor="bg-sky-50 dark:bg-sky-950/40"
+              iconColor="text-amber-400"
+              iconBgColor="bg-zinc-900 border border-amber-900/20"
             />
           </div>
 
@@ -230,10 +230,10 @@ function DashboardAdminContent() {
             <div className="lg:col-span-5 space-y-6">
               {/* Panel de Platos Más Vendidos */}
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-[#C84B26]/10 text-[#C84B26] dark:text-[#E05A36]">
+                      <div className="p-1.5 rounded-sm bg-amber-600/10 text-amber-500">
                         <Flame className="w-4 h-4" />
                       </div>
                       <div>
@@ -265,15 +265,15 @@ function DashboardAdminContent() {
                         return (
                           <div
                             key={idx}
-                            className="p-3 rounded-xl bg-stone-50/70 dark:bg-[#1A1816]/70 border border-stone-200/70 dark:border-stone-800 transition-all hover:border-stone-300 dark:hover:border-stone-700"
+                            className="p-3 rounded-sm bg-stone-50/70 dark:bg-zinc-950/70 border border-stone-200/70 dark:border-stone-800 transition-all hover:border-stone-300 dark:hover:border-stone-700"
                           >
                             <div className="flex items-center justify-between gap-3 mb-1.5">
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="w-6 h-6 rounded-lg bg-[#C84B26]/10 text-[#C84B26] dark:text-[#E05A36] font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                                <span className="w-6 h-6 rounded-sm bg-amber-600/10 text-amber-500 font-mono font-bold text-xs flex items-center justify-center shrink-0">
                                   {idx + 1}
                                 </span>
                                 {plato.imagen ? (
-                                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 relative bg-stone-200 dark:bg-stone-800">
+                                  <div className="w-8 h-8 rounded-sm overflow-hidden shrink-0 relative bg-stone-200 dark:bg-stone-800">
                                     <Image
                                       src={plato.imagen}
                                       alt={plato.nombre}
@@ -283,7 +283,7 @@ function DashboardAdminContent() {
                                     />
                                   </div>
                                 ) : (
-                                  <div className="w-8 h-8 rounded-lg bg-stone-200 dark:bg-stone-800 text-stone-500 flex items-center justify-center shrink-0">
+                                  <div className="w-8 h-8 rounded-sm bg-stone-200 dark:bg-stone-800 text-stone-500 flex items-center justify-center shrink-0">
                                     <Utensils className="w-4 h-4" />
                                   </div>
                                 )}
@@ -292,7 +292,7 @@ function DashboardAdminContent() {
                                 </span>
                               </div>
 
-                              <span className="font-mono text-xs sm:text-sm font-extrabold text-[#C84B26] dark:text-[#E05A36] shrink-0">
+                              <span className="font-mono text-xs sm:text-sm font-extrabold text-amber-500 shrink-0">
                                 {plato.cantidad} {plato.cantidad === 1 ? 'ped' : 'peds'}
                               </span>
                             </div>
@@ -300,7 +300,7 @@ function DashboardAdminContent() {
                             {/* Barra de progreso visual sutil */}
                             <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-1.5 overflow-hidden">
                               <div
-                                className="bg-[#C84B26] h-1.5 rounded-full transition-all duration-300"
+                                className="bg-amber-600 h-1.5 rounded-full transition-all duration-300"
                                 style={{ width: `${Math.max(8, porcentajeVolumen)}%` }}
                               />
                             </div>
@@ -314,10 +314,10 @@ function DashboardAdminContent() {
 
               {/* Panel de Categorías Populares (Inspirado en el manual) */}
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                      <div className="p-1.5 rounded-sm bg-amber-500/10 text-amber-700 dark:text-amber-400">
                         <Layers className="w-4 h-4" />
                       </div>
                       <div>
@@ -350,7 +350,7 @@ function DashboardAdminContent() {
                           </div>
                           <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-2 overflow-hidden">
                             <div
-                              className="bg-gradient-to-r from-amber-500 to-[#C84B26] h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-amber-700 to-amber-500 h-2 rounded-full transition-all duration-300"
                               style={{ width: `${Math.max(5, cat.porcentaje)}%` }}
                             />
                           </div>
@@ -365,10 +365,10 @@ function DashboardAdminContent() {
             {/* COLUMNA DERECHA (7 cols): Comandas Recientes en Salón */}
             <div className="lg:col-span-7">
               <Card className="h-full flex flex-col">
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-700 dark:text-sky-400">
+                      <div className="p-1.5 rounded-sm bg-sky-500/10 text-sky-700 dark:text-sky-400">
                         <Receipt className="w-4 h-4" />
                       </div>
                       <div>
@@ -395,10 +395,10 @@ function DashboardAdminContent() {
                       {resumen.ordenesRecientes.map((orden) => (
                         <div
                           key={orden.uid}
-                          className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 dark:hover:bg-stone-800/30 p-2 rounded-xl transition-colors"
+                          className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 dark:hover:bg-stone-800/30 p-2 rounded-sm transition-colors"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0 border border-stone-200/80 dark:border-stone-700">
+                            <div className="w-10 h-10 rounded-sm bg-zinc-950 text-amber-300 font-serif flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0 border border-amber-900/30">
                               {orden.mesa}
                             </div>
                             <div className="min-w-0">

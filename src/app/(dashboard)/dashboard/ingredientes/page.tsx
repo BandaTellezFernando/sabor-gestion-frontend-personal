@@ -319,7 +319,7 @@ function IngredientesPageContent() {
             </h1>
           </div>
 
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Control cuantitativo de insumos para recetas y
             preparación de pedidos.
           </p>
@@ -394,7 +394,7 @@ function IngredientesPageContent() {
 
       {/* Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">
             Total Insumos
           </span>
@@ -404,7 +404,7 @@ function IngredientesPageContent() {
           </p>
         </div>
 
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
             Con Stock
@@ -415,7 +415,7 @@ function IngredientesPageContent() {
           </p>
         </div>
 
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1">
             <XCircle className="w-3.5 h-3.5" />
             Sin Stock
@@ -428,7 +428,7 @@ function IngredientesPageContent() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-3 sm:p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900 p-3 sm:p-4 rounded-sm border border-amber-700/25 shadow-md">
         <div className="flex-1 max-w-sm">
           <Input
             id="buscar-ingrediente"
@@ -455,7 +455,7 @@ function IngredientesPageContent() {
               )
             }
             aria-label="Filtrar por stock"
-            className="py-2 px-3 text-xs sm:text-sm rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="py-2 px-3 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500"
           >
             <option value="Todos">
               Todos los insumos
@@ -474,7 +474,7 @@ function IngredientesPageContent() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+        <div className="flex flex-col items-center justify-center p-12 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <Spinner size="lg" />
 
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-4">
@@ -533,7 +533,7 @@ function IngredientesPageContent() {
       {/* Tabla */}
       {!isLoading &&
         filteredIngredientes.length > 0 && (
-          <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-xs">
+          <div className="bg-zinc-900 rounded-sm border border-amber-700/25 overflow-hidden shadow-md">
             <div className="overflow-x-auto">
               <table
                 className="w-full text-left text-sm"

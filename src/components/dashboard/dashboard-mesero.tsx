@@ -136,7 +136,7 @@ export function DashboardMesero() {
 
       {isLoading && !hasLoaded ? (
         <div className="py-20 text-center">
-          <Spinner size="lg" className="text-[#C84B26] mx-auto" />
+          <Spinner size="lg" className="text-amber-500 mx-auto" />
           <p className="mt-3 text-sm font-medium text-stone-500 dark:text-stone-400">
             Consultando el salón y tus comandas...
           </p>
@@ -173,17 +173,17 @@ export function DashboardMesero() {
               label="Comandas activas"
               value={resumen.comandasActivas.length}
               description="Abiertas o en preparación"
-              iconColor="text-[#C84B26] dark:text-[#E05A36]"
-              iconBgColor="bg-[#C84B26]/10 dark:bg-[#C84B26]/20"
+              iconColor="text-amber-500"
+              iconBgColor="bg-amber-950/40 border border-amber-800/30"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <Card className="lg:col-span-2">
-              <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+              <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                    <div className="p-1.5 rounded-sm bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                     <div>
@@ -210,10 +210,10 @@ export function DashboardMesero() {
                       <li key={pedido._id}>
                         <Link
                           href={`/dashboard/pedidos?focus=${pedido._id}`}
-                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-xl px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36]"
+                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-sm px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0">
+                            <div className="w-10 h-10 rounded-sm bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0">
                               {getMesaNombre(pedido.mesa).replace(/^Mesa /, '')}
                             </div>
                             <div className="min-w-0">
@@ -255,7 +255,7 @@ export function DashboardMesero() {
 
             <div className="space-y-6">
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <CardTitle className="text-sm sm:text-base">Accesos operativos</CardTitle>
                   <CardDescription>Atajos a tu flujo de trabajo</CardDescription>
                 </CardHeader>
@@ -266,9 +266,9 @@ export function DashboardMesero() {
                     <Link
                       key={accion.href}
                       href={accion.href}
-                      className="flex items-start gap-3 p-3 rounded-xl border border-stone-200/80 dark:border-stone-800 hover:border-[#C84B26]/40 hover:bg-[#C84B26]/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36]"
+                      className="flex items-start gap-3 p-3 rounded-sm border border-stone-200/80 dark:border-stone-800 hover:border-amber-500/40 hover:bg-amber-600/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                     >
-                      <div className="p-2 rounded-lg bg-[#C84B26]/10 text-[#C84B26] dark:text-[#E05A36] shrink-0">
+                      <div className="p-2 rounded-sm bg-amber-600/10 text-amber-500 shrink-0">
                         <Icon className="w-4 h-4" aria-hidden="true" />
                       </div>
                       <div className="min-w-0">
@@ -286,7 +286,7 @@ export function DashboardMesero() {
               </Card>
 
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <CardTitle className="text-sm sm:text-base">Mesas esperando el pago</CardTitle>
                   <CardDescription>Cuenta solicitada al mesero</CardDescription>
                 </CardHeader>

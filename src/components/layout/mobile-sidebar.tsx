@@ -74,7 +74,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     }
   }, [isOpen]);
 
-  // Cerrar al presionar la tecla Escape y atrapar foco con Tab / Shift+Tab (Focus Trap)
+  // Cerrar al presionar la tecla Escape y atrapar foco con Tab / Shift+Tab
   useEffect(() => {
     if (!isOpen) return;
 
@@ -145,8 +145,8 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
   const groups = [
     { title: 'General', routes: generalRoutes },
-    { title: 'Operaciones', routes: operacionesRoutes },
-    { title: 'Catálogo y Recetas', routes: catalogoRoutes },
+    { title: 'Servicio & Sala', routes: operacionesRoutes },
+    { title: 'Cava & Menú', routes: catalogoRoutes },
   ].filter((g) => g.routes.length > 0);
 
   const getInitials = (name: string, lastName: string) => {
@@ -157,20 +157,20 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menú de navegación móvil">
       {/* Fondo atenudado con blur */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-200"
+        className="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Contenedor del Drawer */}
+      {/* Contenedor del Drawer Fine Dining */}
       <div
         ref={drawerRef}
-        className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-[#201E1B] shadow-2xl flex flex-col z-10 transition-transform duration-200 ease-out"
+        className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-zinc-950 border-r border-amber-900/30 shadow-2xl flex flex-col z-10 transition-transform duration-200 ease-out"
       >
         {/* Cabecera Móvil */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-stone-100 dark:border-stone-800">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-amber-900/25 bg-zinc-950/90">
           <Link href={getDefaultRouteForRole(user.rol)} onClick={onClose} className="flex items-center gap-2">
-            <BrandLogo size="sm" showText={true} subtitle="Gestión Gastronómica" />
+            <BrandLogo size="sm" showText={true} subtitle="Alta Gastronomía" />
           </Link>
           <IconButton
             variant="ghost"
@@ -178,20 +178,20 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             onClick={onClose}
             aria-label="Cerrar menú lateral"
             title="Cerrar menú"
-            className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
+            className="text-stone-400 hover:text-amber-400"
           >
             <X className="w-5 h-5" />
           </IconButton>
         </div>
 
         {/* Lista de Navegación */}
-        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
+        <div className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
           {groups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-1">
-              <h3 className="px-2.5 mb-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              <h3 className="px-2.5 mb-1.5 text-[10px] font-medium uppercase tracking-widest text-amber-500/70">
                 {group.title}
               </h3>
-              <ul className="space-y-0.5" role="list">
+              <ul className="space-y-1" role="list">
                 {group.routes.map((route) => {
                   const Icon = ICON_MAP[route.href] || LayoutDashboard;
                   const isActive = pathname === route.href;
@@ -208,23 +208,23 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                             onClose();
                           }
                         }}
-                        className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl transition-all ${
+                        className={`flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-sm transition-all ${
                           isActive
-                            ? 'bg-[#C84B26]/10 dark:bg-[#C84B26]/20 text-[#C84B26] dark:text-[#E05A36]'
+                            ? 'bg-amber-950/40 text-amber-300 border-l-2 border-amber-500 shadow-[0_0_12px_rgba(217,119,6,0.12)] font-semibold'
                             : isImplemented
-                            ? 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-                            : 'text-stone-400 dark:text-stone-500 opacity-75 cursor-not-allowed'
+                            ? 'text-stone-400 hover:text-stone-100 hover:bg-zinc-900 border-l-2 border-transparent'
+                            : 'text-stone-600 opacity-60 cursor-not-allowed border-l-2 border-transparent'
                         }`}
                       >
                         <Icon
                           className={`w-4 h-4 shrink-0 ${
-                            isActive ? 'text-[#C84B26] dark:text-[#E05A36]' : 'text-stone-500'
+                            isActive ? 'text-amber-400' : 'text-stone-500'
                           }`}
                           aria-hidden="true"
                         />
-                        <span className="flex-1 truncate">{route.label}</span>
+                        <span className="flex-1 truncate tracking-wide">{route.label}</span>
                         {!isImplemented && (
-                          <span className="text-[10px] text-stone-400 dark:text-stone-500 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">
+                          <span className="text-[9px] text-stone-500 bg-zinc-900 px-1.5 py-0.5 rounded-sm">
                             Próx.
                           </span>
                         )}
@@ -238,13 +238,13 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
         </div>
 
         {/* Pie con Perfil de Usuario */}
-        <div className="p-4 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-[#1A1816]/50">
+        <div className="p-4 border-t border-amber-900/25 bg-zinc-950/90">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#C84B26]/10 dark:bg-[#C84B26]/20 text-[#C84B26] dark:text-[#E05A36] font-bold text-xs flex items-center justify-center shrink-0 border border-[#C84B26]/20">
+            <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-amber-800 to-stone-900 text-amber-300 font-serif font-bold text-xs flex items-center justify-center shrink-0 border border-amber-600/40">
               {getInitials(user.nombre, user.apellido)}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+              <span className="text-xs font-medium text-stone-200 truncate">
                 {user.nombre} {user.apellido}
               </span>
               <div className="mt-0.5">
@@ -258,7 +258,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                       ? 'cajero'
                       : 'cocinero'
                   }
-                  className="text-[10px] px-1.5 py-0"
+                  className="text-[9px] px-1.5 py-0"
                 >
                   {ROL_LABELS[user.rol]}
                 </Badge>

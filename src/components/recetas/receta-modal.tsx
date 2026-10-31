@@ -356,7 +356,7 @@ function RecetaFormContent({
           }
           disabled={isEditing}
           required
-          className={`w-full py-2 px-3 text-sm rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+          className={`w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30 ${
             isEditing
               ? 'opacity-70 cursor-not-allowed'
               : ''
@@ -387,7 +387,7 @@ function RecetaFormContent({
       </div>
 
       {/* Ingredientes */}
-      <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/50 p-4">
+      <section className="rounded-sm border border-amber-700/25 bg-zinc-950/60 p-4">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div>
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
@@ -418,7 +418,7 @@ function RecetaFormContent({
         </div>
 
         {ingredientes.length === 0 ? (
-          <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
+          <div className="rounded-sm border border-amber-700/30 bg-amber-950/20 p-4">
             <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
               No hay ingredientes registrados.
             </p>
@@ -452,7 +452,7 @@ function RecetaFormContent({
                 return (
                   <div
                     key={`${index}-${linea.ingredienteId}`}
-                    className="flex flex-col sm:flex-row sm:items-end gap-2 p-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900"
+                    className="flex flex-col sm:flex-row sm:items-end gap-2 p-3 rounded-sm border border-amber-700/25 bg-zinc-900"
                   >
                     {/* Ingrediente */}
                     <div className="flex-1 min-w-0">
@@ -475,7 +475,7 @@ function RecetaFormContent({
                             e.target.value
                           )
                         }
-                        className="w-full py-2 px-2.5 text-sm rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="w-full py-2 px-2.5 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         {ingredientes.map(
                           (ingrediente) => (
@@ -541,7 +541,7 @@ function RecetaFormContent({
                           onChange={(e) =>
                             actualizarLinea(index, 'unidadMedida', e.target.value)
                           }
-                          className="w-full h-10 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-2 text-sm"
+                          className="w-full h-10 rounded-sm border border-amber-700/30 bg-zinc-950 px-2 text-sm text-stone-100"
                         >
                           {obtenerUnidadesCompatibles(unidad).map((opcion) => (
                             <option key={opcion} value={opcion}>{opcion}</option>

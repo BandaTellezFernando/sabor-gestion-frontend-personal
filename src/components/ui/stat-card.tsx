@@ -17,28 +17,28 @@ export function StatCard({
   label,
   value,
   description,
-  iconColor = 'text-[#C84B26] dark:text-[#E05A36]',
-  iconBgColor = 'bg-[#C84B26]/10 dark:bg-[#C84B26]/20',
+  iconColor = 'text-amber-500',
+  iconBgColor = 'bg-amber-950/40 border border-amber-800/40',
   className = '',
 }: StatCardProps) {
   return (
-    <Card className={`overflow-hidden transition-all duration-150 hover:border-stone-300 dark:hover:border-stone-700 bg-white dark:bg-stone-900 ${className}`}>
+    <Card className={`overflow-hidden transition-all duration-200 hover:border-amber-600/40 hover:shadow-[0_0_15px_rgba(217,119,6,0.12)] bg-zinc-900 ${className}`}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-bold text-stone-500 dark:text-stone-400 tracking-wide uppercase">
+          <span className="text-[11px] font-medium text-stone-400 tracking-widest uppercase">
             {label}
           </span>
-          <div className={`p-2.5 rounded-xl ${iconBgColor} ${iconColor} shrink-0`} aria-hidden="true">
-            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+          <div className={`p-2 rounded-sm ${iconBgColor} ${iconColor} shrink-0`} aria-hidden="true">
+            <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           </div>
         </div>
-        <div className="mt-2.5 flex items-baseline">
-          <span className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-stone-900 dark:text-stone-50">
+        <div className="mt-3 flex items-baseline">
+          <span className="font-serif text-2xl sm:text-3xl font-semibold tracking-wide text-stone-100">
             {value}
           </span>
         </div>
         {description && (
-          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400 leading-normal">
+          <p className="mt-1 text-xs text-stone-400 font-light leading-normal">
             {description}
           </p>
         )}

@@ -1,31 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 
 export const metadata: Metadata = {
-  title: "Mishi-Food | Sistema de Gestión Gastronómica",
-  description: "Plataforma integral de gestión operativa y culinaria para restaurantes",
+  title: "Sabor & Gestión | Haute Cuisine & Luxury Dining",
+  description: "Plataforma de alta gastronomía y gestión de restaurante de ultra lujo",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${playfair.variable} ${inter.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+      <body className="min-h-full flex flex-col bg-zinc-950 text-stone-200 font-sans selection:bg-amber-600/30 selection:text-amber-200">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

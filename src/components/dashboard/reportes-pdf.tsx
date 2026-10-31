@@ -50,7 +50,7 @@ function descargarPdfBase64(nombreArchivo: string, contenidoBase64: string): voi
   const urlTemporal = URL.createObjectURL(archivo)
   const enlace = document.createElement('a')
   enlace.href = urlTemporal
-  enlace.download = nombreArchivo || 'reporte-ventas-mishi-food.pdf'
+  enlace.download = nombreArchivo || 'reporte-ventas-sabor-y-gestion.pdf'
   enlace.style.display = 'none'
   document.body.appendChild(enlace)
   enlace.click()
@@ -94,13 +94,13 @@ export function ReportesPdfSection() {
     }
   }
 
-  const claseCampo = 'mt-1 block w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 shadow-sm outline-none transition focus:border-[#C84B26] focus:ring-2 focus:ring-[#C84B26]/15 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100'
+  const claseCampo = 'mt-1 block w-full rounded-sm border border-amber-700/30 bg-zinc-950 px-3 py-2 text-sm text-stone-100 shadow-xs outline-none transition focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40'
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-xs dark:border-stone-800 dark:bg-[#201E1B]">
+    <section className="overflow-hidden rounded-sm border border-amber-700/25 bg-zinc-900 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
       <div className="border-b border-stone-200/80 bg-stone-50/70 px-5 py-4 dark:border-stone-800 dark:bg-[#1A1816]/70 sm:px-6">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl border border-[#C84B26]/20 bg-[#C84B26]/10 p-2.5 text-[#C84B26] dark:text-[#E05A36]">
+          <div className="rounded-sm border border-amber-700/30 bg-amber-950/30 p-2.5 text-amber-300">
             <BarChart3 className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -154,7 +154,7 @@ export function ReportesPdfSection() {
             'Pedidos asociados a cada mesero',
             'Productos y categorías más vendidos'
           ].map((opcion) => (
-            <div key={opcion} className="flex items-center gap-2 rounded-xl bg-stone-50 px-3 py-2.5 text-sm text-stone-700 dark:bg-stone-900/70 dark:text-stone-300">
+            <div key={opcion} className="flex items-center gap-2 rounded-sm bg-stone-50 px-3 py-2.5 text-sm text-stone-700 dark:bg-stone-900/70 dark:text-stone-300">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <span>{opcion}</span>
             </div>
@@ -162,14 +162,14 @@ export function ReportesPdfSection() {
         </div>
 
         {error && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+          <div role="alert" className="flex items-start gap-2 rounded-sm border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {mensaje && (
-          <div role="status" className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300">
+          <div role="status" className="flex items-start gap-2 rounded-sm border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{mensaje}</span>
           </div>
@@ -183,7 +183,7 @@ export function ReportesPdfSection() {
             type="button"
             onClick={() => void generarReporte()}
             disabled={generando || !desde || !hasta}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#C84B26] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#AC3F20] focus:outline-none focus:ring-2 focus:ring-[#C84B26]/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-stone-900"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-amber-600 px-5 py-2.5 text-sm font-semibold text-stone-950 shadow-[0_0_15px_rgba(217,119,6,0.2)] transition hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-stone-900"
           >
             {generando ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />

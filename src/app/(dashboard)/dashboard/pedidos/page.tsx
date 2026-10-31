@@ -599,7 +599,7 @@ function PedidosPageContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+            <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-wide text-stone-100">
               Gestión de Pedidos y Comandas
             </h1>
             <div
@@ -616,7 +616,7 @@ function PedidosPageContent() {
               <span className="hidden sm:inline">{isConnected ? 'En Vivo' : 'Desconectado'}</span>
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Supervisión y control en tiempo real de las órdenes de servicio en salón y cocina.
           </p>
         </div>
@@ -628,7 +628,7 @@ function PedidosPageContent() {
             size="sm"
             onClick={fetchData}
             disabled={isLoading}
-            className="min-h-[38px] px-3 text-xs sm:text-sm font-semibold rounded-xl"
+            className="min-h-[38px] px-3 text-xs sm:text-sm font-semibold rounded-sm"
             title="Refrescar listado de comandas"
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -703,7 +703,7 @@ function PedidosPageContent() {
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-xs space-y-3">
+      <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-900 shadow-md space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Búsqueda por texto */}
           <div className="relative flex-1">
@@ -713,7 +713,7 @@ function PedidosPageContent() {
               placeholder="Buscar por código PED-XXXX, mesa o cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all min-h-[40px]"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-all min-h-[40px]"
             />
           </div>
 
@@ -725,7 +725,7 @@ function PedidosPageContent() {
                 id="filtro-estado"
                 value={selectedEstado}
                 onChange={(e) => setSelectedEstado(e.target.value)}
-                className="w-full py-2 px-3 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[40px]"
+                className="w-full py-2 px-3 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-200 focus:outline-none focus:border-amber-500 min-h-[40px]"
               >
                 <option value="Todos">Todos los Estados</option>
                 <option value="LISTO_PARA_RECOGER">Listo para Recoger</option>
@@ -742,7 +742,7 @@ function PedidosPageContent() {
               variant={soloHoy ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setSoloHoy((prev) => !prev)}
-              className="min-h-[40px] px-3.5 text-xs font-semibold rounded-xl"
+              className="min-h-[40px] px-3.5 text-xs font-semibold rounded-sm"
               title="Filtrar pedidos de la jornada actual"
             >
               {soloHoy ? 'Jornada de Hoy' : 'Histórico Completo'}
@@ -758,7 +758,7 @@ function PedidosPageContent() {
                   setSelectedEstado('Todos');
                   setSoloHoy(true);
                 }}
-                className="min-h-[40px] px-3 text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 rounded-xl"
+                className="min-h-[40px] px-3 text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 rounded-sm"
               >
                 Limpiar
               </Button>

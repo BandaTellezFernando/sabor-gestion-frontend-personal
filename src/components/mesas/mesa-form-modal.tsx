@@ -173,7 +173,7 @@ function MesaFormContent({
             id="mesa-ubicacion"
             value={ubicacionId || ubicacion}
             onChange={handleUbicacionChange}
-            className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-150"
+            className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500 transition-all duration-150"
           >
             {ubicaciones.map((u) => (
               <option key={u._id} value={u._id}>
@@ -186,7 +186,7 @@ function MesaFormContent({
             id="mesa-ubicacion"
             value={ubicacion}
             onChange={(e) => setUbicacion(e.target.value)}
-            className="w-full py-2 px-3 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="w-full py-2 px-3 text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500"
           >
             <option value="Interior">Interior</option>
             <option value="Terraza">Terraza</option>

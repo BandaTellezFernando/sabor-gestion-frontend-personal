@@ -52,8 +52,8 @@ export function AppShell({ children }: AppShellProps) {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#FBF9F5] dark:bg-[#171614] text-stone-900 dark:text-stone-100">
-      {/* Sidebar Desktop y Drawer Móvil solo si tiene 3 o más módulos */}
+    <div className="min-h-screen flex bg-zinc-950 text-stone-200">
+      {/* Sidebar Desktop y Drawer Móvil */}
       {showSidebar && (
         <>
           <Sidebar isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />

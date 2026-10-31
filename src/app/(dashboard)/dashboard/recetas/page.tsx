@@ -198,7 +198,7 @@ function RecetasPageContent() {
               Recetas y Escandallos
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Fórmulas de preparación, control de insumos y compatibilidad de platos según disponibilidad de cocina.
           </p>
         </div>
@@ -242,17 +242,17 @@ function RecetasPageContent() {
 
       {/* Resumen Métrico */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Recetas Configuradas</span>
           <p className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1">{metricas.total}</p>
         </div>
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" /> Insumos 100% Listos
           </span>
           <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400 mt-1">{metricas.completas}</p>
         </div>
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
             <AlertTriangle className="w-3.5 h-3.5" /> Con Insumo Agotado
           </span>
@@ -261,7 +261,7 @@ function RecetasPageContent() {
       </div>
 
       {/* Barra de Filtros */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-3 sm:p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900 p-3 sm:p-4 rounded-sm border border-amber-700/25 shadow-md">
         <div className="flex-1 max-w-md">
           <Input
             id="buscar-receta"
@@ -278,7 +278,7 @@ function RecetasPageContent() {
 
       {/* Estado de Carga */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+        <div className="flex flex-col items-center justify-center p-12 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <Spinner size="lg" />
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-4">
             Cargando recetas y escandallos...
@@ -330,7 +330,7 @@ function RecetasPageContent() {
             return (
               <div
                 key={receta._id}
-                className="flex flex-col justify-between bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-xs transition-all hover:border-stone-300 dark:hover:border-stone-700"
+                className="flex flex-col justify-between bg-zinc-900 rounded-sm border border-amber-700/25 p-5 shadow-md transition-all hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(217,119,6,0.15)]"
               >
                 <div className="space-y-4">
                   {/* Encabezado del Plato */}
@@ -341,10 +341,10 @@ function RecetasPageContent() {
                         <img
                           src={platoInfo.imagenUrl}
                           alt={platoInfo.nombre}
-                          className="w-12 h-12 rounded-xl object-cover border border-stone-200 dark:border-stone-800 shrink-0"
+                          className="w-12 h-12 rounded-sm object-cover border border-amber-900/30 shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                        <div className="w-12 h-12 rounded-sm bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
                           <Utensils className="w-6 h-6" />
                         </div>
                       )}
@@ -372,7 +372,7 @@ function RecetasPageContent() {
                   </div>
 
                   {/* Tabla de Ingredientes de la Receta */}
-                  <div className="bg-stone-50 dark:bg-stone-800/40 rounded-xl p-3 border border-stone-100 dark:border-stone-800">
+                  <div className="bg-zinc-950/60 rounded-sm p-3 border border-amber-900/20">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mb-2 block">
                       Escandallo ({receta.ingredientes.length} insumos)
                     </span>
@@ -401,7 +401,7 @@ function RecetasPageContent() {
                         return (
                           <li
                             key={idx}
-                            className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white dark:bg-stone-900 border border-stone-200/60 dark:border-stone-700/50"
+                            className="flex items-center justify-between text-xs py-1 px-2 rounded-sm bg-zinc-900 border border-amber-700/20"
                           >
                             <div className="flex items-center gap-2 truncate">
                               <span
