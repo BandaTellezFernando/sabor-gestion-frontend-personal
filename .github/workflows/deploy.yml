@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - gustavoFront
   pull_request:
     branches:
       - main
@@ -23,7 +24,6 @@ jobs:
     env:
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.saborygestion.com/api' }}
       NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL || 'https://api.saborygestion.com' }}
-      NODE_ENV: production
 
     steps:
       - name: 1. Checkout del código
@@ -35,8 +35,8 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: 3. Instalación limpia de dependencias
-        run: npm ci
+      - name: 3. Instalación limpia de dependencias (incluyendo devDependencies)
+        run: npm ci --include=dev
 
       - name: 4. Validación de ESLint
         run: npm run lint
