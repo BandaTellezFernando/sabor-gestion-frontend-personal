@@ -59,7 +59,7 @@ export function PedidoCancelModal({
       maxWidth="sm"
     >
       <div className="space-y-4">
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-200">
+        <div className="flex items-start gap-3 p-3 rounded-sm bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-200">
           <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-semibold">Atención: Operación irreversible</p>

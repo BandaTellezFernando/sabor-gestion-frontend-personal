@@ -180,7 +180,7 @@ export default function PagarCuentaQRPage() {
   };
   if (isLoading && !estadoCuenta) {
     return (
-      <main className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center p-4">
+      <main className="min-h-screen bg-zinc-950 text-stone-200 flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3 text-stone-600 dark:text-stone-300">
           <Spinner size="lg" />
           <p className="text-sm">Consultando cuenta de pago...</p>
@@ -189,19 +189,19 @@ export default function PagarCuentaQRPage() {
     );
   }
   return (
-    <main className="min-h-screen bg-stone-50 dark:bg-stone-950 px-4 py-8">
+    <main className="min-h-screen bg-zinc-950 text-stone-200 px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-5">
         <header className="text-center space-y-2">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-600 text-white">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm bg-gradient-to-br from-amber-700 via-amber-800 to-stone-950 text-amber-200 border border-amber-600/50 shadow-[0_0_20px_rgba(217,119,6,0.25)]">
             <Utensils className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Mishi-Food</h1>
-          <p className="text-sm text-stone-600 dark:text-stone-400">Consulta y confirmación de pago QR</p>
+          <h1 className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-stone-100">Sabor & Gestión</h1>
+          <p className="text-xs uppercase tracking-widest text-amber-500/80 font-light">Alta Gastronomía · Facturación & Pago QR</p>
         </header>
         {error && <Alert variant="error">{error}</Alert>}
         {mensaje && <Alert variant="success">{mensaje}</Alert>}
         {!estadoCuenta ? (
-          <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 text-center space-y-3">
+          <section className="rounded-sm border border-amber-700/25 bg-zinc-900 shadow-[0_10px_35px_rgba(0,0,0,0.7)] p-6 text-center space-y-3">
             <p className="font-semibold text-stone-900 dark:text-stone-100">No se pudo cargar la cuenta</p>
             <Button variant="outline" onClick={() => { detenerConsultaRef.current = false; setIsLoading(true); void consultarEstado(); }}>
               Volver a intentar
@@ -209,7 +209,7 @@ export default function PagarCuentaQRPage() {
           </section>
         ) : (
           <>
-            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 sm:p-6 space-y-4">
+            <section className="rounded-sm border border-amber-700/25 bg-zinc-900 shadow-[0_10px_35px_rgba(0,0,0,0.7)] p-5 sm:p-6 space-y-4">
               <div className="flex items-start justify-between gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div>
                   <p className="text-xs text-stone-500 dark:text-stone-400">Código de cuenta</p>
@@ -228,7 +228,7 @@ export default function PagarCuentaQRPage() {
                     </div>
                     <div className="space-y-2">
                       {pedido.detalles.map((detalle, indiceDetalle) => (
-                        <div key={`${pedido.codigo}-${indiceDetalle}`} className="rounded-lg bg-stone-50 dark:bg-stone-950/60 p-3 text-sm">
+                        <div key={`${pedido.codigo}-${indiceDetalle}`} className="rounded-sm bg-zinc-950/70 border border-amber-900/20 p-3 text-sm">
                           <div className="flex justify-between gap-3">
                             <div className="min-w-0">
                               <p className="font-medium text-stone-900 dark:text-stone-100">{detalle.cantidad}× {detalle.nombre}</p>
@@ -249,12 +249,12 @@ export default function PagarCuentaQRPage() {
                 <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Subtotal</span><span>{formatearDinero(estadoCuenta.subtotal)}</span></div>
                 <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Propina</span><span>{estadoCuenta.propinaAnadida ? formatearDinero(estadoCuenta.propina) : 'No añadida'}</span></div>
                 <div className="flex justify-between items-center border-t border-stone-100 dark:border-stone-800 pt-3 text-base font-bold text-stone-900 dark:text-stone-100">
-                  <span>Total a pagar</span><span className="text-xl text-orange-700 dark:text-orange-400">{formatearDinero(estadoCuenta.total)}</span>
+                  <span>Total a pagar</span><span className="font-serif text-2xl font-semibold text-amber-400">{formatearDinero(estadoCuenta.total)}</span>
                 </div>
               </div>
             </section>
             {estadoCuenta.yaPagada ? (
-              <section className="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-5 text-center space-y-3">
+              <section className="rounded-sm border border-emerald-800/40 bg-zinc-900 shadow-[0_10px_35px_rgba(0,0,0,0.7)] p-5 text-center space-y-3">
                 <CheckCircle2 className="mx-auto h-9 w-9 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="font-bold text-emerald-900 dark:text-emerald-200">Esta cuenta ya fue pagada</h3>
                 <p className="text-sm text-emerald-800 dark:text-emerald-300">No se registrará un segundo cobro para esta cuenta.</p>
@@ -266,7 +266,7 @@ export default function PagarCuentaQRPage() {
                 ) : (
                   <p className="text-xs text-emerald-700 dark:text-emerald-400">Si el pago se confirmó desde otro dispositivo, el comprobante PDF no está disponible en esta sesión.</p>
                 )}
-                <div className="mt-3 space-y-3 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-white dark:bg-stone-900 p-4 text-left">
+                <div className="mt-3 space-y-3 rounded-sm border border-amber-900/30 bg-zinc-950/80 p-4 text-left">
                   <div className="flex items-center gap-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
                     <Mail className="h-4 w-4" /> Recibir comprobante por correo
                   </div>
@@ -289,7 +289,7 @@ export default function PagarCuentaQRPage() {
                 </div>
               </section>
             ) : (
-              <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 sm:p-6 space-y-4">
+              <section className="rounded-sm border border-amber-700/25 bg-zinc-900 shadow-[0_10px_35px_rgba(0,0,0,0.7)] p-5 sm:p-6 space-y-4">
                 <div>
                   <h3 className="font-bold text-stone-900 dark:text-stone-100">Datos para el comprobante</h3>
                   <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">El nombre y la CI son obligatorios. El NIT es opcional.</p>
@@ -318,7 +318,7 @@ export default function PagarCuentaQRPage() {
                     }
                     autoComplete="off"
                   />
-                  <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-3 text-xs text-amber-800 dark:text-amber-300">
+                  <div className="rounded-sm bg-amber-950/30 border border-amber-800/40 p-3 text-xs text-amber-800 dark:text-amber-300">
                     Esta aplicación registra una simulación de pago QR. No comprueba ni recibe confirmaciones de una entidad bancaria real.
                   </div>
                   <Button type="submit" variant="primary" className="w-full justify-center" isLoading={isConfirming} disabled={isConfirming} leftIcon={<CheckCircle2 className="h-4 w-4" />}>

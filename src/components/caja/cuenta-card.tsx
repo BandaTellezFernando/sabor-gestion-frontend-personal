@@ -54,46 +54,46 @@ export function CuentaCard({ cuenta, onCobrar }: CuentaCardProps) {
     : undefined;
 
   return (
-    <article className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between">
+    <article className="bg-zinc-900 rounded-sm border border-amber-700/30 p-5 shadow-[0_4px_25px_rgba(0,0,0,0.6)] hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(217,119,6,0.15)] transition-all duration-200 flex flex-col justify-between">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base font-bold text-stone-900 dark:text-stone-100">
+              <span className="font-serif text-lg font-semibold tracking-wide text-stone-100">
                 {obtenerNombreMesa(cuenta)}
               </span>
-              <Badge variant="mesa-cuenta-solicitada" className="text-xs">
-                Pendiente
+              <Badge variant="mesa-cuenta-solicitada" className="text-[10px]">
+                Esperando Pago
               </Badge>
             </div>
-            <p className="text-xs font-mono text-stone-500 dark:text-stone-400 mt-0.5">
+            <p className="text-xs font-mono text-amber-500/80 mt-0.5">
               {cuenta.codigoCuenta}
             </p>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
+            <p className="text-[11px] text-stone-400 font-light mt-1">
               {pedidos.length} {pedidos.length === 1 ? 'comanda agrupada' : 'comandas agrupadas'}
             </p>
           </div>
           <div className="text-right shrink-0">
-            <span className="text-xs text-stone-500 dark:text-stone-400 block">Total a pagar</span>
-            <span className="text-lg font-bold text-[#C84B26] dark:text-[#E05A36]">
+            <span className="text-[10px] uppercase tracking-wider text-stone-400 block font-light">Total a pagar</span>
+            <span className="font-serif text-xl font-bold text-amber-400">
               Bs {Number(cuenta.total || 0).toFixed(2)}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-stone-600 dark:text-stone-400 pt-1 pb-2 border-y border-stone-100 dark:border-stone-800/80">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-stone-400 font-light pt-2 pb-2.5 border-y border-amber-900/30">
           <div className="flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-stone-400" />
+            <User className="w-3.5 h-3.5 text-amber-500/70" />
             <span>{meseroNombre}</span>
           </div>
           {tiempoEspera !== undefined && (
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-stone-400" />
+              <Clock className="w-3.5 h-3.5 text-amber-500/70" />
               <span>Hace {tiempoEspera} min</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <Utensils className="w-3.5 h-3.5 text-stone-400" />
+            <Utensils className="w-3.5 h-3.5 text-amber-500/70" />
             <span>{totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}</span>
           </div>
         </div>
@@ -101,26 +101,26 @@ export function CuentaCard({ cuenta, onCobrar }: CuentaCardProps) {
         <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
           {pedidos.map((pedido) => (
             <section key={pedido._id} className="space-y-1.5">
-              <p className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+              <p className="text-[11px] font-mono text-amber-500/70">
                 Comanda {pedido.codigo}
               </p>
               {(pedido.detalles ?? []).map((detalle, index) => (
                 <div
                   key={`${pedido._id}-${index}`}
-                  className="flex items-start justify-between gap-2 text-xs text-stone-700 dark:text-stone-300"
+                  className="flex items-start justify-between gap-2 text-xs text-stone-300 font-light"
                 >
                   <div className="min-w-0 truncate pr-2">
-                    <span className="font-semibold text-stone-900 dark:text-stone-100 mr-1">
+                    <span className="font-mono font-medium text-amber-300 mr-1.5">
                       {Number(detalle.cantidad)}×
                     </span>
-                    <span>{obtenerNombrePlato(detalle)}</span>
+                    <span className="text-stone-200">{obtenerNombrePlato(detalle)}</span>
                     {detalle.observacion?.trim() && (
-                      <span className="block pl-5 text-[10px] text-stone-400 italic truncate">
+                      <span className="block pl-5 text-[10px] text-stone-500 italic truncate">
                         {detalle.observacion}
                       </span>
                     )}
                   </div>
-                  <span className="font-mono text-stone-500 dark:text-stone-400 shrink-0">
+                  <span className="font-mono text-stone-400 shrink-0">
                     Bs {Number(detalle.subtotal ?? Number(detalle.precioUnitario) * Number(detalle.cantidad)).toFixed(2)}
                   </span>
                 </div>
@@ -129,26 +129,26 @@ export function CuentaCard({ cuenta, onCobrar }: CuentaCardProps) {
           ))}
         </div>
 
-        <div className="border-t border-stone-100 dark:border-stone-800 pt-2 space-y-1 text-xs">
-          <div className="flex justify-between text-stone-500 dark:text-stone-400">
+        <div className="border-t border-amber-900/30 pt-2 space-y-1 text-xs font-light">
+          <div className="flex justify-between text-stone-400">
             <span>Subtotal</span>
-            <span>Bs {Number(cuenta.subtotal || 0).toFixed(2)}</span>
+            <span className="font-mono">Bs {Number(cuenta.subtotal || 0).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-stone-500 dark:text-stone-400">
-            <span>Propina incluida</span>
-            <span>Bs {Number(cuenta.montoPropina || 0).toFixed(2)}</span>
+          <div className="flex justify-between text-stone-400">
+            <span>Propina de servicio</span>
+            <span className="font-mono">Bs {Number(cuenta.montoPropina || 0).toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      <div className="pt-4 mt-2 border-t border-stone-100 dark:border-stone-800">
+      <div className="pt-4 mt-3 border-t border-amber-900/30">
         <Button
           variant="primary"
           className="w-full justify-center"
           onClick={() => onCobrar(cuenta)}
           leftIcon={<Receipt className="w-4 h-4" />}
         >
-          Cobrar cuenta completa
+          Cobrar Cuenta Completa
         </Button>
       </div>
     </article>

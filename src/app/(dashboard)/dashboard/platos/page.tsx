@@ -180,7 +180,7 @@ function PlatosPageContent() {
               Menú y Platos
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-xs sm:text-sm text-stone-400 mt-1 font-light">
             Administra la carta gastronómica, precios, recetas asociadas y disponibilidad inmediata.
           </p>
         </div>
@@ -192,7 +192,7 @@ function PlatosPageContent() {
             onClick={loadData}
             disabled={isLoading}
             title="Recargar platos"
-            className="rounded-xl"
+            className="rounded-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
@@ -200,7 +200,7 @@ function PlatosPageContent() {
             variant="primary"
             size="md"
             onClick={handleOpenCreate}
-            className="flex items-center gap-2 rounded-xl"
+            className="flex items-center gap-2 rounded-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Nuevo Plato</span>
@@ -233,30 +233,30 @@ function PlatosPageContent() {
 
       {/* Resumen Métrico Rápido */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Total Carta</span>
           <p className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1">{platos.length}</p>
         </div>
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" /> Disponibles
           </span>
           <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400 mt-1">{totalDisponibles}</p>
         </div>
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1">
             <XCircle className="w-3.5 h-3.5" /> Agotados
           </span>
           <p className="text-xl font-bold text-rose-700 dark:text-rose-400 mt-1">{totalAgotados}</p>
         </div>
-        <div className="p-4 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+        <div className="p-4 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <span className="text-xs text-primary font-medium">Categorías</span>
           <p className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1">{categorias.length}</p>
         </div>
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-900 p-4 rounded-sm border border-amber-700/25 shadow-md">
         <div className="flex-1 max-w-sm">
           <Input
             id="buscar-plato"
@@ -273,7 +273,7 @@ function PlatosPageContent() {
             value={selectedCategoria}
             onChange={(e) => setSelectedCategoria(e.target.value)}
             aria-label="Filtrar por categoría"
-            className="py-2 px-3 text-xs sm:text-sm rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="py-2 px-3 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500"
           >
             <option value="Todas">Todas las Categorías</option>
             {categorias.map((cat) => (
@@ -288,7 +288,7 @@ function PlatosPageContent() {
             value={selectedDisponibilidad}
             onChange={(e) => setSelectedDisponibilidad(e.target.value as 'Todos' | 'Disponibles' | 'Agotados')}
             aria-label="Filtrar por disponibilidad"
-            className="py-2 px-3 text-xs sm:text-sm rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="py-2 px-3 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 focus:outline-none focus:border-amber-500"
           >
             <option value="Todos">Todos los Estados</option>
             <option value="Disponibles">Solo Disponibles</option>
@@ -299,7 +299,7 @@ function PlatosPageContent() {
 
       {/* Estado de Carga */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-col items-center justify-center p-12 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-md">
           <Spinner size="lg" />
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
             Cargando carta de platos...
@@ -343,7 +343,7 @@ function PlatosPageContent() {
           {filteredPlatos.map((plato) => (
             <div
               key={plato._id}
-              className={`flex flex-col justify-between bg-white dark:bg-stone-900 rounded-3xl border transition-all shadow-xs overflow-hidden ${
+              className={`flex flex-col justify-between bg-zinc-900 rounded-sm border transition-all shadow-md overflow-hidden ${
                 plato.disponible
                   ? 'border-stone-200 dark:border-stone-800'
                   : 'border-stone-200 dark:border-stone-800/80 opacity-75 bg-stone-50/50 dark:bg-stone-950/40'
@@ -366,7 +366,7 @@ function PlatosPageContent() {
                   </div>
                   {/* Categoría sobre la foto */}
                   <div className="absolute bottom-3 left-3">
-                    <span className="px-2.5 py-1 bg-stone-900/80 backdrop-blur-xs text-stone-100 text-[11px] font-semibold rounded-lg">
+                    <span className="px-2.5 py-1 bg-zinc-950/90 backdrop-blur-xs text-amber-400 text-[11px] font-serif font-semibold rounded-sm border border-amber-700/30">
                       {getCategoriaNombre(plato)}
                     </span>
                   </div>
@@ -375,10 +375,10 @@ function PlatosPageContent() {
                 {/* Contenido */}
                 <div className="p-4 sm:p-5 space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <h2 className="font-bold text-base text-stone-900 dark:text-stone-100 leading-snug line-clamp-1">
+                    <h2 className="font-serif font-bold text-base text-stone-100 leading-snug line-clamp-1 tracking-wide">
                       {plato.nombre}
                     </h2>
-                    <span className="font-extrabold text-primary dark:text-primary-light text-base shrink-0">
+                    <span className="font-serif font-bold text-amber-400 text-base shrink-0">
                       Bs. {plato.precio.toFixed(2)}
                     </span>
                   </div>
@@ -389,12 +389,12 @@ function PlatosPageContent() {
               </div>
 
               {/* Barra de Acciones */}
-              <div className="p-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between gap-2 bg-stone-50/50 dark:bg-stone-900/50">
+              <div className="p-3 border-t border-amber-900/25 flex items-center justify-between gap-2 bg-zinc-950/60">
                 {/* Conmutador de Disponibilidad */}
                 <button
                   type="button"
                   onClick={() => handleToggleDisponibilidad(plato)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl transition-colors ${
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-sm transition-colors ${
                     plato.disponible
                       ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
                       : 'text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -416,7 +416,7 @@ function PlatosPageContent() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleOpenEdit(plato)}
-                    className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 px-2.5 py-1 text-xs rounded-xl"
+                    className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 px-2.5 py-1 text-xs rounded-sm"
                     title={`Editar ${plato.nombre}`}
                   >
                     <Pencil className="w-3.5 h-3.5 mr-1" />
@@ -426,7 +426,7 @@ function PlatosPageContent() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleOpenDelete(plato)}
-                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 px-2.5 py-1 text-xs rounded-xl"
+                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 px-2.5 py-1 text-xs rounded-sm"
                     title={`Eliminar ${plato.nombre}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />

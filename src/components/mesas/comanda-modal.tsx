@@ -504,18 +504,18 @@ const isExpiredForCurrentMode =
       <div
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl w-full max-w-5xl h-[92vh] max-h-[850px] flex flex-col overflow-hidden relative"
+        className="bg-zinc-900 border border-amber-700/30 rounded-sm shadow-2xl w-full max-w-5xl h-[92vh] max-h-[850px] flex flex-col overflow-hidden relative"
       >
         {/* Cabecera del Modal */}
-        <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3 shrink-0 bg-stone-50/80 dark:bg-stone-900/80">
+        <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-amber-900/30 flex items-center justify-between gap-3 shrink-0 bg-zinc-950/80">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-sm bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <h2
                 id="comanda-modal-title"
-                className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate"
+                className="text-base sm:text-lg font-serif font-bold tracking-wide text-stone-100 truncate"
               >
                {pedidoAEditar
   ? `Editar comanda ${pedidoAEditar.codigo}`
@@ -530,12 +530,12 @@ const isExpiredForCurrentMode =
           <div className="flex items-center gap-2 sm:gap-3">
             {!modoPedidoAdicional && !pedidoAEditar && (
             <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs sm:text-sm font-medium transition-colors ${
                 isExpired
-                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-300'
+                  ? 'bg-rose-950/40 text-rose-400 border-rose-700/50'
                   : secondsLeft < 120
-                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 animate-pulse'
-                  : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-300'
+                  ? 'bg-amber-950/40 text-amber-300 border-amber-600 animate-pulse'
+                  : 'bg-zinc-950 text-amber-400 border-amber-700/40'
               }`}
               title="Tiempo restante de bloqueo temporal asignado por el servidor"
             >
@@ -548,7 +548,7 @@ const isExpiredForCurrentMode =
               type="button"
               onClick={handleMinimize}
               disabled={Boolean(pedidoAEditar)}
-              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="p-2 rounded-sm text-stone-400 hover:text-amber-400 hover:bg-zinc-800 transition-colors flex items-center justify-center border border-transparent hover:border-amber-700/30"
               aria-label="Minimizar comanda"
               title="Minimizar (conserva la mesa ocupada y el borrador guardado)"
             >
@@ -558,7 +558,7 @@ const isExpiredForCurrentMode =
             <button
               type="button"
               onClick={handleRequestClose}
-              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors flex items-center justify-center focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="p-2 rounded-sm text-stone-400 hover:text-amber-400 hover:bg-zinc-800 transition-colors flex items-center justify-center border border-transparent hover:border-amber-700/30"
               aria-label="Cerrar y cancelar comanda"
               title={
                 pedidoAEditar
@@ -601,9 +601,9 @@ const isExpiredForCurrentMode =
         {/* Cuerpo Principal Dividido (Catálogo Izquierda, Resumen Derecha) */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
           {/* Columna Izquierda: Catálogo de Platos (7 cols en desktop) */}
-          <div className="lg:col-span-7 flex flex-col border-b lg:border-b-0 lg:border-r border-stone-200 dark:border-stone-800 h-full overflow-hidden bg-white dark:bg-stone-900">
+          <div className="lg:col-span-7 flex flex-col border-b lg:border-b-0 lg:border-r border-amber-900/30 h-full overflow-hidden bg-zinc-950/40">
             {/* Buscador y Categorías */}
-            <div className="p-3.5 border-b border-stone-100 dark:border-stone-800 space-y-2.5 shrink-0 bg-stone-50/50 dark:bg-stone-900/50">
+            <div className="p-3.5 border-b border-amber-900/30 space-y-2.5 shrink-0 bg-zinc-900/80">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
                 <input
@@ -611,7 +611,7 @@ const isExpiredForCurrentMode =
                   placeholder="Buscar platos o bebidas por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[38px]"
+                  className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 min-h-[38px]"
                 />
               </div>
               {/* Píldoras de Categoría */}
@@ -622,10 +622,10 @@ const isExpiredForCurrentMode =
                       key={cat}
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-all ${
+                      className={`px-3 py-1.5 text-xs font-medium rounded-sm whitespace-nowrap transition-all ${
                         selectedCategory === cat
-                          ? 'bg-primary text-white shadow-xs'
-                          : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                          ? 'bg-amber-600 text-stone-950 font-semibold shadow-[0_0_12px_rgba(217,119,6,0.2)]'
+                          : 'bg-zinc-900 text-stone-300 border border-amber-700/25 hover:border-amber-500/50'
                       }`}
                     >
                       {cat}
@@ -659,10 +659,10 @@ const isExpiredForCurrentMode =
                     return (
                       <div
                         key={plato._id}
-                        className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between shadow-2xs ${
+                        className={`p-3.5 rounded-sm border transition-all flex flex-col justify-between shadow-xs ${
                           qty > 0
-                            ? 'border-amber-400/80 dark:border-amber-600/80 bg-amber-50/30 dark:bg-amber-950/20'
-                            : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 dark:hover:border-stone-700'
+                            ? 'border-amber-500/70 bg-amber-950/20 shadow-[0_0_15px_rgba(217,119,6,0.1)]'
+                            : 'border-amber-700/20 bg-zinc-900/80 hover:border-amber-500/40'
                         }`}
                       >
                         <div className="flex gap-2.5">
@@ -671,18 +671,18 @@ const isExpiredForCurrentMode =
                             <img
                               src={plato.imagenUrl}
                               alt={plato.nombre}
-                              className="w-14 h-14 rounded-xl object-cover bg-stone-100 shrink-0 border border-stone-200/60 dark:border-stone-800"
+                              className="w-14 h-14 rounded-sm object-cover bg-zinc-950 shrink-0 border border-amber-900/30"
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).style.display = 'none';
                               }}
                             />
                           ) : (
-                            <div className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-400 flex items-center justify-center shrink-0">
+                            <div className="w-14 h-14 rounded-sm bg-zinc-950 text-amber-500/40 border border-amber-900/20 flex items-center justify-center shrink-0">
                               <UtensilsCrossed className="w-6 h-6 opacity-60" />
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
+                            <h4 className="text-xs sm:text-sm font-serif font-bold text-stone-100 truncate">
                               {plato.nombre}
                             </h4>
                             {plato.descripcion && (
@@ -690,19 +690,19 @@ const isExpiredForCurrentMode =
                                 {plato.descripcion}
                               </p>
                             )}
-                            <div className="text-xs sm:text-sm font-extrabold text-primary dark:text-primary-light mt-1">
+                            <div className="text-xs sm:text-sm font-serif font-semibold text-amber-400 mt-1">
                               Bs. {plato.precio.toFixed(2)}
                             </div>
                           </div>
                         </div>
                         {/* Controles de Agregar / Stepper */}
-                        <div className="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-end">
+                        <div className="mt-2.5 pt-2 border-t border-amber-900/20 flex items-center justify-end">
                           {qty === 0 ? (
                             <button
                               type="button"
                               onClick={() => handleAddItem(plato)}
                               disabled={isExpiredForCurrentMode}
-                              className="py-1.5 px-3 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 min-h-[36px] active:scale-95 disabled:opacity-50"
+                              className="py-1.5 px-3 rounded-sm text-xs font-medium bg-zinc-800 hover:bg-amber-600 hover:text-stone-950 text-stone-200 border border-amber-700/30 transition-colors flex items-center gap-1 min-h-[36px] active:scale-95 disabled:opacity-50"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Agregar</span>
@@ -713,7 +713,7 @@ const isExpiredForCurrentMode =
                                 type="button"
                                 onClick={() => handleDecreaseItem(plato._id)}
                                 disabled={isExpiredForCurrentMode}
-                                className="w-8 h-8 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                                className="w-8 h-8 rounded-sm bg-zinc-800 text-stone-200 hover:bg-zinc-700 border border-amber-700/30 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                                 aria-label={`Disminuir ${plato.nombre}`}
                               >
                                 <Minus className="w-3.5 h-3.5" />
@@ -725,7 +725,7 @@ const isExpiredForCurrentMode =
                                 type="button"
                                 onClick={() => handleAddItem(plato)}
                                 disabled={isExpiredForCurrentMode}
-                                className="w-8 h-8 rounded-xl bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50 shadow-xs"
+                                className="w-8 h-8 rounded-sm bg-amber-600 hover:bg-amber-500 text-stone-950 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50 shadow-[0_0_12px_rgba(217,119,6,0.2)]"
                                 aria-label={`Aumentar ${plato.nombre}`}
                               >
                                 <Plus className="w-3.5 h-3.5" />
@@ -741,12 +741,12 @@ const isExpiredForCurrentMode =
             </div>
           </div>
           {/* Columna Derecha: Resumen de la Comanda (5 cols en desktop) */}
-          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-stone-50/60 dark:bg-stone-900/60">
+          <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-zinc-950/70">
             {/* Cabecera del Resumen */}
-            <div className="p-3.5 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0 bg-white dark:bg-stone-900">
+            <div className="p-3.5 border-b border-amber-900/30 flex items-center justify-between shrink-0 bg-zinc-900">
               <div className="flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-stone-500" />
-                <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
+                <h3 className="text-xs sm:text-sm font-serif font-bold text-stone-100">
                   Resumen de Comanda ({totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'})
                 </h3>
               </div>
@@ -776,11 +776,11 @@ const isExpiredForCurrentMode =
                 items.map((item) => (
                   <div
                     key={item.platoId}
-                    className="p-3.5 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-2.5"
+                    className="p-3.5 bg-zinc-900 rounded-sm border border-amber-700/25 shadow-xs space-y-2.5"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
+                        <div className="text-xs sm:text-sm font-serif font-bold text-stone-100 truncate">
                           {item.nombre}
                         </div>
                         <div className="text-xs text-stone-500 dark:text-stone-400">
@@ -793,7 +793,7 @@ const isExpiredForCurrentMode =
                           type="button"
                           onClick={() => handleDecreaseItem(item.platoId)}
                           disabled={isExpiredForCurrentMode}
-                          className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                          className="w-7 h-7 rounded-sm bg-zinc-800 text-stone-200 hover:bg-zinc-700 border border-amber-700/30 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Disminuir cantidad"
                         >
                           <Minus className="w-3 h-3" />
@@ -808,7 +808,7 @@ const isExpiredForCurrentMode =
                             if (platoObj) handleAddItem(platoObj);
                           }}
                           disabled={isExpiredForCurrentMode}
-                          className="w-7 h-7 rounded-lg bg-primary text-white hover:bg-primary-hover flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
+                          className="w-7 h-7 rounded-sm bg-amber-600 hover:bg-amber-500 text-stone-950 flex items-center justify-center font-bold active:scale-95 transition-all disabled:opacity-50"
                           title="Aumentar cantidad"
                         >
                           <Plus className="w-3 h-3" />
@@ -818,7 +818,7 @@ const isExpiredForCurrentMode =
                           type="button"
                           onClick={() => handleRemoveItem(item.platoId)}
                           disabled={isExpiredForCurrentMode}
-                          className="w-7 h-7 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors ml-1"
+                          className="w-7 h-7 rounded-sm text-stone-400 hover:text-rose-400 hover:bg-rose-950/30 flex items-center justify-center transition-colors ml-1"
                           title="Quitar plato de la comanda"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -841,7 +841,7 @@ const isExpiredForCurrentMode =
                         onChange={(e) => handleObservationChange(item.platoId, e.target.value)}
                         disabled={isExpiredForCurrentMode}
                         maxLength={120}
-                        className="w-full text-xs px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-primary/40"
+                        className="w-full text-xs px-2.5 py-1.5 rounded-sm border border-amber-700/30 bg-zinc-950 text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -849,10 +849,10 @@ const isExpiredForCurrentMode =
               )}
             </div>
             {/* Pie del Resumen: Subtotal Visual e Informativo */}
-            <div className="p-4 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shrink-0 space-y-2">
+            <div className="p-4 border-t border-amber-900/30 bg-zinc-900 shrink-0 space-y-2">
               <div className="flex items-baseline justify-between text-sm sm:text-base font-bold text-stone-900 dark:text-stone-50">
                 <span>Subtotal estimado:</span>
-                <span className="text-primary dark:text-primary-light text-lg sm:text-xl font-extrabold">
+                <span className="text-amber-400 text-lg sm:text-xl font-serif font-bold">
                   Bs. {visualSubtotal.toFixed(2)}
                 </span>
               </div>
@@ -866,13 +866,13 @@ const isExpiredForCurrentMode =
           </div>
         </div>
         {/* Barra de Acciones / Pie General */}
-        <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-amber-900/30 bg-zinc-950 flex items-center justify-between gap-3 shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={handleRequestClose}
             disabled={isSubmitting}
-            className="min-h-[42px] px-4 text-xs sm:text-sm font-medium text-stone-600 hover:text-rose-600 rounded-xl"
+            className="min-h-[42px] px-4 text-xs sm:text-sm font-medium text-stone-400 hover:text-rose-400 rounded-sm"
           >
             Cancelar
           </Button>
@@ -883,7 +883,7 @@ const isExpiredForCurrentMode =
               onClick={handleConfirmOrder}
               disabled={items.length === 0 || isSubmitting || isExpiredForCurrentMode}
               isLoading={isSubmitting}
-              className="min-h-[42px] px-6 text-xs sm:text-sm font-bold rounded-xl shadow-xs"
+              className="min-h-[42px] px-6 text-xs sm:text-sm font-semibold rounded-sm shadow-xs"
               title={
                 items.length === 0
                   ? 'Agrega al menos un plato a la comanda'
@@ -904,13 +904,13 @@ const isExpiredForCurrentMode =
             role="alertdialog"
             aria-labelledby="cancel-dialog-title"
           >
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="bg-zinc-900 border border-amber-700/30 rounded-sm p-6 max-w-md w-full shadow-2xl space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-sm bg-rose-950/40 border border-rose-800/40 text-rose-400 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 id="cancel-dialog-title" className="text-base font-bold text-stone-900 dark:text-stone-100">
+                  <h4 id="cancel-dialog-title" className="text-base font-serif font-bold text-stone-100">
                     {pedidoAEditar
                       ? '¿Cancelar la edición de la comanda?'
                       : '¿Cancelar la creación de la comanda?'}

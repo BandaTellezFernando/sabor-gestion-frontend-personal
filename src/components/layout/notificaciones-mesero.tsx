@@ -78,7 +78,6 @@ export function NotificacionesMesero() {
 
   // Manejo del evento mesas:alerta_listo (emitido a room:meseros)
   const handleAlertaListo = useCallback(() => {
-    // Cuando cocina termina un pedido, sincronizar la lista de listos
     void fetchPedidosListos();
   }, [fetchPedidosListos]);
 
@@ -91,10 +90,10 @@ export function NotificacionesMesero() {
       setPedidosListos((prev) => {
         const id = pedidoActualizado._id;
         const pertenece = esPedidoDelMesero(pedidoActualizado, user.id, user.rol);
-       const esListo =
-  (pedidoActualizado.estado === 'LISTO' ||
-    pedidoActualizado.estado === 'ENTREGADO') &&
-  pedidoActualizado.recogido !== true;
+        const esListo =
+          (pedidoActualizado.estado === 'LISTO' ||
+            pedidoActualizado.estado === 'ENTREGADO') &&
+          pedidoActualizado.recogido !== true;
 
         if (pertenece && esListo) {
           const index = prev.findIndex((p) => p._id === id || p.codigo === pedidoActualizado.codigo);
@@ -113,7 +112,7 @@ export function NotificacionesMesero() {
     [user]
   );
 
-  // Manejo del evento cocina:pedido_recogido (emitido al recoger comanda)
+  // Manejo del evento cocina:pedido_recogido
   const handlePedidoRecogido = useCallback((data: CocinaPedidoRecogidoPayload) => {
     if (!data || !data.pedidoId) return;
     setPedidosListos((prev) =>
@@ -171,63 +170,63 @@ export function NotificacionesMesero() {
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative p-2 rounded-xl text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500"
+        className="relative p-2 rounded-sm text-stone-400 hover:text-amber-400 hover:bg-zinc-900 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 cursor-pointer"
         aria-label={
           count > 0
-            ? `Notificaciones: ${count} ${count === 1 ? 'pedido listo' : 'pedidos listos'} para recoger`
+            ? `Notificaciones: ${count} ${count === 1 ? 'pase listo' : 'pases listos'} para sala`
             : 'Notificaciones de pedidos'
         }
         aria-expanded={isOpen}
         aria-haspopup="true"
-        title={count > 0 ? `${count} ${count === 1 ? 'pedido listo' : 'pedidos listos'} para recoger` : 'Sin pedidos pendientes'}
+        title={count > 0 ? `${count} ${count === 1 ? 'pase listo' : 'pases listos'} de alta cocina` : 'Sin pedidos pendientes'}
       >
         <Bell className="w-5 h-5" />
         {count > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-bold text-white bg-rose-600 rounded-full border-2 border-white dark:border-zinc-900 shadow-xs animate-pulse">
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-4.5 px-1 text-[10px] font-bold text-stone-950 bg-amber-500 rounded-sm shadow-[0_0_10px_rgba(245,158,11,0.4)] border border-amber-300">
             {count > 9 ? '9+' : count}
           </span>
         )}
       </button>
 
-      {/* Popover / Menú desplegable */}
+      {/* Popover / Menú desplegable Fine Dining */}
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-sm bg-zinc-900 border border-amber-700/30 shadow-[0_15px_50px_rgba(0,0,0,0.85)] z-50 overflow-hidden"
           role="menu"
           aria-orientation="vertical"
         >
           {/* Cabecera del Popover */}
-          <div className="px-4 py-3 border-b border-stone-100 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/80 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-amber-900/30 bg-zinc-950/80 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ChefHat className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                Pedidos Listos para Recoger
+              <ChefHat className="w-4 h-4 text-amber-500" />
+              <h3 className="font-serif text-sm font-medium tracking-wide text-stone-100">
+                Platos Listos para Servir
               </h3>
             </div>
             {count > 0 && (
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-                {count} {count === 1 ? 'pendiente' : 'pendientes'}
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-sm bg-amber-950/60 text-amber-300 border border-amber-700/40">
+                {count} {count === 1 ? 'pase listo' : 'pases listos'}
               </span>
             )}
           </div>
 
           {/* Lista de Pedidos */}
-          <div className="max-h-[360px] overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800 p-1">
+          <div className="max-h-[360px] overflow-y-auto divide-y divide-stone-800/50 p-1">
             {pedidosListos.length === 0 ? (
               <div className="py-8 px-4 text-center">
-                <CheckCircle2 className="w-8 h-8 text-stone-300 dark:text-stone-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-stone-700 dark:text-stone-300">
-                  Todo al día
+                <CheckCircle2 className="w-7 h-7 text-amber-600/40 mx-auto mb-2" />
+                <p className="font-serif text-sm font-medium text-stone-300">
+                  Servicio al Día
                 </p>
-                <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">
-                  No tienes pedidos pendientes de recoger en este momento.
+                <p className="text-xs text-stone-500 font-light mt-0.5">
+                  No hay comandas pendientes de pase en este momento.
                 </p>
               </div>
             ) : (
               pedidosListos.map((pedido) => {
                 const resumenPlatos = (pedido.detalles || [])
-                  .map((d) => `${d.cantidad}x ${getPlatoNombre(d)}`)
+                  .map((d) => `${d.cantidad}× ${getPlatoNombre(d)}`)
                   .join(', ');
 
                 return (
@@ -235,25 +234,25 @@ export function NotificacionesMesero() {
                     key={pedido._id}
                     type="button"
                     onClick={() => handleSelectPedido(pedido._id)}
-                    className="w-full text-left p-3 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors flex items-start justify-between gap-3 group focus:outline-hidden focus-visible:bg-stone-100 dark:focus-visible:bg-stone-800"
+                    className="w-full text-left p-3 rounded-sm hover:bg-zinc-800/60 transition-colors flex items-start justify-between gap-3 group focus:outline-none focus-visible:bg-zinc-800 cursor-pointer"
                     role="menuitem"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-xs font-bold text-stone-900 dark:text-stone-100">
+                        <span className="font-mono text-xs font-semibold text-amber-400">
                           {pedido.codigo}
                         </span>
-                        <span className="text-stone-300 dark:text-stone-600">·</span>
-                        <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                        <span className="text-stone-600">·</span>
+                        <span className="text-xs font-serif font-medium text-stone-200">
                           {getMesaNombre(pedido.mesa)}
                         </span>
                       </div>
-                      <p className="text-xs text-stone-500 dark:text-stone-400 truncate leading-relaxed">
+                      <p className="text-xs text-stone-400 font-light truncate leading-relaxed">
                         {resumenPlatos || 'Sin platos registrados'}
                       </p>
                     </div>
 
-                    <div className="shrink-0 flex items-center text-stone-400 group-hover:text-primary dark:group-hover:text-primary-light transition-colors pt-1">
+                    <div className="shrink-0 flex items-center text-stone-500 group-hover:text-amber-400 transition-colors pt-1">
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </button>
@@ -263,16 +262,16 @@ export function NotificacionesMesero() {
           </div>
 
           {/* Pie del Popover */}
-          <div className="p-2.5 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50">
+          <div className="p-2.5 border-t border-amber-900/30 bg-zinc-950/80">
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
                 router.push('/dashboard/pedidos');
               }}
-              className="w-full py-1.5 px-3 rounded-xl text-xs font-semibold text-center text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-50 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="w-full py-1.5 px-3 rounded-sm text-xs font-medium tracking-wide text-center text-stone-300 hover:text-amber-400 hover:bg-zinc-900 transition-colors cursor-pointer"
             >
-              Ir a la bandeja de Pedidos
+              Ver Todas las Comandas →
             </button>
           </div>
         </div>

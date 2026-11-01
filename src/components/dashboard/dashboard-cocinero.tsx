@@ -120,7 +120,7 @@ export function DashboardCocinero() {
 
       {isLoading && !hasLoaded ? (
         <div className="py-20 text-center">
-          <Spinner size="lg" className="text-[#C84B26] mx-auto" />
+          <Spinner size="lg" className="text-amber-500 mx-auto" />
           <p className="mt-3 text-sm font-medium text-stone-500 dark:text-stone-400">
             Sincronizando comandas y disponibilidad de insumos...
           </p>
@@ -156,10 +156,10 @@ export function DashboardCocinero() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <Card className="lg:col-span-2">
-              <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+              <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                    <div className="p-1.5 rounded-sm bg-amber-500/10 text-amber-700 dark:text-amber-400">
                       <ChefHat className="w-4 h-4" />
                     </div>
                     <div>
@@ -186,10 +186,10 @@ export function DashboardCocinero() {
                       <li key={pedido._id}>
                         <Link
                           href="/dashboard/cocina"
-                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-xl px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36]"
+                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-sm px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0">
+                            <div className="w-10 h-10 rounded-sm bg-stone-100 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 flex items-center justify-center font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200 shrink-0">
                               {getMesaNombre(pedido.mesa).replace(/^Mesa /, '')}
                             </div>
                             <div className="min-w-0">
@@ -230,7 +230,7 @@ export function DashboardCocinero() {
 
             <div className="space-y-6">
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <CardTitle className="text-sm sm:text-base">Insumos sin disponibilidad</CardTitle>
@@ -252,7 +252,7 @@ export function DashboardCocinero() {
                       {resumen.noDisponibles.slice(0, 6).map((ingrediente) => (
                         <li
                           key={ingrediente._id}
-                          className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-stone-50/70 dark:bg-[#1A1816]/70 border border-stone-200/70 dark:border-stone-800"
+                          className="flex items-center justify-between gap-2 p-2.5 rounded-sm bg-stone-50/70 dark:bg-zinc-950/70 border border-stone-200/70 dark:border-stone-800"
                         >
                           <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 truncate">
                             {ingrediente.nombre}
@@ -272,7 +272,7 @@ export function DashboardCocinero() {
               </Card>
 
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <CardTitle className="text-sm sm:text-base">Tablero de producción</CardTitle>
                   <CardDescription>Pantalla táctil de cocina (KDS)</CardDescription>
                 </CardHeader>
@@ -282,7 +282,7 @@ export function DashboardCocinero() {
                   </p>
                   <Link
                     href="/dashboard/cocina"
-                    className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 min-h-[40px] rounded-xl bg-[#C84B26] text-white text-sm font-semibold hover:bg-[#B23D1B] active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36] focus-visible:ring-offset-2"
+                    className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 min-h-[40px] rounded-sm bg-amber-600 text-stone-950 text-sm font-semibold hover:bg-amber-500 active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                   >
                     <Flame className="w-4 h-4" aria-hidden="true" />
                     Abrir tablero

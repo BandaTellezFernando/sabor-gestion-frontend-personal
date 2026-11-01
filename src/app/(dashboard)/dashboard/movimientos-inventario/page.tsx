@@ -189,7 +189,7 @@ function MovimientosInventarioContent() {
 
       <form
         onSubmit={aplicarFiltros}
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 rounded-sm border border-amber-700/25 bg-zinc-900 p-4 shadow-md"
       >
         <div>
           <label
@@ -203,7 +203,7 @@ function MovimientosInventarioContent() {
             value={codigoPedido}
             onChange={(event) => setCodigoPedido(event.target.value)}
             placeholder="Ej. PED-001"
-            className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100"
+            className="w-full rounded-sm border border-amber-700/30 bg-zinc-950 px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
           />
         </div>
 
@@ -219,7 +219,7 @@ function MovimientosInventarioContent() {
             type="date"
             value={desde}
             onChange={(event) => setDesde(event.target.value)}
-            className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100"
+            className="w-full rounded-sm border border-amber-700/30 bg-zinc-950 px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
           />
         </div>
 
@@ -235,7 +235,7 @@ function MovimientosInventarioContent() {
             type="date"
             value={hasta}
             onChange={(event) => setHasta(event.target.value)}
-            className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100"
+            className="w-full rounded-sm border border-amber-700/30 bg-zinc-950 px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
           />
         </div>
 
@@ -278,7 +278,7 @@ function MovimientosInventarioContent() {
         </Alert>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+      <section className="overflow-hidden rounded-sm border border-amber-700/25 bg-zinc-900 shadow-md">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200 dark:border-stone-800 px-4 py-3">
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-stone-500" />
@@ -369,7 +369,7 @@ function MovimientosInventarioContent() {
                             {movimiento.consumos.map((consumo, indice) => (
                               <article
                                 key={`${movimiento._id}-${consumo.ingrediente}-${indice}`}
-                                className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-3 sm:p-4"
+                                className="rounded-sm border border-amber-700/25 bg-zinc-950/70 p-3 sm:p-4"
                               >
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                   <div>
@@ -380,7 +380,7 @@ function MovimientosInventarioContent() {
                                       Unidad de inventario: {consumo.unidadStock}
                                     </p>
                                   </div>
-                                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 px-3 py-2">
+                                  <div className="rounded-sm bg-amber-950/20 border border-amber-700/30 px-3 py-2">
                                     <span className="block text-xs text-amber-800 dark:text-amber-300">
                                       Consumo total
                                     </span>
@@ -394,7 +394,7 @@ function MovimientosInventarioContent() {
                                   {consumo.detallePlatos.map((detalle, detalleIndice) => (
                                     <div
                                       key={`${detalle.plato}-${detalleIndice}`}
-                                      className="rounded-lg bg-stone-50 dark:bg-stone-950/50 p-3 text-sm"
+                                      className="rounded-sm bg-zinc-950/80 border border-amber-900/20 p-3 text-sm"
                                     >
                                       <p className="font-semibold text-stone-800 dark:text-stone-200">
                                         {detalle.nombrePlato} × {detalle.cantidadPlatos}

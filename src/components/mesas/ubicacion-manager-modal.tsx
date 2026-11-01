@@ -224,7 +224,7 @@ export function UbicacionManagerModal({
           </div>
 
           {ubicaciones.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-stone-300 p-5 text-center text-sm text-stone-500 dark:border-stone-700">
+            <p className="rounded-sm border border-dashed border-stone-300 p-5 text-center text-sm text-stone-500 dark:border-stone-700">
               Todavía no hay ubicaciones registradas. Crea la primera con el formulario.
             </p>
           ) : (
@@ -232,7 +232,7 @@ export function UbicacionManagerModal({
               {ubicaciones.map((ubicacion) => (
                 <li
                   key={ubicacion._id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 p-3 dark:border-stone-800"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-amber-700/25 bg-zinc-950/60 p-3"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="break-words text-sm font-semibold text-stone-900 dark:text-stone-100">

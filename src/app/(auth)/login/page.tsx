@@ -11,7 +11,7 @@ import { BrandLogo } from '@/components/ui/brand-logo';
 import { IconButton } from '@/components/ui/icon-button';
 import { ApiError } from '@/lib/api-error';
 import { getDefaultRouteForRole } from '@/lib/constants';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const { login, user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Redirigir a la ruta por defecto según rol si ya tiene sesión activa
+  // Redirigir según rol si ya tiene sesión activa
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated && user) {
       router.replace(getDefaultRouteForRole(user.rol));
@@ -35,7 +35,7 @@ export default function LoginPage() {
     setErrorMessage(null);
 
     if (!email.trim() || !password) {
-      setErrorMessage('Por favor ingresa tu correo y contraseña.');
+      setErrorMessage('Por favor introduce tus credenciales autorizadas.');
       return;
     }
 
@@ -60,101 +60,184 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-zinc-50 dark:bg-zinc-950">
-      <div className="w-full max-w-md">
-        {/* Identidad Institucional Mishi-Food */}
-        <div className="text-center mb-8 flex flex-col items-center">
-          <BrandLogo size="xl" showText={false} className="mb-4" />
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Mishi-Food
+    <div className="min-h-screen w-full flex flex-col lg:grid lg:grid-cols-2 bg-gradient-to-br from-zinc-950 via-stone-900 to-black text-stone-200 relative overflow-x-hidden selection:bg-amber-500/30 selection:text-amber-200">
+      {/* Resplandores decorativos de fondo sutiles */}
+      <div
+        className="absolute top-1/4 left-10 w-96 h-96 bg-amber-600/10 rounded-full blur-[140px] pointer-events-none"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/5 rounded-full blur-[140px] pointer-events-none"
+        aria-hidden="true"
+      />
+
+      {/* ========================================================
+          FASE 2: SECCIÓN DE PRESENTACIÓN (RESPONSIVA)
+         ======================================================== */}
+      <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-12 xl:p-16 relative z-10 border-b lg:border-b-0 lg:border-r border-amber-900/20 bg-gradient-to-b from-transparent via-zinc-950/20 to-black/40">
+        <div className="w-full max-w-xl mx-auto lg:mx-0">
+          {/* Cabecera de Marca */}
+          <div className="flex items-center gap-3 mb-8">
+            <BrandLogo size="md" showText={false} />
+            <div>
+              <span className="font-serif text-xl sm:text-2xl tracking-wider text-stone-100 font-semibold block">
+                Sabor & Gestión
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-light block">
+                Haute Cuisine & Fine Dining
+              </span>
+            </div>
+          </div>
+
+          {/* Badge Decorativo Minimalista */}
+          <div className="inline-flex items-center gap-2 border border-amber-700/50 text-amber-500 text-xs tracking-widest px-3 py-1 rounded-full mb-6 bg-amber-950/20 backdrop-blur-xs font-medium uppercase shadow-[0_0_15px_rgba(217,119,6,0.1)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            Excelencia Gastronómica
+          </div>
+
+          {/* Titular Principal Escalable */}
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif text-stone-100 font-semibold tracking-tight leading-[1.08] mb-6">
+            El arte de gestionar la{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
+              alta cocina
+            </span>
           </h1>
-          <p className="mt-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Sistema de Gestión Gastronómica
+
+          {/* Subtítulo Descriptivo */}
+          <p className="text-sm md:text-base text-stone-400 font-light max-w-md leading-relaxed mb-8">
+            Una plataforma integral para el control de sala, comandas en tiempo real y excelencia operativa en restaurantes de primer nivel.
           </p>
+
+          {/* Pilares Distintivos */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-amber-900/30">
+            <div className="space-y-1">
+              <span className="font-serif text-sm sm:text-base text-amber-400 font-semibold block">
+                Salón 3D
+              </span>
+              <p className="text-xs text-stone-400 font-light leading-snug">
+                Plano isométrico interactivo en tiempo real.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <span className="font-serif text-sm sm:text-base text-amber-400 font-semibold block">
+                Cocina KDS
+              </span>
+              <p className="text-xs text-stone-400 font-light leading-snug">
+                Pase de platos sincronizado vía WebSockets.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <span className="font-serif text-sm sm:text-base text-amber-400 font-semibold block">
+                Caja & Cuentas
+              </span>
+              <p className="text-xs text-stone-400 font-light leading-snug">
+                Cobro agrupado, QR dinámico y propinas.
+              </p>
+            </div>
+          </div>
+
+          {/* Pie de Marca sutil */}
+          <div className="hidden lg:flex items-center justify-between text-xs text-stone-500 font-light pt-10">
+            <span>Sistema de Gestión Restaurantera Fine Dining</span>
+            <span className="text-amber-500/60 font-mono text-[11px]">v2.0 Alta Gama</span>
+          </div>
         </div>
+      </div>
 
-        {/* Tarjeta de Formulario */}
-        <Card className="shadow-lg border-zinc-200 dark:border-zinc-800">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl">Portal de Acceso Operativo</CardTitle>
-            <CardDescription>
-              Introduce tus credenciales autorizadas para acceder a tu panel de trabajo.
-            </CardDescription>
-          </CardHeader>
+      {/* ========================================================
+          FASE 3: INTEGRACIÓN DEL PANEL DE LOGIN
+         ======================================================== */}
+      <div className="flex items-center justify-center p-6 sm:p-8 lg:p-12 w-full relative z-10 lg:bg-transparent">
+        <div className="w-full max-w-md mx-auto">
+          {/* Tarjeta de Acceso Fine Dining con Backdrop Blur */}
+          <Card className="backdrop-blur-md bg-zinc-900/80 border border-amber-700/30 shadow-[0_15px_50px_rgba(0,0,0,0.85)] rounded-sm overflow-hidden w-full max-w-md mx-auto">
+            <CardHeader className="text-center pb-3 border-b border-amber-900/30 bg-zinc-950/40">
+              <div className="lg:hidden flex justify-center mb-3">
+                <BrandLogo size="lg" showText={false} />
+              </div>
+              <CardTitle className="font-serif text-2xl tracking-wide text-stone-100 font-bold">
+                Acceso al Sistema
+              </CardTitle>
+              <CardDescription className="text-stone-400 font-light text-xs mt-1.5">
+                Introduce tus credenciales autorizadas para ingresar a sala, cocina o administración.
+              </CardDescription>
+            </CardHeader>
 
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-4">
-              {errorMessage && (
-                <Alert variant="error" title="Error de autenticación">
-                  {errorMessage}
-                </Alert>
-              )}
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-4 pt-6 pb-5">
+                {errorMessage && (
+                  <Alert variant="error" title="Fallo de autenticación">
+                    {errorMessage}
+                  </Alert>
+                )}
 
-              <Input
-                label="Correo Electrónico"
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="usuario@mishi.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
-                required
-                leftIcon={<Mail className="w-4 h-4" />}
-              />
+                <Input
+                  label="Correo Electrónico"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="sommelier@saborygestion.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                  leftIcon={<Mail className="w-4 h-4 text-amber-500/70" />}
+                />
 
-              <Input
-                label="Contraseña"
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting}
-                required
-                leftIcon={<Lock className="w-4 h-4" />}
-                rightElement={
-                  <IconButton
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4 text-zinc-500" />
-                    ) : (
-                      <Eye className="w-4 h-4 text-zinc-500" />
-                    )}
-                  </IconButton>
-                }
-              />
-            </CardContent>
+                <Input
+                  label="Contraseña"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                  leftIcon={<Lock className="w-4 h-4 text-amber-500/70" />}
+                  rightElement={
+                    <IconButton
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                      title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4 text-stone-400" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-stone-400" />
+                      )}
+                    </IconButton>
+                  }
+                />
+              </CardContent>
 
-            <CardFooter className="flex flex-col gap-3 pt-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full"
-                isLoading={isSubmitting}
-              >
-                {isSubmitting ? 'Ingresando al sistema...' : 'Ingresar al Sistema'}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
+              <CardFooter className="flex flex-col gap-3 pt-3 pb-5 border-t border-amber-900/30 bg-zinc-950/60">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center shadow-[0_0_15px_rgba(217,119,6,0.2)] font-semibold"
+                  isLoading={isSubmitting}
+                >
+                  {isSubmitting ? 'Ingresando...' : 'Iniciar Sesión'}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
 
-        {/* Leyenda de Seguridad Operativa y Vigencia */}
-        <div className="mt-6 text-center space-y-2">
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">
-            Sistema de uso exclusivo para personal autorizado de Mishi-Food. Las sesiones tienen una vigencia máxima de 8 horas.
-          </p>
-          <p className="text-[11px] text-zinc-400 dark:text-zinc-600">
-            Acceso habilitado para Administrador, Mesero, Cajero y Cocinero.
-          </p>
+          {/* Leyenda de Seguridad */}
+          <div className="mt-6 text-center space-y-2">
+            <div className="inline-flex items-center gap-1.5 text-xs text-stone-400 font-light">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
+              <span>Conexión cifrada y sesión protegida con JWT tokenizado</span>
+            </div>
+            <p className="text-[11px] text-amber-500/60 uppercase tracking-widest font-mono">
+              Admin · Sala · Caja · Cocina
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -592,18 +592,18 @@ const Baldosa = React.memo(function Baldosa({
         className={`w-full h-full pointer-events-none transition-colors duration-100 ${
           isWall
             ? isEditMode
-              ? 'opacity-25 hover:opacity-50 border border-dashed border-stone-500/50 bg-stone-500/10'
+              ? 'opacity-20 hover:opacity-40 border border-dashed border-stone-800 bg-stone-900/10'
               : 'opacity-0'
             : isEditMode
             ? hasSelectedTable
-              ? 'bg-stone-800/80 border border-stone-600 ring-2 ring-cyan-400 bg-cyan-500/20'
-              : 'bg-stone-800/70 border border-stone-700/80 hover:bg-stone-700/80'
-            : 'bg-stone-800/60 dark:bg-stone-800/80 border border-stone-700 dark:border-stone-600/90 shadow-xs'
+              ? 'bg-zinc-900 border border-amber-500/70 ring-1 ring-amber-400 bg-amber-500/10'
+              : 'bg-zinc-900/90 border border-amber-900/20 hover:bg-zinc-850'
+            : 'bg-zinc-900/85 border border-amber-900/15 shadow-xs'
         }`}
       >
         {/* Losa activa: reflejo sutil */}
         {!isWall && (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/25 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-black/35 pointer-events-none" />
         )}
 
         {/* Glifo '+' en baldosas vacías en modo edición */}
@@ -686,7 +686,7 @@ function ZonaViewport({
   const count = zona.mesas.length;
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-stone-200 dark:border-stone-800/80 bg-stone-900/5 dark:bg-black/30 p-3 sm:p-5 lg:p-6 overflow-hidden relative shadow-sm w-full">
+    <div className="rounded-sm border border-amber-700/25 bg-zinc-950/80 shadow-xs p-3 sm:p-5 lg:p-6 overflow-hidden relative shadow-sm w-full">
       {/* Encabezado de la Zona */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 pb-2 border-b border-stone-200/60 dark:border-stone-800">
         <div className="flex items-center gap-2">
@@ -703,7 +703,7 @@ function ZonaViewport({
           <button
             type="button"
             onClick={centerViewport}
-            className="flex items-center gap-1 text-xs font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 transition-colors shadow-2xs"
+            className="flex items-center gap-1 text-xs font-medium text-stone-300 hover:text-white px-2.5 py-1 rounded-sm border border-amber-700/30 bg-zinc-900 hover:border-amber-500 transition-colors shadow-xs"
             title="Centrar la cámara en el medio del plano"
           >
             <Compass className="w-3.5 h-3.5 text-primary" />
@@ -714,7 +714,7 @@ function ZonaViewport({
             <button
               type="button"
               onClick={() => onResetZoneLayout(zona.nombre)}
-              className="flex items-center gap-1 text-xs text-stone-500 hover:text-rose-600 dark:hover:text-rose-400 px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 transition-colors"
+              className="flex items-center gap-1 text-xs text-stone-400 hover:text-rose-400 px-2.5 py-1 rounded-sm border border-amber-700/30 bg-zinc-900 transition-colors"
               title="Restablece todas las baldosas a suelo completo"
             >
               <RotateCcw className="w-3 h-3" />
@@ -727,11 +727,11 @@ function ZonaViewport({
       {/* CONTENEDOR VIEWPORT SCROLLABLE ADAPTATIVO */}
       <div
         ref={viewportRef}
-        className="w-full h-[460px] sm:h-[580px] lg:h-[660px] overflow-auto relative rounded-xl sm:rounded-2xl border border-stone-200/80 dark:border-stone-800/80 bg-stone-950/20 dark:bg-black/50 shadow-inner scroll-smooth touch-pan-x touch-pan-y"
+        className="w-full h-[460px] sm:h-[580px] lg:h-[660px] overflow-auto relative rounded-sm border border-amber-900/25 bg-zinc-950/90 shadow-inner shadow-inner scroll-smooth touch-pan-x touch-pan-y"
       >
         {/* HUD FLOTANTE SUPERIOR IZQUIERDO */}
         <div className="sticky top-2 sm:top-4 left-2 sm:left-4 z-50 pointer-events-auto inline-block max-w-[calc(100vw-3rem)] sm:max-w-sm">
-          <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-stone-900/90 dark:bg-stone-900/95 border border-stone-700/80 text-stone-100 shadow-2xl backdrop-blur-md space-y-2 text-xs">
+          <div className="p-2.5 sm:p-3.5 rounded-sm bg-zinc-950/95 border border-amber-700/30 text-stone-200 shadow-2xl backdrop-blur-md space-y-2 text-xs">
             <div className="flex items-center justify-between gap-2 border-b border-stone-700/60 pb-1.5">
               <div className="flex items-center gap-1.5 font-bold text-stone-200">
                 {isEditMode ? (
@@ -792,7 +792,7 @@ function ZonaViewport({
                     <span className="w-2 h-2 rounded-full bg-emerald-500" /> Libre
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-[#C84B26]" /> Ocupada
+                    <span className="w-2 h-2 rounded-full bg-amber-600 shadow-[0_0_8px_rgba(217,119,6,0.3)]" /> Ocupada
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-amber-500" /> Cuenta
@@ -1369,7 +1369,7 @@ export function MapaIsometrico({
   return (
     <div className={`space-y-4 select-none ${className}`}>
       {/* Barra de Controles y Selector de Zonas */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-sm bg-zinc-900 border border-amber-700/25 shadow-xs">
         <div className="flex items-center gap-2.5">
           <Layers className="w-5 h-5 text-primary" />
           <div>
@@ -1401,10 +1401,10 @@ export function MapaIsometrico({
                 setSelectedTableId(null);
                 setInternalEditMode((prev) => !prev);
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all shadow-xs ${
                 isEditMode
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
-                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300'
+                  ? 'bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-[0_0_15px_rgba(217,119,6,0.25)] font-semibold'
+                  : 'bg-zinc-900 hover:bg-zinc-800 text-stone-300 border border-amber-700/30'
               }`}
               title={isEditMode ? 'Terminar edición y volver al modo operativo' : 'Activar modo edición del plano'}
             >
@@ -1423,10 +1423,10 @@ export function MapaIsometrico({
               <button
                 type="button"
                 onClick={() => setZonaActiva('todas')}
-                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                className={`px-3 py-1 text-xs font-medium rounded-sm transition-all ${
                   zonaActiva === 'todas'
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    ? 'bg-amber-600 text-stone-950 font-semibold shadow-[0_0_12px_rgba(217,119,6,0.2)]'
+                    : 'bg-zinc-900/90 text-stone-300 border border-amber-700/25 hover:border-amber-500/50'
                 }`}
               >
                 Todas ({mesas.length})
@@ -1436,10 +1436,10 @@ export function MapaIsometrico({
                   key={`zona-tab-${z.nombre.toLowerCase().trim()}-${idx}`}
                   type="button"
                   onClick={() => setZonaActiva(z.nombre)}
-                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                  className={`px-3 py-1 text-xs font-medium rounded-sm transition-all ${
                     zonaActiva === z.nombre
-                      ? 'bg-primary text-white shadow-xs'
-                      : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      ? 'bg-amber-600 text-stone-950 font-semibold shadow-[0_0_12px_rgba(217,119,6,0.2)]'
+                      : 'bg-zinc-900/90 text-stone-300 border border-amber-700/25 hover:border-amber-500/50'
                   }`}
                 >
                   {z.nombre} ({z.mesas.length})
@@ -1452,7 +1452,7 @@ export function MapaIsometrico({
 
       {/* Renderizado de Planos por cada Zona */}
       {zonasFiltradas.length === 0 ? (
-        <div className="p-16 text-center rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+        <div className="p-16 text-center rounded-sm border border-amber-700/25 bg-zinc-900">
           <p className="text-sm text-stone-500 dark:text-stone-400">
             No se encontraron mesas activas para la zona seleccionada.
           </p>

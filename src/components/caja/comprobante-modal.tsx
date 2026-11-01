@@ -100,7 +100,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
       maxWidth="md"
     >
       <div className="space-y-5">
-        <div className="flex flex-col items-center justify-center text-center p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800">
+        <div className="flex flex-col items-center justify-center text-center p-4 rounded-sm bg-emerald-950/40 border border-emerald-800/40 text-emerald-200">
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2">
             <CheckCircle2 className="w-7 h-7" />
           </div>
@@ -111,8 +111,8 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
           {comprobante.codigoPago && <p className="text-xs font-mono mt-2 text-emerald-800 dark:text-emerald-300">Pago: {comprobante.codigoPago}</p>}
         </div>
 
-        <div className="p-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900 space-y-3 text-xs">
-          <div className="flex justify-between items-center gap-3 pb-2 border-b border-stone-200 dark:border-stone-800">
+        <div className="p-4 rounded-sm border border-amber-700/25 bg-zinc-950/70 space-y-3 text-xs">
+          <div className="flex justify-between items-center gap-3 pb-2 border-b border-amber-700/25">
             <span className="text-stone-500 dark:text-stone-400">Fecha y hora (BO)</span>
             <span className="font-semibold text-right text-stone-800 dark:text-stone-200">{comprobante.fechaBolivia}</span>
           </div>
@@ -141,7 +141,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
             </div>
           )}
 
-          <div className="pt-2 border-t border-stone-200 dark:border-stone-800 space-y-1">
+          <div className="pt-2 border-t border-amber-700/25 space-y-1">
             <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Subtotal</span><span className="font-mono">Bs {Number(comprobante.subtotal || 0).toFixed(2)}</span></div>
             {Number(comprobante.montoDescuento || 0) > 0 && (
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400"><span>Descuento aplicado</span><span className="font-mono">- Bs {Number(comprobante.montoDescuento).toFixed(2)}</span></div>
@@ -155,18 +155,18 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
             {comprobante.metodoPago === 'Efectivo' && comprobante.cambio !== undefined && (
               <div className="flex justify-between text-stone-600 dark:text-stone-400"><span>Cambio</span><span className="font-mono">Bs {Number(comprobante.cambio).toFixed(2)}</span></div>
             )}
-            <div className="flex justify-between items-center pt-2 border-t border-stone-200 dark:border-stone-800 text-sm font-bold text-stone-900 dark:text-stone-100">
+            <div className="flex justify-between items-center pt-2 border-t border-amber-700/25 text-sm font-bold text-stone-900 dark:text-stone-100">
               <span>Total pagado</span>
-              <span className="text-base text-[#C84B26] dark:text-[#E05A36]">Bs {Number(comprobante.totalPagado || comprobante.total || 0).toFixed(2)}</span>
+              <span className="text-base font-serif text-lg font-bold text-amber-400">Bs {Number(comprobante.totalPagado || comprobante.total || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
 
         {comprobante.comprobantePdf && (
-          <div className="p-3.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 space-y-2">
+          <div className="p-3.5 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300">
               <FileText className="w-4 h-4 text-primary" />
-              <span>Comprobante PDF detallado de Mishi-Food</span>
+              <span>Comprobante PDF detallado de Sabor & Gestión</span>
             </div>
             <p className="text-xs text-stone-500 dark:text-stone-400">Incluye todas las comandas, productos, cantidades, precios unitarios, subtotales, observaciones y resumen del pago.</p>
             <Button type="button" variant="outline" size="sm" onClick={descargarPdf} className="w-full justify-center" leftIcon={<Download className="w-4 h-4" />}>
@@ -175,7 +175,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
           </div>
         )}
 
-        <div className="p-3.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 space-y-2">
+        <div className="p-3.5 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300"><Mail className="w-4 h-4 text-primary" /><span>Enviar comprobante digital por correo</span></div>
             {emailSuccess && <Alert variant="success" className="text-xs py-2">{emailSuccess}</Alert>}
             {emailError && <Alert variant="error" className="text-xs py-2">{emailError}</Alert>}
@@ -187,7 +187,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
             </form>
           </div>
 
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-200 dark:border-stone-800">
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-amber-700/25">
           <Button type="button" variant="outline" size="sm" onClick={handleImprimir} leftIcon={<Printer className="w-4 h-4" />}>Abrir / imprimir PDF</Button>
           <Button type="button" variant="primary" size="md" onClick={onClose} leftIcon={<Check className="w-4 h-4" />}>Aceptar y finalizar</Button>
         </div>

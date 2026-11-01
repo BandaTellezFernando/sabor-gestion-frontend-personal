@@ -18,17 +18,17 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 ${className}`}
+      className={`flex flex-col items-center justify-center p-8 text-center rounded-sm border border-dashed border-amber-900/30 bg-zinc-900/30 ${className}`}
     >
       <div
-        className="flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 mb-3"
+        className="flex items-center justify-center w-12 h-12 rounded-sm bg-zinc-950 border border-amber-800/30 text-amber-500/70 mb-3"
         aria-hidden="true"
       >
-        <Icon className="w-6 h-6" />
+        <Icon className="w-5 h-5" />
       </div>
-      <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h4>
+      <h4 className="font-serif text-base font-medium tracking-wide text-stone-200">{title}</h4>
       {description && (
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 max-w-sm">
+        <p className="mt-1 text-xs text-stone-400 font-light max-w-sm">
           {description}
         </p>
       )}

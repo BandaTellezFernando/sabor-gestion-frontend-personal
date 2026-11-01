@@ -154,7 +154,7 @@ export function DashboardCajero() {
 
       {isLoading && !hasLoaded ? (
         <div className="py-20 text-center">
-          <Spinner size="lg" className="text-[#C84B26] mx-auto" />
+          <Spinner size="lg" className="text-amber-500 mx-auto" />
           <p className="mt-3 text-sm font-medium text-stone-500 dark:text-stone-400">
             Consultando las cuentas pendientes de cobro...
           </p>
@@ -183,17 +183,17 @@ export function DashboardCajero() {
               label="Propinas incluidas"
               value={formatBs(resumen.propinas)}
               description="Acumulado de las cuentas pendientes"
-              iconColor="text-[#C84B26] dark:text-[#E05A36]"
-              iconBgColor="bg-[#C84B26]/10 dark:bg-[#C84B26]/20"
+              iconColor="text-amber-500"
+              iconBgColor="bg-amber-950/40 border border-amber-800/30"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <Card className="lg:col-span-2">
-              <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+              <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                    <div className="p-1.5 rounded-sm bg-amber-500/10 text-amber-700 dark:text-amber-400">
                       <Receipt className="w-4 h-4" />
                     </div>
                     <div>
@@ -220,7 +220,7 @@ export function DashboardCajero() {
                       <li key={cuenta._id}>
                         <Link
                           href="/dashboard/caja"
-                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-xl px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36]"
+                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3 rounded-sm px-2 transition-colors hover:bg-stone-50/70 dark:hover:bg-stone-800/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -260,7 +260,7 @@ export function DashboardCajero() {
 
             <div className="space-y-6">
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <CardTitle className="text-sm sm:text-base">Cobro inmediato</CardTitle>
                   <CardDescription>Estación de caja y facturación</CardDescription>
                 </CardHeader>
@@ -271,7 +271,7 @@ export function DashboardCajero() {
                   </p>
                   <Link
                     href="/dashboard/caja"
-                    className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 min-h-[40px] rounded-xl bg-[#C84B26] text-white text-sm font-semibold hover:bg-[#B23D1B] active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A36] focus-visible:ring-offset-2"
+                    className="inline-flex w-full items-center justify-center gap-2 px-4 py-2 min-h-[40px] rounded-sm bg-amber-600 text-stone-950 text-sm font-semibold hover:bg-amber-500 active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                   >
                     <CreditCard className="w-4 h-4" aria-hidden="true" />
                     Ir a caja
@@ -281,7 +281,7 @@ export function DashboardCajero() {
               </Card>
 
               <Card>
-                <CardHeader className="bg-stone-50/60 dark:bg-[#1A1816]/60">
+                <CardHeader className="bg-zinc-950/60 border-b border-amber-900/30">
                   <CardTitle className="text-sm sm:text-base">Métodos permitidos</CardTitle>
                   <CardDescription>Los tres únicos métodos del sistema</CardDescription>
                 </CardHeader>
