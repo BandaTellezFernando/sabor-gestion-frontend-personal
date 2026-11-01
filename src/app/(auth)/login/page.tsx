@@ -81,7 +81,7 @@ export default function LoginPage() {
             <BrandLogo size="md" showText={false} />
             <div>
               <span className="font-serif text-xl sm:text-2xl tracking-wider text-stone-100 font-semibold block">
-                Sabor & Gestión
+                Mishi-Food
               </span>
               <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-light block">
                 Haute Cuisine & Fine Dining

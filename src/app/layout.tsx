@@ -17,7 +17,7 @@ const inter = Inter({
 import { AuthProvider } from "@/components/providers/auth-provider";
 
 export const metadata: Metadata = {
-  title: "Sabor & Gestión | Haute Cuisine & Luxury Dining",
+  title: "Mishi-Food | Haute Cuisine & Luxury Dining",
   description: "Plataforma de alta gastronomía y gestión de restaurante de ultra lujo",
 };
 

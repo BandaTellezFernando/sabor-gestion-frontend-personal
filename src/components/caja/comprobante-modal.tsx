@@ -166,7 +166,7 @@ export function ComprobanteModal({ isOpen, onClose, comprobante }: ComprobanteMo
           <div className="p-3.5 rounded-sm border border-amber-700/25 bg-zinc-900 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300">
               <FileText className="w-4 h-4 text-primary" />
-              <span>Comprobante PDF detallado de Sabor & Gestión</span>
+              <span>Comprobante PDF detallado de Mishi-Food</span>
             </div>
             <p className="text-xs text-stone-500 dark:text-stone-400">Incluye todas las comandas, productos, cantidades, precios unitarios, subtotales, observaciones y resumen del pago.</p>
             <Button type="button" variant="outline" size="sm" onClick={descargarPdf} className="w-full justify-center" leftIcon={<Download className="w-4 h-4" />}>

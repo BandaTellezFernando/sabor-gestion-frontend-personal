@@ -84,7 +84,7 @@ export function Header({ onOpenMobileMenu, showSidebar = true, allowedRoutes = [
 
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5 text-xs text-amber-500/70 font-light tracking-wide">
-              <span>Sabor & Gestión</span>
+              <span>Mishi-Food</span>
               <span className="text-stone-600">/</span>
               <span className="text-stone-300 font-normal">{moduleTitle}</span>
             </div>
@@ -99,7 +99,7 @@ export function Header({ onOpenMobileMenu, showSidebar = true, allowedRoutes = [
           <Link
             href={getDefaultRouteForRole(user.rol)}
             className="flex items-center gap-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 rounded-sm shrink-0"
-            title="Sabor & Gestión - Inicio"
+            title="Mishi-Food - Inicio"
           >
             <BrandLogo size="sm" showText={true} className="hidden md:inline-flex" subtitle="Alta Gastronomía" />
             <BrandLogo size="sm" showText={false} className="md:hidden" />

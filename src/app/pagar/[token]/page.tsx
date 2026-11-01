@@ -1,3 +1,4 @@
+//src/app/pagar/[token]/page.tsx
 'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -195,7 +196,7 @@ export default function PagarCuentaQRPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm bg-gradient-to-br from-amber-700 via-amber-800 to-stone-950 text-amber-200 border border-amber-600/50 shadow-[0_0_20px_rgba(217,119,6,0.25)]">
             <Utensils className="h-7 w-7" />
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-stone-100">Sabor & Gestión</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-stone-100">Mishi-Food</h1>
           <p className="text-xs uppercase tracking-widest text-amber-500/80 font-light">Alta Gastronomía · Facturación & Pago QR</p>
         </header>
         {error && <Alert variant="error">{error}</Alert>}

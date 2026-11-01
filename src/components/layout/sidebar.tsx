@@ -86,7 +86,7 @@ export function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
         <Link
           href={getDefaultRouteForRole(user.rol)}
           className="flex items-center gap-2 overflow-hidden focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 rounded-sm"
-          title="Sabor & Gestión - Haute Cuisine"
+          title="Mishi-Food - Haute Cuisine"
         >
           <BrandLogo size={isCollapsed ? 'sm' : 'md'} showText={!isCollapsed} subtitle="Haute Cuisine" />
         </Link>

@@ -58,7 +58,7 @@ export function BrandLogo({
       {showText && (
         <div className={`flex flex-col leading-tight ${textClassName}`}>
           <span className={`text-stone-100 font-semibold tracking-wide ${config.title}`}>
-            Sabor & Gestión
+            Mishi-Food
           </span>
           {subtitle && (
             <span className={`text-amber-500/80 font-light uppercase ${config.sub}`}>

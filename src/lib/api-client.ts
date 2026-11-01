@@ -10,7 +10,7 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 /**
- * Cliente HTTP centralizado para Sabor & Gestión.
+ * Cliente HTTP centralizado para Mishi-Food.
  * Utiliza fetch nativo, maneja autorización Bearer, errores estándar y serialización JSON.
  */
 class ApiClient {

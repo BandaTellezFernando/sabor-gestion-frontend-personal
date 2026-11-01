@@ -119,7 +119,7 @@ function DashboardAdminContent() {
                 <ChefHat className="w-5 h-5" />
               </span>
               <h1 className="font-serif text-xl sm:text-2xl font-semibold tracking-wide text-stone-100">
-                Panel de Control — Sabor & Gestión
+                Panel de Control — Mishi-Food
               </h1>
               <Badge variant="admin" className="text-xs ml-1">
                 {ROL_LABELS[user.rol]}
